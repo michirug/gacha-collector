@@ -91,7 +91,17 @@ class GachaRepository {
 
 List<GachaSeries> parseGachaSeriesList(String jsonString) {
   final List<dynamic> jsonList = jsonDecode(jsonString);
-  return jsonList
+  final seriesList = jsonList
       .map((jsonItem) => GachaSeries.fromJson(jsonItem as Map<String, dynamic>))
       .toList();
+  final originalIndex = <GachaSeries, int>{};
+  for (var i = 0; i < seriesList.length; i++) {
+    originalIndex[seriesList[i]] = i;
+  }
+  seriesList.sort((a, b) {
+    final comparison = b.releaseDate.compareTo(a.releaseDate);
+    if (comparison != 0) return comparison;
+    return originalIndex[b]!.compareTo(originalIndex[a]!);
+  });
+  return seriesList;
 }

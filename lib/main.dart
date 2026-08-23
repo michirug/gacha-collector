@@ -691,6 +691,8 @@ class _ItemListPageState extends State<ItemListPage> {
             Padding(padding: const EdgeInsets.all(16.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Text('種類: ${widget.series.gachaType.label}'),
               Text('価格: ${widget.series.price}円'),
+              if (widget.series.releaseDateText.isNotEmpty)
+                Text('発売時期: ${widget.series.releaseDateText}'),
               if (widget.series.numTypes != null && widget.series.numTypes!.isNotEmpty)
                 Text(widget.series.numTypes!),
               if (widget.series.targetAge != null && widget.series.targetAge!.isNotEmpty)
