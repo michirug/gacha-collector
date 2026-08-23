@@ -8,9 +8,9 @@ import 'models.dart';
 import 'share_card.dart';
 
 const String kPrivacyPolicyUrl =
-    'https://github.com/michirug/gacha-collector/blob/main/docs/privacy_policy.md';
+    'https://michirug.github.io/gacha-collector/privacy/';
 const String kTermsOfServiceUrl =
-    'https://github.com/michirug/gacha-collector/blob/main/docs/terms_of_service.md';
+    'https://michirug.github.io/gacha-collector/terms/';
 
 void main() {
   runApp(const GachaCollectorApp());
