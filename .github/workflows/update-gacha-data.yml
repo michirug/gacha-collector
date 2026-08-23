@@ -1,0 +1,38 @@
+name: ガチャデータ自動更新
+
+on:
+  schedule:
+    # 毎週月曜 21:00 UTC (火曜 6:00 JST)
+    - cron: '0 21 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: 依存関係の取得
+        run: flutter pub get
+
+      - name: クローラー実行
+        run: dart run tool/crawl_gashapon.dart 100
+
+      - name: 変更があればコミット
+        run: |
+          if git diff --quiet assets/gacha_data.json; then
+            echo "変更なし"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add assets/gacha_data.json
+            git commit -m "chore: ガチャデータ自動更新"
+            git push
+          fi

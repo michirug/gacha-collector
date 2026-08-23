@@ -343890,5 +343890,106 @@
         "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000237828_3.jpg"
       }
     ]
+  },
+  {
+    "jan_code": 4582770055634000,
+    "category": "station",
+    "title": "＠CTION RIDE（アクションライド） 仮面ライダー6",
+    "price": "500円",
+    "release_date": "2026年8月 第5週",
+    "num_types": "全4種",
+    "target_age": "15才以上",
+    "description": "仮面ライダーのコレクションフィギュア「アクションライド」第6弾が登場！バイクに乗った仮面ライダーと専用台座がセットになっており、台座のボールジョイントにより「ウィリー」、「ドリフト」、「ジャンプ」など様々なライディングアクションが自由自在に楽しめる！さらに、マスクの複眼はクリア造形のハイクオリティ仕様！",
+    "special_site_name": "",
+    "additional_notes": "",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255209_1.jpg",
+    "items": [
+      {
+        "title": "仮面ライダーブレイド",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255209_2.jpg"
+      },
+      {
+        "title": "仮面ライダーフォーゼ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255209_3.jpg"
+      },
+      {
+        "title": "仮面ライダービルド",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255209_4.jpg"
+      },
+      {
+        "title": "仮面ライダーストロンガー",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255209_5.jpg"
+      }
+    ]
+  },
+  {
+    "jan_code": 4570118186607000,
+    "category": "station",
+    "title": "TOY STORY5 ブリスターチャームコレクション",
+    "price": "400円",
+    "release_date": "2026年8月 第5週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "description": "「TOY STORY5」がパッケージ入りチャームになって登場！※本商品は、初回発売後、複数回の出荷を予定しております。",
+    "special_site_name": "",
+    "additional_notes": "",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255271_1.jpg",
+    "items": [
+      {
+        "title": "ウッディ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255271_2.jpg"
+      },
+      {
+        "title": "バズ・ライトイヤー",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255271_3.jpg"
+      },
+      {
+        "title": "ジェシー",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255271_4.jpg"
+      },
+      {
+        "title": "ブルズアイ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255271_5.jpg"
+      },
+      {
+        "title": "リリーパッド",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255271_6.jpg"
+      }
+    ]
+  },
+  {
+    "jan_code": 4582770069488000,
+    "category": "station",
+    "title": "取り込んじゃった！おばけさんこれくしょん！",
+    "price": "400円",
+    "release_date": "2026年8月 第5週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "description": "おばけさんの中身が見えて取り込んじゃったみたい！な、ペン立て・小物入れになるコレクションが登場！全長約6cmの満足感あるサイズです。スタンドタイプにはペンやマスカラ・リップを立てられ、小物入れタイプはアクセサリーやクリップが収納可能！クリアで入れたものが透けてみえるのがおばけさんらしい、可愛くて実用的なフィギュアです。",
+    "special_site_name": "",
+    "additional_notes": "",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255197_1.jpg",
+    "items": [
+      {
+        "title": "【スタンドタイプ】わー！",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255197_2.jpg"
+      },
+      {
+        "title": "【スタンドタイプ】フリルリボンちゃん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255197_3.jpg"
+      },
+      {
+        "title": "【スタンドタイプ】わんちゃん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255197_4.jpg"
+      },
+      {
+        "title": "【小物入れタイプ】ねこちゃん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255197_5.jpg"
+      },
+      {
+        "title": "【小物入れタイプ】まるごと！",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255197_6.jpg"
+      }
+    ]
   }
 ]
