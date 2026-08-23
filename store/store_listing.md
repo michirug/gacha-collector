@@ -69,7 +69,7 @@ Play Console の各フォームにそのまま貼り付け/選択できる回答
 
 ### 連絡先情報
 
-- メールアドレス: 【要記入 ※ストアに公開されます】
+- メールアドレス: info@contentsmarketing.co.jp ※ストアに公開されます
 - ウェブサイト(任意): https://michirug.github.io/gacha-collector/
 - 電話番号(任意): 記入不要
 
@@ -113,7 +113,7 @@ https://michirug.github.io/gacha-collector/privacy/
 
 ## 4. コンテンツレーティング(IARCアンケート)回答案
 
-- **メールアドレス**: 【要記入】
+- **メールアドレス**: info@contentsmarketing.co.jp
 - **カテゴリ**: ユーティリティ、生産性、コミュニケーション、その他
 - 暴力的なコンテンツ: **いいえ**
 - 性的なコンテンツ: **いいえ**
@@ -173,7 +173,7 @@ https://michirug.github.io/gacha-collector/privacy/
 
 ## 8. 提出前チェックリスト
 
-- [ ] docs/privacy_policy.md と docs/terms_of_service.md の【運営者名】【メールアドレス】を実際の値に置換
+- [x] docs/privacy_policy.md と docs/terms_of_service.md の運営者名・メールアドレスを記入済み(コンテンツマーケティング合同会社 / info@contentsmarketing.co.jp)
 - [ ] GitHub Pages を有効化し、上記URLが開けることを確認
 - [ ] アプリアイコン(512×512)を作成し、アプリ本体のランチャーアイコンも差し替え
 - [ ] フィーチャーグラフィック(1024×500)を作成
