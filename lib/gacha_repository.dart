@@ -10,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'models.dart';
 
-const String kRemoteDataUrl = '';
+const String kRemoteDataUrl =
+    'https://raw.githubusercontent.com/michirug/gacha-collector/main/assets/gacha_data.json';
 
 class GachaRepository {
   static Future<List<GachaSeries>>? _cache;
