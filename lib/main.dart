@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'achievements.dart';
 import 'celebration.dart';
 import 'collection_store.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
 import 'share_card.dart';
+
+const String kPrivacyPolicyUrl =
+    'https://github.com/michirug/gacha-collector/blob/main/docs/privacy_policy.md';
+const String kTermsOfServiceUrl =
+    'https://github.com/michirug/gacha-collector/blob/main/docs/terms_of_service.md';
 
 void main() {
   runApp(const GachaCollectorApp());
@@ -373,10 +379,36 @@ class _MyPageState extends State<MyPage> {
             ..._wishedSeries.map(_buildWishCard),
             if (_collectedSeries.isNotEmpty) _buildSectionHeader('獲得中のシリーズ'),
             ..._collectedSeries.map(_buildCollectedCard),
+            _buildSectionHeader('このアプリについて'),
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.privacy_tip_outlined),
+                    title: const Text('プライバシーポリシー'),
+                    trailing: const Icon(Icons.open_in_new, size: 18),
+                    onTap: () => _openUrl(kPrivacyPolicyUrl),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.description_outlined),
+                    title: const Text('利用規約'),
+                    trailing: const Icon(Icons.open_in_new, size: 18),
+                    onTap: () => _openUrl(kTermsOfServiceUrl),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> _openUrl(String url) async {
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
   }
 
   Future<void> _shareSummary() async {
