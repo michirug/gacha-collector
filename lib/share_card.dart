@@ -99,7 +99,7 @@ class _ShareCardFrame extends StatelessWidget {
       child: Column(
         children: [
           Expanded(child: child),
-          const Text('#ガチャコレクション',
+          const Text('#ガチャ活ポケット',
               style: TextStyle(fontSize: 12, color: Colors.white70)),
         ],
       ),

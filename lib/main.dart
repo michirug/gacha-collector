@@ -23,7 +23,7 @@ class GachaCollectorApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'ガチャコレクション',
+      title: 'ガチャ活ポケット',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -151,7 +151,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('ガチャコレクション'), backgroundColor: Colors.deepPurple[100],),
+      appBar: AppBar(title: const Text('ガチャ活ポケット'), backgroundColor: Colors.deepPurple[100],),
       body: Column(
         children: [
           Padding(padding: const EdgeInsets.all(8.0), child: TextField(onChanged: (value) => _runFilter(value), decoration: const InputDecoration(labelText: '検索', suffixIcon: Icon(Icons.search),),),),
@@ -427,7 +427,7 @@ class _MyPageState extends State<MyPage> {
         totalAchievements: allAchievements.length,
       ),
       'gacha_collection_summary.png',
-      'ガチャコレクションの記録 #ガチャコレクション',
+      'ガチャ活の記録 #ガチャ活ポケット #ガチャ活',
     );
   }
 
@@ -697,7 +697,7 @@ class _ItemListPageState extends State<ItemListPage> {
       context,
       buildSeriesShareCard(series: widget.series, collected: collected, total: total),
       'gacha_series_share.png',
-      '「${widget.series.name}」獲得 $collected/$total #ガチャコレクション',
+      '「${widget.series.name}」獲得 $collected/$total #ガチャ活ポケット #ガチャ活',
     );
   }
 
