@@ -89,6 +89,8 @@ class _HomePageState extends State<HomePage> {
   List<GachaSeries> _allSeries = [];
   List<GachaSeries> _foundSeries = [];
   Set<String> _wishlist = {};
+  GachaType? _selectedType;
+  String _keyword = '';
   bool _isLoading = true;
   @override
   void initState() {
@@ -121,12 +123,20 @@ class _HomePageState extends State<HomePage> {
     setState(() { _wishlist = wishlist; });
   }
   void _runFilter(String enteredKeyword) {
-    List<GachaSeries> results = [];
-    if (enteredKeyword.isEmpty) {
-      results = _allSeries;
-    } else {
-      results = _allSeries.where((series) => series.name.toLowerCase().contains(enteredKeyword.toLowerCase())).toList();
-    }
+    _keyword = enteredKeyword;
+    _applyFilters();
+  }
+  void _selectType(GachaType? type) {
+    _selectedType = type;
+    _applyFilters();
+  }
+  void _applyFilters() {
+    final keyword = _keyword.toLowerCase();
+    final results = _allSeries.where((series) {
+      final matchesKeyword = keyword.isEmpty || series.name.toLowerCase().contains(keyword);
+      final matchesType = _selectedType == null || series.gachaType == _selectedType;
+      return matchesKeyword && matchesType;
+    }).toList();
     setState(() { _foundSeries = results; });
   }
   @override
@@ -136,6 +146,18 @@ class _HomePageState extends State<HomePage> {
       body: Column(
         children: [
           Padding(padding: const EdgeInsets.all(8.0), child: TextField(onChanged: (value) => _runFilter(value), decoration: const InputDecoration(labelText: '検索', suffixIcon: Icon(Icons.search),),),),
+          SizedBox(
+            height: 48,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              children: [
+                Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: ChoiceChip(label: const Text('すべて'), selected: _selectedType == null, onSelected: (_) => _selectType(null),),),
+                for (final type in GachaType.values)
+                  Padding(padding: const EdgeInsets.symmetric(horizontal: 4.0), child: ChoiceChip(label: Text(type.label), selected: _selectedType == type, onSelected: (_) => _selectType(type),),),
+              ],
+            ),
+          ),
           Expanded(child: _isLoading ? const Center(child: CircularProgressIndicator()) : _foundSeries.isEmpty ? const Center(child: Text('データが見つかりません…')) : ListView.builder(itemCount: _foundSeries.length, itemBuilder: (context, index) {
             final series = _foundSeries[index];
             final isWished = _wishlist.contains(series.id);
@@ -160,6 +182,8 @@ class _MyPageState extends State<MyPage> {
   final Map<String, CollectionEntry> _collection = {};
   List<GachaSeries> _collectedSeries = [];
   List<GachaSeries> _wishedSeries = [];
+  List<({CollectionEntry entry, GachaItem item, GachaSeries series})>
+      _recentAcquisitions = [];
   Set<String> _wishlist = {};
   int _totalSpend = 0;
   int _monthSpend = 0;
@@ -226,10 +250,28 @@ class _MyPageState extends State<MyPage> {
     final spend = computeSpendSummary(
         _collection.values, priceBySeriesId, DateTime.now());
 
+    final Map<String, ({GachaItem item, GachaSeries series})> itemIndex = {};
+    for (final series in _allSeries) {
+      for (final item in series.items) {
+        itemIndex[item.id] = (item: item, series: series);
+      }
+    }
+    final recentTemp =
+        <({CollectionEntry entry, GachaItem item, GachaSeries series})>[];
+    for (final entry in _collection.values) {
+      if (entry.acquiredAt == null) continue;
+      final indexed = itemIndex[entry.itemId];
+      if (indexed == null) continue;
+      recentTemp.add((entry: entry, item: indexed.item, series: indexed.series));
+    }
+    recentTemp.sort((a, b) => b.entry.acquiredAt!.compareTo(a.entry.acquiredAt!));
+    final recentAcquisitionsTemp = recentTemp.take(10).toList();
+
     if (!mounted) return;
     setState(() {
       _collectedSeries = collectedSeriesTemp;
       _wishedSeries = wishedSeriesTemp;
+      _recentAcquisitions = recentAcquisitionsTemp;
       _totalSpend = spend.total;
       _monthSpend = spend.thisMonth;
       _isLoading = false;
@@ -303,6 +345,8 @@ class _MyPageState extends State<MyPage> {
                 ),
               ),
             ),
+            if (_recentAcquisitions.isNotEmpty) _buildSectionHeader('最近の獲得'),
+            ..._recentAcquisitions.map(_buildRecentCard),
             if (_wishedSeries.isNotEmpty) _buildSectionHeader('ウィッシュリスト'),
             ..._wishedSeries.map(_buildWishCard),
             if (_collectedSeries.isNotEmpty) _buildSectionHeader('獲得中のシリーズ'),
@@ -317,6 +361,33 @@ class _MyPageState extends State<MyPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
       child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildRecentCard(
+      ({CollectionEntry entry, GachaItem item, GachaSeries series}) record) {
+    final acquiredAt = record.entry.acquiredAt!;
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+      child: ListTile(
+        dense: true,
+        leading: Image.network(
+          record.item.image,
+          width: 48, height: 48, fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(width: 48, height: 48, color: Colors.grey[200], child: const Icon(Icons.error, size: 24));
+          },
+        ),
+        title: Text(record.item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(record.series.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        trailing: Text('${acquiredAt.month}/${acquiredAt.day}', style: TextStyle(color: Colors.grey[600])),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ItemListPage(series: record.series),),
+          ).then((_) => _loadAllData());
+        },
+      ),
     );
   }
 
@@ -447,6 +518,47 @@ class _ItemListPageState extends State<ItemListPage> {
     _checkCompletion();
   }
 
+  void _changeItemCount(String itemId, int delta) {
+    final entry = _collection[itemId];
+    if (entry == null) return;
+    setState(() {
+      entry.count = (entry.count + delta).clamp(1, 99);
+    });
+    _saveCollection();
+  }
+
+  Future<void> _showCountSheet(GachaItem item) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) {
+        return StatefulBuilder(builder: (sheetContext, setSheetState) {
+          final current = _collection[item.id]?.count ?? 1;
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(item.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,),
+                const SizedBox(height: 8),
+                Text(current > 1 ? 'ダブり ${current - 1}個' : 'ダブりなし', style: TextStyle(color: Colors.grey[600]),),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(onPressed: current > 1 ? () { _changeItemCount(item.id, -1); setSheetState(() {}); } : null, icon: const Icon(Icons.remove_circle_outline, size: 32),),
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: Text('所持数 $current', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
+                    IconButton(onPressed: current < 99 ? () { _changeItemCount(item.id, 1); setSheetState(() {}); } : null, icon: const Icon(Icons.add_circle_outline, size: 32),),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
   void _checkCompletion() {
     bool allItemsOwned = widget.series.items.every((item) => _collection.containsKey(item.id));
     if (_isSeriesCompleted != allItemsOwned) {
@@ -482,9 +594,15 @@ class _ItemListPageState extends State<ItemListPage> {
                   : Text('獲得 ${widget.series.items.where((i) => _collection.containsKey(i.id)).length} / ${widget.series.items.length}', style: const TextStyle(fontSize: 16, color: Colors.grey),),
             ],),),
             const Divider(),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text('アイテム一覧', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('アイテム一覧', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text('タップで獲得切替・獲得済みを長押しでダブり数を編集', style: TextStyle(fontSize: 12, color: Colors.grey[600]),),
+                ],
+              ),
             ),
             GridView.builder(
               shrinkWrap: true,
@@ -498,10 +616,12 @@ class _ItemListPageState extends State<ItemListPage> {
               itemCount: widget.series.items.length,
               itemBuilder: (context, index) {
                 final item = widget.series.items[index];
-                final isFound = _collection.containsKey(item.id);
+                final entry = _collection[item.id];
+                final isFound = entry != null;
 
                 return InkWell(
                   onTap: () => _toggleItemStatus(item.id),
+                  onLongPress: isFound ? () => _showCountSheet(item) : null,
                   child: GridTile(
                     footer: GridTileBar(
                       backgroundColor: Colors.black45,
@@ -523,6 +643,16 @@ class _ItemListPageState extends State<ItemListPage> {
                         if (isFound)
                           const Center(
                             child: Icon(Icons.check_circle, color: Colors.greenAccent, size: 40, shadows: [Shadow(color: Colors.black54, blurRadius: 4)]),
+                          ),
+                        if (entry != null && entry.count > 1)
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: Colors.deepPurple, borderRadius: BorderRadius.circular(10)),
+                              child: Text('×${entry.count}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ),
                           ),
                       ],
                     ),

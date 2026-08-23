@@ -10,12 +10,14 @@ void main() {
         isFavorite: true,
         acquiredAt: DateTime(2026, 8, 23, 12, 0),
         paidPrice: 300,
+        count: 3,
       );
       final restored = CollectionEntry.fromJson(entry.toJson());
       expect(restored.itemId, entry.itemId);
       expect(restored.isFavorite, isTrue);
       expect(restored.acquiredAt, entry.acquiredAt);
       expect(restored.paidPrice, 300);
+      expect(restored.count, 3);
     });
 
     test('旧形式JSON(支出情報なし)も読み込める', () {
@@ -23,6 +25,7 @@ void main() {
           CollectionEntry.fromJson({'itemId': 'a', 'isFavorite': false});
       expect(restored.acquiredAt, isNull);
       expect(restored.paidPrice, isNull);
+      expect(restored.count, 1);
     });
   });
 
@@ -44,6 +47,20 @@ void main() {
       final summary = computeSpendSummary(entries, priceBySeriesId, now);
       expect(summary.total, 300 + 200 + 500);
       expect(summary.thisMonth, 300);
+    });
+
+    test('ダブり(所持数)は価格×個数で加算される', () {
+      final now = DateTime(2026, 8, 23);
+      final entries = [
+        CollectionEntry(
+            itemId: '111::a',
+            acquiredAt: DateTime(2026, 8, 1),
+            paidPrice: 300,
+            count: 3),
+      ];
+      final summary = computeSpendSummary(entries, {'111': 300}, now);
+      expect(summary.total, 900);
+      expect(summary.thisMonth, 900);
     });
 
     test('価格情報がないアイテムは0円として扱う', () {

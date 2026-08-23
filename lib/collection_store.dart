@@ -69,7 +69,8 @@ class CollectionStore {
     final seriesId = separatorIndex < 0
         ? entry.itemId
         : entry.itemId.substring(0, separatorIndex);
-    final price = entry.paidPrice ?? priceBySeriesId[seriesId] ?? 0;
+    final price =
+        (entry.paidPrice ?? priceBySeriesId[seriesId] ?? 0) * entry.count;
     total += price;
     final acquiredAt = entry.acquiredAt;
     if (acquiredAt != null &&

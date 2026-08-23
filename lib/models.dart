@@ -101,12 +101,14 @@ class CollectionEntry {
   bool isFavorite;
   DateTime? acquiredAt;
   int? paidPrice;
+  int count;
 
   CollectionEntry({
     required this.itemId,
     this.isFavorite = false,
     this.acquiredAt,
     this.paidPrice,
+    this.count = 1,
   });
 
   factory CollectionEntry.fromJson(Map<String, dynamic> json) {
@@ -117,6 +119,7 @@ class CollectionEntry {
           ? DateTime.tryParse(json['acquiredAt'].toString())
           : null,
       paidPrice: int.tryParse(json['paidPrice']?.toString() ?? ''),
+      count: int.tryParse(json['count']?.toString() ?? '') ?? 1,
     );
   }
 
@@ -125,5 +128,6 @@ class CollectionEntry {
         'isFavorite': isFavorite,
         if (acquiredAt != null) 'acquiredAt': acquiredAt!.toIso8601String(),
         if (paidPrice != null) 'paidPrice': paidPrice,
+        'count': count,
       };
 }
