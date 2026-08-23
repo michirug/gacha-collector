@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'achievements.dart';
+import 'celebration.dart';
 import 'collection_store.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
+import 'share_card.dart';
 
 void main() {
   runApp(const GachaCollectorApp());
@@ -185,6 +188,7 @@ class _MyPageState extends State<MyPage> {
   List<({CollectionEntry entry, GachaItem item, GachaSeries series})>
       _recentAcquisitions = [];
   Set<String> _wishlist = {};
+  Set<String> _unlockedAchievements = {};
   int _totalSpend = 0;
   int _monthSpend = 0;
   bool _isLoading = true;
@@ -205,6 +209,9 @@ class _MyPageState extends State<MyPage> {
       ..clear()
       ..addAll(loaded);
     _wishlist = await CollectionStore.loadWishlist();
+    await AchievementService.evaluate(
+        computeAchievementStats(_collection, _allSeries));
+    _unlockedAchievements = await AchievementService.loadUnlocked();
 
     // 3. 表示用データを加工する
     _processCollectionData();
@@ -293,6 +300,9 @@ class _MyPageState extends State<MyPage> {
       appBar: AppBar(
         title: const Text('マイページ'),
         backgroundColor: Colors.deepPurple[100],
+        actions: [
+          IconButton(icon: const Icon(Icons.share), tooltip: 'シェア', onPressed: _shareSummary,),
+        ],
       ),
       body: _isLoading ? const Center(child: CircularProgressIndicator()) : RefreshIndicator( // --- 画面を下に引っ張って更新する機能 ---
         onRefresh: _loadAllData,
@@ -345,6 +355,18 @@ class _MyPageState extends State<MyPage> {
                 ),
               ),
             ),
+            _buildSectionHeader('実績 (${_unlockedAchievements.length}/${allAchievements.length})'),
+            SizedBox(
+              height: 104,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                children: [
+                  for (final achievement in allAchievements)
+                    _buildAchievementBadge(achievement),
+                ],
+              ),
+            ),
             if (_recentAcquisitions.isNotEmpty) _buildSectionHeader('最近の獲得'),
             ..._recentAcquisitions.map(_buildRecentCard),
             if (_wishedSeries.isNotEmpty) _buildSectionHeader('ウィッシュリスト'),
@@ -357,10 +379,70 @@ class _MyPageState extends State<MyPage> {
     );
   }
 
+  Future<void> _shareSummary() async {
+    int completedSeriesCount = 0;
+    for (var series in _collectedSeries) {
+      if (series.items.every((item) => _collection.containsKey(item.id))) {
+        completedSeriesCount++;
+      }
+    }
+    await showShareCardDialog(
+      context,
+      buildSummaryShareCard(
+        totalItems: _collection.length,
+        completedSeries: completedSeriesCount,
+        unlockedAchievements: _unlockedAchievements.length,
+        totalAchievements: allAchievements.length,
+      ),
+      'gacha_collection_summary.png',
+      'ガチャコレクションの記録 #ガチャコレクション',
+    );
+  }
+
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0),
       child: Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+    );
+  }
+
+  Widget _buildAchievementBadge(Achievement achievement) {
+    final unlocked = _unlockedAchievements.contains(achievement.id);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Row(
+                children: [
+                  Icon(unlocked ? achievement.icon : Icons.lock, color: unlocked ? Colors.amber[700] : Colors.grey),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(achievement.title, style: const TextStyle(fontSize: 18))),
+                ],
+              ),
+              content: Text(unlocked ? achievement.description : '???　${achievement.description}'),
+              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('閉じる'))],
+            ),
+          );
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 28,
+              backgroundColor: unlocked ? Colors.amber[100] : Colors.grey[300],
+              child: Icon(unlocked ? achievement.icon : Icons.lock, color: unlocked ? Colors.amber[800] : Colors.grey, size: 28),
+            ),
+            const SizedBox(height: 4),
+            SizedBox(
+              width: 64,
+              child: Text(achievement.title, style: TextStyle(fontSize: 10, color: unlocked ? Colors.black87 : Colors.grey), textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -516,6 +598,7 @@ class _ItemListPageState extends State<ItemListPage> {
     });
     _saveCollection();
     _checkCompletion();
+    _checkAchievements();
   }
 
   void _changeItemCount(String itemId, int delta) {
@@ -525,6 +608,22 @@ class _ItemListPageState extends State<ItemListPage> {
       entry.count = (entry.count + delta).clamp(1, 99);
     });
     _saveCollection();
+    _checkAchievements();
+  }
+
+  Future<void> _checkAchievements() async {
+    final allSeries = await GachaRepository.loadAll();
+    final stats = computeAchievementStats(_collection, allSeries);
+    final newly = await AchievementService.evaluate(stats);
+    if (!mounted || newly.isEmpty) return;
+    for (final achievement in newly) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('🏆 実績解除: ${achievement.title}'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _showCountSheet(GachaItem item) async {
@@ -559,6 +658,17 @@ class _ItemListPageState extends State<ItemListPage> {
     );
   }
 
+  Future<void> _shareSeries() async {
+    final collected = widget.series.items.where((item) => _collection.containsKey(item.id)).length;
+    final total = widget.series.items.length;
+    await showShareCardDialog(
+      context,
+      buildSeriesShareCard(series: widget.series, collected: collected, total: total),
+      'gacha_series_share.png',
+      '「${widget.series.name}」獲得 $collected/$total #ガチャコレクション',
+    );
+  }
+
   void _checkCompletion() {
     bool allItemsOwned = widget.series.items.every((item) => _collection.containsKey(item.id));
     if (_isSeriesCompleted != allItemsOwned) {
@@ -568,12 +678,12 @@ class _ItemListPageState extends State<ItemListPage> {
   }
   void _playCompletionAnimation() {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: const Text('🎉 シリーズコンプリート！おめでとうございます！ 🎉', textAlign: TextAlign.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),), backgroundColor: Colors.deepPurpleAccent, duration: const Duration(seconds: 3), behavior: SnackBarBehavior.floating, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)), margin: const EdgeInsets.all(20),),);
+    showCompletionCelebration(context, widget.series);
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.series.name), backgroundColor: Colors.deepPurple[100], actions: [IconButton(icon: Icon(_isWished ? Icons.star : Icons.star_border, color: _isWished ? Colors.amber : null), tooltip: 'ウィッシュリスト', onPressed: _toggleWishlist,)],),
+      appBar: AppBar(title: Text(widget.series.name), backgroundColor: Colors.deepPurple[100], actions: [IconButton(icon: const Icon(Icons.share), tooltip: 'シェア', onPressed: _shareSeries,), IconButton(icon: Icon(_isWished ? Icons.star : Icons.star_border, color: _isWished ? Colors.amber : null), tooltip: 'ウィッシュリスト', onPressed: _toggleWishlist,)],),
       body: SafeArea(
         child: ListView(
           children: [
