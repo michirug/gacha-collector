@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'achievements.dart';
 import 'celebration.dart';
 import 'collection_store.dart';
+import 'demo_seed.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
 import 'share_card.dart';
@@ -12,7 +13,14 @@ const String kPrivacyPolicyUrl =
 const String kTermsOfServiceUrl =
     'https://michirug.github.io/gacha-collector/terms/';
 
-void main() {
+// スクリーンショット撮影用の見本データを投入するフラグ(通常ビルドではfalse)
+const bool kDemoMode = bool.fromEnvironment('DEMO_MODE');
+
+Future<void> main() async {
+  if (kDemoMode) {
+    WidgetsFlutterBinding.ensureInitialized();
+    await seedDemoData();
+  }
   runApp(const GachaCollectorApp());
 }
 
@@ -24,6 +32,7 @@ class GachaCollectorApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ガチャ活ポケット',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

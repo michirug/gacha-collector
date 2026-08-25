@@ -173,12 +173,36 @@ https://michirug.github.io/gacha-collector/privacy/
 
 ---
 
-## 8. 提出前チェックリスト
+## 8. ストア素材(生成済み)
+
+Play Consoleにアップロードするファイル(すべて `store/assets/` 配下):
+
+| 項目 | ファイル | 備考 |
+|---|---|---|
+| アプリアイコン(512×512) | `icon_512.png` | ランチャーアイコンも反映済み |
+| フィーチャーグラフィック(1024×500) | `feature_graphic_1024x500.png` | |
+| スクリーンショット(1080×2400) | `screenshots/01_home.png` 〜 `05_celebration.png` | 推奨順: 01→02→05→03→04 |
+
+再生成方法:
+
+```
+# アイコン・フィーチャーグラフィック
+flutter test test/store_assets --dart-define=GENERATE_ASSETS=true --update-goldens
+dart run flutter_launcher_icons
+
+# スクリーンショット(エミュレータ起動後)
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/screenshots_test.dart --dart-define=DEMO_MODE=true -d emulator-5554
+```
+
+---
+
+## 9. 提出前チェックリスト
 
 - [x] docs/privacy_policy.md と docs/terms_of_service.md の運営者名・メールアドレスを記入済み(コンテンツマーケティング合同会社 / info@contentsmarketing.co.jp)
 - [ ] GitHub Pages を有効化し、上記URLが開けることを確認
-- [ ] アプリアイコン(512×512)を作成し、アプリ本体のランチャーアイコンも差し替え
-- [ ] フィーチャーグラフィック(1024×500)を作成
-- [ ] スクリーンショットを2枚以上撮影
+- [x] アプリアイコン(512×512)を作成し、アプリ本体のランチャーアイコンも差し替え
+- [x] フィーチャーグラフィック(1024×500)を作成
+- [x] スクリーンショットを2枚以上撮影(5枚・1080×2400)
+- [ ] 開発者名を「ポケットアプリケーションズ」に設定
 - [ ] 上記の掲載文をPlay Consoleに入力
 - [ ] AAB(app-release.aab)をアップロード
