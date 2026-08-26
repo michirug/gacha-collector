@@ -610,7 +610,8 @@ class _ItemListPageState extends State<ItemListPage> {
         ..addAll(loaded);
       _isWished = wishlist.contains(widget.series.id);
     });
-    _checkCompletion();
+    // 初回ロード時は状態の同期のみ行い、演出は出さない(コンプ済みを開くたびに再生されるのを防ぐ)
+    _checkCompletion(celebrate: false);
   }
   Future<void> _toggleWishlist() async {
     final wishlist = await CollectionStore.loadWishlist();
@@ -710,11 +711,11 @@ class _ItemListPageState extends State<ItemListPage> {
     );
   }
 
-  void _checkCompletion() {
+  void _checkCompletion({bool celebrate = true}) {
     bool allItemsOwned = widget.series.items.every((item) => _collection.containsKey(item.id));
     if (_isSeriesCompleted != allItemsOwned) {
       setState(() { _isSeriesCompleted = allItemsOwned; });
-      if (allItemsOwned) { _playCompletionAnimation(); }
+      if (allItemsOwned && celebrate) { _playCompletionAnimation(); }
     }
   }
   void _playCompletionAnimation() {

@@ -199,10 +199,10 @@ flutter drive --driver=test_driver/integration_test.dart --target=integration_te
 ## 9. 提出前チェックリスト
 
 - [x] docs/privacy_policy.md と docs/terms_of_service.md の運営者名・メールアドレスを記入済み(コンテンツマーケティング合同会社 / info@contentsmarketing.co.jp)
-- [ ] GitHub Pages を有効化し、上記URLが開けることを確認
+- [x] GitHub Pages を有効化し、上記URLが開けることを確認(2026-08-26確認済み)
 - [x] アプリアイコン(512×512)を作成し、アプリ本体のランチャーアイコンも差し替え
 - [x] フィーチャーグラフィック(1024×500)を作成
 - [x] スクリーンショットを2枚以上撮影(5枚・1080×2400)
-- [ ] 開発者名を「ポケットアプリケーションズ」に設定
+- [x] 開発者名を「ポケットアプリケーションズ」に設定
 - [ ] 上記の掲載文をPlay Consoleに入力
 - [ ] AAB(app-release.aab)をアップロード
