@@ -131,6 +131,8 @@ Map<String, dynamic>? parseDetailPage(
 
   return {
     'jan_code': int.tryParse(janCode) ?? janCode,
+    'maker': 'bandai',
+    'source_url': '$kDetailUrlBase$janCode',
     'category': category,
     'title': _normalizeWhitespace(title),
     'price': price,

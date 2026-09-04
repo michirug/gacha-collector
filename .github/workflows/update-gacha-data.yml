@@ -22,8 +22,11 @@ jobs:
       - name: 依存関係の取得
         run: flutter pub get
 
-      - name: クローラー実行
+      - name: クローラー実行(バンダイ)
         run: dart run tool/crawl_gashapon.dart 100
+
+      - name: クローラー実行(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA)
+        run: dart run tool/crawl_makers.dart --max=100
 
       - name: 変更があればコミット
         run: |

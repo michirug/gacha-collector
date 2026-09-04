@@ -21,39 +21,57 @@
 
 ## 2. 現在のステータス(2026-09-04時点)
 
-**コード側の作業はすべて完了・push済み(最新コミット `3d5cf3c`)。残作業はPlay Console上の手動操作のみ。**
+**方針転換: 旧v1.0は提出せず、「v1.0再定義」として中核価値を作り直してからリリースする。** 詳細・理由は `store/strategy.md` 冒頭「v1.0再定義」を参照。
 
-- [x] Android署名設定・リリースAABビルド(`build/app/outputs/bundle/release/app-release.aab`、42MB)
-- [x] アプリ名・ハッシュタグの全体反映
-- [x] プライバシーポリシー・利用規約のGitHub Pages公開
-- [x] ストア素材(アイコン/フィーチャーグラフィック/スクショ5枚)生成
-- [x] コンプ演出を「初回コンプ時のみ」に修正(回帰テスト付き)
-- [x] 開発者名をPlay Consoleに設定
-- [ ] **Play Consoleに掲載文を入力**(貼り付け元: `store/store_listing.md`)
-- [ ] **AABをアップロードして審査提出**
-- [ ] 審査結果に応じた対応(データセーフティ・画像著作権指摘など)
+旧v1.0で完了済み(資産として維持):
+- [x] Android署名設定・リリースAABビルド、アプリ名・ハッシュタグ反映、法的文書公開、ストア素材生成、コンプ演出修正、開発者名設定
 
-Play Console提出手順の詳細は `store/store_listing.md` §8〜9 を参照。
+v1.0再定義(リリース前に必須):
+- [x] 1. マルチメーカー収録: クローラー(`tool/crawl_makers.dart`: タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA)、`Maker`モデル、Actions組み込み、パーサー回帰テスト。ケンエレファント/トイズキャビンはv1.1へ
+  - [ ] **バックフィルの完了確認**: 2026-09-04にローカルで `--backfill` を開始(TTA約2,570件は数時間かかる)。`assets/gacha_data.json` のメーカー別件数を確認し、足りなければ再実行(既存IDはスキップされる)→コミット
+- [x] 2. ホーム再設計(メーカーチップ/今月の新作/ウィッシュ発売間近/あと少しでコンプ/来月/発売カレンダー、ブランドテーマ、cached_network_image)。エミュレータで表示確認済み
+- [x] 3. バックアップ/復元(マイページ→JSON書き出し/復元(追加・置き換え))。エミュレータで往復確認済み
+- [x] 4. 譲/求カード生成(シリーズ詳細のswapアイコン。ダブり=譲、未獲得=求)
+- [ ] ストア掲載文(メーカー横断を訴求)・スクショを新UIに合わせて更新(`integration_test/screenshots_test.dart` は新UIに未対応、要修正) → Play Console提出(`store/store_listing.md` §8〜9)
+
+Play Console側(コードと無関係、先行して実施):
+- [ ] 組織アカウントの確認状況チェック。2026-09-30期限「Androidデベロッパーの確認」リマインダー(Google Play一斉送信)が届いている → Play Consoleホームで未登録アプリ・アカウント確認状態を確認
+
+v1.1以降: ウィッシュリスト新作のローカル通知、獲得時の写真・メモ・場所、メーカー/作品名タグ検索、Pro買い切り、iOS。
 
 ## 3. 技術スタック・環境
 
 - Flutter 3.35.5 / Dart 3.9.2、Windows(PowerShell)。`grep`コマンドは無いので `Select-String` を使う
-- 主要パッケージ: shared_preferences(全データ端末内保存)、http、share_plus、flutter_launcher_icons(dev)、integration_test(dev)
-- Androidエミュレータ: `emulator-5554`(スクショ撮影に使用)
-- ガチャデータはGitHub Actions(`.github/workflows/update-gacha-data.yml`、毎週月曜21:00 UTC)が `tool/crawl_gashapon.dart` で更新し `assets/gacha_data.json` にコミット。アプリは `https://raw.githubusercontent.com/michirug/gacha-collector/main/assets/gacha_data.json` から取得(`lib/gacha_repository.dart`)
+- 主要パッケージ: shared_preferences(全データ端末内保存)、http、share_plus、cached_network_image(画像キャッシュ)、file_picker(バックアップ復元)、flutter_launcher_icons(dev)、integration_test(dev)
+- Androidエミュレータ: `emulator-5554`(Pixel 9 Pro XL、物理1344x2992)。`adb` はPATHに無いので `$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe`。`flutter run` のstdinにはこのツールから書けない(ホットリロード不可→再起動する)
+- ガチャデータはGitHub Actions(`.github/workflows/update-gacha-data.yml`、毎週月曜21:00 UTC)が `tool/crawl_gashapon.dart`(バンダイ)と `tool/crawl_makers.dart`(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA)で更新し `assets/gacha_data.json` にコミット。アプリは `https://raw.githubusercontent.com/michirug/gacha-collector/main/assets/gacha_data.json` から取得(`lib/gacha_repository.dart`)
+- **データJSONのスキーマ**: バンダイは `jan_code` がID(旧形式、`maker`省略=bandai)。他メーカーは `id`(`tta:Y909498` / `kitan:<slug>` / `bushi:<id>` / `sota:<slug>`)、`maker`、`source_url`、`lineup_unknown`(公式にラインナップ名が無く `No.1`〜 の仮アイテムを生成した場合 true)を持つ。アイテムIDは `<seriesId>::<itemTitle>` なので、ラインナップ名を後から変えるとユーザーの記録が外れる
+- **メーカーサイトの構造メモ**(2026-09-04確認、robots.txtは全社許可):
+  - タカラトミーアーツ: カレンダー `items/gacha/calendar/?ym=YYYYMM` → `items/item.html?n=<code>`。`section#detail .head h2/p`、`.summary` の「」からラインナップ名(個別画像なし)。年齢確認ページ(みまもりフィルター)に飛ぶ商品はパース失敗として捨てる
+  - キタンクラブ: `products-sitemap.xml` / `/products/`(新着8件のみ、ページングなし) → `.c-productDetail__*`、`.c-productDetail__pickup-item` に個別名+画像
+  - ブシロードクリエイティブ: `wp-sitemap-posts-product-1.xml` / `/product/?pagenum=N` → `.product__specList` dt/dd。ラインナップ名なし
+  - SO-TA: `products-sitemap.xml` / `/products/capsuletoy/page/N/` → `.dataArea dl`、`.thumbList img`(先頭=メイン、`CPtenpo`/`-scaled`はPOP画像で除外)。ラインナップ名なし
+  - 未対応: ケンエレファント(Shopify、発売月がトピック記事側)、トイズキャビン(BASEショップのみ)
 - サーバー・ログイン・広告・課金なし。ユーザーデータは一切収集しない(データセーフティは「収集なし・共有なし」で申告)
 
 ## 4. ディレクトリ構成(重要ファイル)
 
 ```
 lib/
-  main.dart               UI本体(MainScreen/HomePage/ItemListPage/MyPage、_checkCompletion、DEMO_MODE分岐)
-  models.dart             GachaType/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate
+  main.dart               アプリ骨格(GachaCollectorApp/MainScreen、DEMO_MODE分岐)。home_page/my_page/series_page をexport
+  home_page.dart          ホーム(メーカーチップ/今月の新作/ウィッシュ発売間近/あと少しでコンプ/来月/発売カレンダー)
+  browse_page.dart        検索・メーカー絞り込み一覧。month指定で発売カレンダー(月送り)として動作
+  series_page.dart        ItemListPage(シリーズ詳細、_checkCompletion、譲/求カード、公式サイトリンク)
+  my_page.dart            マイページ(サマリー/実績/最近の獲得/ウィッシュ/獲得中/バックアップ/法的文書)
+  widgets.dart            GachaImage(キャッシュ画像)/MakerBadge/SeriesTile/SeriesPosterCard/SectionHeader/EmptyHint、formatYen
+  theme.dart              ブランドテーマ(紫#7C4DFF×ピンク#FF7BAC、クリーム背景)
+  backup.dart             BackupService(JSON書き出し→share_plus、file_pickerで復元、追加/置き換え)
+  models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
   collection_store.dart   SharedPreferences永続化・マイグレーション(schema v2)
   achievements.dart       実績定義・評価(12種)
   celebration.dart        コンプ演出ダイアログ(無限アニメ → テストではpumpAndSettle禁止)
-  share_card.dart         シェアカード描画(#ガチャ活ポケット)
+  share_card.dart         シェアカード描画(シリーズ/サマリー/譲・求、#ガチャ活ポケット)
   demo_seed.dart          DEMO_MODE用見本データ投入(39アイテム/5シリーズコンプ/17,600円/実績6/12)
 android/
   app/build.gradle.kts    key.properties があればrelease署名、無ければdebug署名にフォールバック
@@ -68,17 +86,25 @@ store/
 test/
   store_assets/           CustomPainter(store_asset_painters.dart)+ゴールデンテストで素材を生成(通常はskip)
   completion_celebration_test.dart  コンプ演出の回帰テスト(開くだけでは出ない/最後の1個獲得で出る)
-  その他 achievements/collection_migration/release_date/spend_wishlist/widget_test
+  crawl_makers_test.dart  各メーカーのパーサー回帰テスト(test/fixtures/*.html が実ページの保存物)
+  backup_test.dart        バックアップのラウンドトリップ/不正ファイル拒否/マージ
+  その他 achievements/collection_migration/release_date(価格・メーカー解析含む)/spend_wishlist/widget_test
 integration_test/screenshots_test.dart  + test_driver/integration_test.dart  スクショ自動撮影
-tool/crawl_gashapon.dart  クローラー
+tool/crawl_gashapon.dart  バンダイ(gashapon.jp)クローラー
+tool/crawl_makers.dart    他メーカークローラー(--maker= --max= --backfill)
 ```
 
 ## 5. よく使うコマンド
 
 ```powershell
 flutter analyze
-flutter test                                   # 22テスト(素材生成テストはskip)
+flutter test                                   # 36テスト(素材生成テストはskip)
 flutter build appbundle --release              # → build/app/outputs/bundle/release/app-release.aab
+
+# データ取得(新着のみ / 全件バックフィル。2秒間隔、100件ごとに保存、再実行は既存IDをスキップ)
+dart run tool/crawl_gashapon.dart 100
+dart run tool/crawl_makers.dart --max=100
+dart run tool/crawl_makers.dart --backfill --max=5000 --maker=takaratomy_arts,kitan,bushiroad,sota
 
 # ストア素材の再生成(アイコン・フィーチャーグラフィック)
 flutter test test/store_assets --dart-define=GENERATE_ASSETS=true --update-goldens
@@ -105,6 +131,7 @@ flutter drive --driver=test_driver/integration_test.dart --target=integration_te
 
 ## 8. 次セッションでまずやること
 
-1. このファイルと `store/store_listing.md` §9チェックリストを読む
-2. ユーザーにPlay Console提出の進捗(掲載文入力/AABアップロード/審査結果)を確認
-3. 審査指摘があれば対応、なければ次フェーズ(iOS・Pro機能など)の相談へ
+1. このファイルと `store/strategy.md` 冒頭「v1.0再定義」を読む
+2. バックフィルの状態確認(§2)。`assets/gacha_data.json` を `ConvertFrom-Json | Group-Object maker` で件数確認し、未完なら再実行してコミット
+3. スクショ撮影テスト(`integration_test/screenshots_test.dart`)を新UIに合わせて修正 → スクショ・掲載文更新 → Play Console提出
+4. その後 v1.1(ウィッシュ発売通知・写真メモ・ケンエレファント/トイズキャビン収録)へ

@@ -9,6 +9,28 @@ enum GachaType {
   final String label;
 }
 
+// --- メーカー(データ提供元) ---
+enum Maker {
+  bandai('bandai', 'バンダイ', 'バンダイ'),
+  takaratomyArts('takaratomy_arts', 'タカラトミーアーツ', 'T-ARTS'),
+  kitan('kitan', 'キタンクラブ', 'キタンクラブ'),
+  bushiroad('bushiroad', 'ブシロードクリエイティブ', 'ブシロード'),
+  sota('sota', 'SO-TA', 'SO-TA'),
+  other('other', 'その他', 'その他');
+
+  const Maker(this.code, this.label, this.shortLabel);
+  final String code;
+  final String label;
+  // バッジ等の狭い場所で使う短い表記
+  final String shortLabel;
+
+  static Maker fromCode(String? code) {
+    if (code == null || code.isEmpty) return Maker.bandai;
+    return Maker.values.firstWhere((m) => m.code == code,
+        orElse: () => Maker.other);
+  }
+}
+
 // 「2014年03月下旬」「2026年11月未定」「2026年8月第5週」などの表記をDateTimeに変換する
 DateTime? parseJapaneseReleaseDate(String text) {
   final yearMonthMatch = RegExp(r'(\d{4})年\s*(\d{1,2})月').firstMatch(text);
@@ -31,17 +53,32 @@ DateTime? parseJapaneseReleaseDate(String text) {
     day = 25;
   } else {
     final weekMatch = RegExp(r'第(\d)週').firstMatch(text);
+    // 「2026年8月（8月31日週発売）」「9月14日週」のような日付付き表記
+    final dayMatch = RegExp(r'(\d{1,2})月\s*(\d{1,2})日').firstMatch(text);
     if (weekMatch != null) {
       day = ((int.parse(weekMatch.group(1)!) - 1) * 7 + 1).clamp(1, 28);
+    } else if (dayMatch != null &&
+        int.parse(dayMatch.group(1)!) == month) {
+      day = int.parse(dayMatch.group(2)!).clamp(1, 28);
     }
   }
   return DateTime(year, month, day);
+}
+
+// 「300円」「300円(税込)」「1回400円」「¥500」などから金額(円)を抜き出す
+int parsePriceYen(String? text) {
+  if (text == null) return 0;
+  final match = RegExp(r'(\d[\d,]*)\s*円').firstMatch(text) ??
+      RegExp(r'[¥￥]\s*(\d[\d,]*)').firstMatch(text);
+  if (match == null) return int.tryParse(text.replaceAll(',', '')) ?? 0;
+  return int.tryParse(match.group(1)!.replaceAll(',', '')) ?? 0;
 }
 
 class GachaSeries {
   final String id;
   final String name;
   final GachaType gachaType;
+  final Maker maker;
   final DateTime releaseDate;
   final String releaseDateText;
   final int price;
@@ -49,12 +86,16 @@ class GachaSeries {
   final String? description;
   final String? numTypes;
   final String? targetAge;
+  final String sourceUrl;
+  // 公式サイトにラインナップ名が無く、「No.1」等の仮の名前でアイテムを生成している
+  final bool lineupUnknown;
   final List<GachaItem> items;
 
   GachaSeries({
     required this.id,
     required this.name,
     required this.gachaType,
+    this.maker = Maker.bandai,
     required this.releaseDate,
     this.releaseDateText = '',
     required this.price,
@@ -62,11 +103,14 @@ class GachaSeries {
     this.description,
     this.numTypes,
     this.targetAge,
+    this.sourceUrl = '',
+    this.lineupUnknown = false,
     required this.items,
   });
 
   factory GachaSeries.fromJson(Map<String, dynamic> json) {
-    final seriesId = json['jan_code']?.toString() ?? '';
+    final seriesId =
+        json['id']?.toString() ?? json['jan_code']?.toString() ?? '';
     final itemsListFromJson = json['items'] as List<dynamic>? ?? [];
     final itemsList = itemsListFromJson
         .map((itemJson) =>
@@ -87,17 +131,26 @@ class GachaSeries {
         type = GachaType.other;
     }
     final releaseDateText = json['release_date']?.toString() ?? '';
+    final maker = Maker.fromCode(json['maker']?.toString());
+    var sourceUrl = json['source_url']?.toString() ?? '';
+    // 旧データ(バンダイ)はsource_urlを持たないのでJANコードから組み立てる
+    if (sourceUrl.isEmpty && maker == Maker.bandai && seriesId.isNotEmpty) {
+      sourceUrl = 'https://gashapon.jp/products/detail.php?jan_code=$seriesId';
+    }
     return GachaSeries(
       id: seriesId,
       name: json['title']?.toString() ?? '名前なし',
       gachaType: type,
+      maker: maker,
       releaseDate: parseJapaneseReleaseDate(releaseDateText) ?? DateTime(1900),
       releaseDateText: releaseDateText,
-      price: int.tryParse(json['price']?.toString().replaceAll('円', '') ?? '') ?? 0,
+      price: parsePriceYen(json['price']?.toString()),
       mainImage: json['image_url']?.toString() ?? '',
       description: json['description']?.toString() ?? '',
       numTypes: json['num_types']?.toString() ?? '',
       targetAge: json['target_age']?.toString() ?? '',
+      sourceUrl: sourceUrl,
+      lineupUnknown: json['lineup_unknown'] == true,
       items: itemsList,
     );
   }

@@ -62,6 +62,98 @@ Widget buildSummaryShareCard(
   );
 }
 
+// 譲/求カード。X上の #ガチャ活 交換投稿の定型(譲: ダブり / 求: 未獲得)を画像化する
+Widget buildTradeShareCard({
+  required GachaSeries series,
+  required List<GachaItem> give,
+  required List<GachaItem> want,
+  required Map<String, int> counts,
+}) {
+  return _ShareCardFrame(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.swap_horiz_rounded, size: 28, color: Colors.amber),
+            SizedBox(width: 8),
+            Text('交換希望',
+                style: TextStyle(
+                    fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(series.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 13, color: Colors.white70)),
+        const SizedBox(height: 14),
+        Expanded(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _tradeColumn(
+                  '譲',
+                  const Color(0xFFFF7BAC),
+                  give.map((i) {
+                    final n = counts[i.id] ?? 1;
+                    return n > 1 ? '${i.name} ×$n' : i.name;
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _tradeColumn(
+                    '求', const Color(0xFF7DD3FC), want.map((i) => i.name).toList()),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _tradeColumn(String label, Color color, List<String> names) {
+  const maxLines = 6;
+  final shown = names.take(maxLines).toList();
+  final rest = names.length - shown.length;
+  return Container(
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      color: Colors.white.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+          decoration: BoxDecoration(
+              color: color, borderRadius: BorderRadius.circular(6)),
+          child: Text(label,
+              style: const TextStyle(
+                  fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black87)),
+        ),
+        const SizedBox(height: 8),
+        if (names.isEmpty)
+          const Text('なし', style: TextStyle(fontSize: 12, color: Colors.white54)),
+        for (final name in shown)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 3),
+            child: Text('・$name',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, color: Colors.white, height: 1.25)),
+          ),
+        if (rest > 0)
+          Text('他$rest件', style: const TextStyle(fontSize: 11, color: Colors.white70)),
+      ],
+    ),
+  );
+}
+
 Widget _statRow(String label, String value) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(

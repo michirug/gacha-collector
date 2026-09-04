@@ -1,0 +1,328 @@
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'achievements.dart';
+import 'celebration.dart';
+import 'collection_store.dart';
+import 'gacha_repository.dart';
+import 'models.dart';
+import 'share_card.dart';
+import 'theme.dart';
+import 'widgets.dart';
+
+// ItemListPage (シリーズ詳細ページ)
+class ItemListPage extends StatefulWidget {
+  final GachaSeries series;
+  const ItemListPage({super.key, required this.series});
+  @override
+  State<ItemListPage> createState() => _ItemListPageState();
+}
+
+class _ItemListPageState extends State<ItemListPage> {
+  final Map<String, CollectionEntry> _collection = {};
+  bool _isSeriesCompleted = false;
+  bool _isWished = false;
+  @override
+  void initState() {
+    super.initState();
+    _loadCollection();
+  }
+  Future<void> _loadCollection() async {
+    final loaded = await CollectionStore.load();
+    final wishlist = await CollectionStore.loadWishlist();
+    if (!mounted) return;
+    setState(() {
+      _collection
+        ..clear()
+        ..addAll(loaded);
+      _isWished = wishlist.contains(widget.series.id);
+    });
+    // 初回ロード時は状態の同期のみ行い、演出は出さない(コンプ済みを開くたびに再生されるのを防ぐ)
+    _checkCompletion(celebrate: false);
+  }
+  Future<void> _toggleWishlist() async {
+    final wishlist = await CollectionStore.loadWishlist();
+    if (!wishlist.remove(widget.series.id)) {
+      wishlist.add(widget.series.id);
+    }
+    await CollectionStore.saveWishlist(wishlist);
+    if (!mounted) return;
+    setState(() { _isWished = wishlist.contains(widget.series.id); });
+  }
+  Future<void> _saveCollection() async {
+    await CollectionStore.save(_collection);
+  }
+
+  void _toggleItemStatus(String itemId) {
+    setState(() {
+      if (_collection.containsKey(itemId)) {
+        _collection.remove(itemId);
+      } else {
+        _collection[itemId] = CollectionEntry(
+          itemId: itemId,
+          acquiredAt: DateTime.now(),
+          paidPrice: widget.series.price,
+        );
+      }
+    });
+    _saveCollection();
+    _checkCompletion();
+    _checkAchievements();
+  }
+
+  void _changeItemCount(String itemId, int delta) {
+    final entry = _collection[itemId];
+    if (entry == null) return;
+    setState(() {
+      entry.count = (entry.count + delta).clamp(1, 99);
+    });
+    _saveCollection();
+    _checkAchievements();
+  }
+
+  Future<void> _checkAchievements() async {
+    final allSeries = await GachaRepository.loadAll();
+    final stats = computeAchievementStats(_collection, allSeries);
+    final newly = await AchievementService.evaluate(stats);
+    if (!mounted || newly.isEmpty) return;
+    for (final achievement in newly) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('🏆 実績解除: ${achievement.title}')),
+      );
+    }
+  }
+
+  Future<void> _showCountSheet(GachaItem item) async {
+    await showModalBottomSheet(
+      context: context,
+      builder: (sheetContext) {
+        return StatefulBuilder(builder: (sheetContext, setSheetState) {
+          final current = _collection[item.id]?.count ?? 1;
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(item.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,),
+                const SizedBox(height: 8),
+                Text(current > 1 ? 'ダブり ${current - 1}個' : 'ダブりなし', style: TextStyle(color: Colors.grey[600]),),
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(onPressed: current > 1 ? () { _changeItemCount(item.id, -1); setSheetState(() {}); } : null, icon: const Icon(Icons.remove_circle_outline, size: 32),),
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 16.0), child: Text('所持数 $current', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),),),
+                    IconButton(onPressed: current < 99 ? () { _changeItemCount(item.id, 1); setSheetState(() {}); } : null, icon: const Icon(Icons.add_circle_outline, size: 32),),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  Future<void> _shareSeries() async {
+    final collected = widget.series.items.where((item) => _collection.containsKey(item.id)).length;
+    final total = widget.series.items.length;
+    await showShareCardDialog(
+      context,
+      buildSeriesShareCard(series: widget.series, collected: collected, total: total),
+      'gacha_series_share.png',
+      '「${widget.series.name}」獲得 $collected/$total #ガチャ活ポケット #ガチャ活',
+    );
+  }
+
+  Future<void> _shareTrade() async {
+    final duplicates = <GachaItem>[];
+    final wanted = <GachaItem>[];
+    for (final item in widget.series.items) {
+      final entry = _collection[item.id];
+      if (entry == null) {
+        wanted.add(item);
+      } else if (entry.count > 1) {
+        duplicates.add(item);
+      }
+    }
+    if (duplicates.isEmpty && wanted.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('ダブりも未獲得もないため譲/求カードは作れません')));
+      return;
+    }
+    final giveText = duplicates.map((i) => i.name).join('、');
+    final wantText = wanted.map((i) => i.name).join('、');
+    await showShareCardDialog(
+      context,
+      buildTradeShareCard(
+        series: widget.series,
+        give: duplicates,
+        want: wanted,
+        counts: {for (final d in duplicates) d.id: _collection[d.id]!.count - 1},
+      ),
+      'gacha_trade_share.png',
+      '【交換希望】${widget.series.name}\n'
+      '譲: ${giveText.isEmpty ? "なし" : giveText}\n'
+      '求: ${wantText.isEmpty ? "なし" : wantText}\n'
+      '#ガチャ活ポケット #ガチャ活 #ガチャ交換',
+    );
+  }
+
+  void _checkCompletion({bool celebrate = true}) {
+    bool allItemsOwned = widget.series.items.every((item) => _collection.containsKey(item.id));
+    if (_isSeriesCompleted != allItemsOwned) {
+      setState(() { _isSeriesCompleted = allItemsOwned; });
+      if (allItemsOwned && celebrate) { _playCompletionAnimation(); }
+    }
+  }
+  void _playCompletionAnimation() {
+    if (!mounted) return;
+    showCompletionCelebration(context, widget.series);
+  }
+
+  Future<void> _openSource() async {
+    final url = widget.series.sourceUrl;
+    if (url.isEmpty) return;
+    await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final series = widget.series;
+    final collectedCount = series.items.where((i) => _collection.containsKey(i.id)).length;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(series.name, style: const TextStyle(fontSize: 16)),
+        actions: [
+          IconButton(icon: const Icon(Icons.swap_horiz), tooltip: '譲/求カード', onPressed: _shareTrade,),
+          IconButton(icon: const Icon(Icons.share), tooltip: 'シェア', onPressed: _shareSeries,),
+          IconButton(icon: Icon(_isWished ? Icons.star_rounded : Icons.star_outline_rounded, color: _isWished ? Colors.amber[700] : null), tooltip: 'ウィッシュリスト', onPressed: _toggleWishlist,),
+        ],
+      ),
+      body: SafeArea(
+        child: ListView(
+          children: [
+            GachaImage(series.mainImage, height: 250, width: double.infinity, fit: BoxFit.contain),
+            Padding(padding: const EdgeInsets.all(16.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  MakerBadge(series.maker),
+                  if (series.maker == Maker.bandai) _InfoChip(series.gachaType.label),
+                  _InfoChip(formatYen(series.price)),
+                  if (series.releaseDateText.isNotEmpty) _InfoChip(series.releaseDateText),
+                  if (series.numTypes != null && series.numTypes!.isNotEmpty) _InfoChip(series.numTypes!),
+                  if (series.targetAge != null && series.targetAge!.isNotEmpty) _InfoChip('対象年齢 ${series.targetAge}'),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (series.description != null && series.description!.isNotEmpty)
+                Text(series.description!, style: const TextStyle(height: 1.5)),
+              if (series.sourceUrl.isNotEmpty)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: TextButton.icon(
+                    onPressed: _openSource,
+                    icon: const Icon(Icons.open_in_new, size: 16),
+                    label: const Text('公式サイトで見る'),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              _isSeriesCompleted
+                  ? const Text('🎉 このシリーズはコンプリート済みです！🎉', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: kBrandPurpleDark),)
+                  : Text('獲得 $collectedCount / ${series.items.length}', style: const TextStyle(fontSize: 16, color: Colors.grey),),
+            ],),),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('アイテム一覧', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
+                  Text('タップで獲得切替・獲得済みを長押しでダブり数を編集', style: TextStyle(fontSize: 12, color: Colors.grey[600]),),
+                  if (series.lineupUnknown)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text('公式サイトにラインナップ名の掲載がないため、番号(No.)で管理します',
+                          style: TextStyle(fontSize: 12, color: kBrandPinkDark)),
+                    ),
+                ],
+              ),
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(8.0),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+              ),
+              itemCount: series.items.length,
+              itemBuilder: (context, index) {
+                final item = series.items[index];
+                final entry = _collection[item.id];
+                final isFound = entry != null;
+
+                return InkWell(
+                  onTap: () => _toggleItemStatus(item.id),
+                  onLongPress: isFound ? () => _showCountSheet(item) : null,
+                  child: GridTile(
+                    footer: GridTileBar(
+                      backgroundColor: Colors.black45,
+                      title: Text(item.name, style: const TextStyle(fontSize: 12), textAlign: TextAlign.center,),
+                    ),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Opacity(
+                          opacity: isFound ? 1.0 : 0.3,
+                          child: GachaImage(item.image, borderRadius: BorderRadius.circular(10)),
+                        ),
+                        if (isFound)
+                          const Center(
+                            child: Icon(Icons.check_circle, color: Colors.greenAccent, size: 40, shadows: [Shadow(color: Colors.black54, blurRadius: 4)]),
+                          ),
+                        if (entry != null && entry.count > 1)
+                          Positioned(
+                            top: 4,
+                            right: 4,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(color: kBrandPurple, borderRadius: BorderRadius.circular(10)),
+                              child: Text('×${entry.count}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoChip extends StatelessWidget {
+  final String text;
+  const _InfoChip(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: kBrandPurple.withValues(alpha: 0.15)),
+      ),
+      child: Text(text, style: const TextStyle(fontSize: 12, color: kBrandInk)),
+    );
+  }
+}
