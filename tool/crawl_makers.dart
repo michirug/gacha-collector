@@ -208,6 +208,8 @@ List<Map<String, String>> buildItems({
   );
 }
 
+// 収録するのは事実データ(商品名・価格・発売時期・種類数・ラインナップ名・画像URL)のみ。
+// 説明文はメーカーの著作物なのでラインナップ抽出に使うだけで出力しない。
 Map<String, dynamic> buildEntry({
   required String id,
   required String maker,
@@ -217,7 +219,6 @@ Map<String, dynamic> buildEntry({
   required String releaseDate,
   required int? typeCount,
   required String targetAge,
-  required String description,
   required String mainImage,
   required List<Map<String, String>> items,
   required bool lineupUnknown,
@@ -232,9 +233,6 @@ Map<String, dynamic> buildEntry({
     'release_date': releaseDate,
     'num_types': typeCount == null ? '' : '全$typeCount種',
     'target_age': targetAge,
-    'description': description,
-    'special_site_name': '',
-    'additional_notes': '',
     'image_url': mainImage,
     'lineup_unknown': lineupUnknown,
     'items': items,
@@ -321,7 +319,6 @@ class TakaraTomyArtsCrawler extends MakerCrawler {
       releaseDate: releaseDate,
       typeCount: typeCount ?? items.length,
       targetAge: '',
-      description: description,
       mainImage: mainImage,
       items: items,
       lineupUnknown: names.isEmpty,
@@ -413,7 +410,6 @@ class KitanCrawler extends MakerCrawler {
       releaseDate: releaseDate,
       typeCount: typeCount ?? items.length,
       targetAge: '',
-      description: description,
       mainImage: mainImage,
       items: items,
       lineupUnknown: names.isEmpty,
@@ -506,7 +502,6 @@ class BushiroadCrawler extends MakerCrawler {
       releaseDate: releaseDate,
       typeCount: typeCount ?? items.length,
       targetAge: targetAge,
-      description: description,
       mainImage: mainImage,
       items: items,
       lineupUnknown: names.isEmpty,
@@ -585,7 +580,6 @@ class SotaCrawler extends MakerCrawler {
             !src.contains('CPtenpo') &&
             !src.contains('-scaled'))
         .toList();
-    final description = textWithBreaks(doc.querySelector('.descriptionArea'));
     final items = buildItems(
         names: const [], images: images, mainImage: mainImage, typeCount: typeCount);
     if (items.isEmpty) return null;
@@ -599,7 +593,6 @@ class SotaCrawler extends MakerCrawler {
       releaseDate: releaseDate,
       typeCount: typeCount ?? items.length,
       targetAge: '',
-      description: description,
       mainImage: mainImage,
       items: items,
       lineupUnknown: true,

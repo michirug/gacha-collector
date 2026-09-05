@@ -202,7 +202,7 @@ class _MyPageState extends State<MyPage> {
                   ListTile(
                     leading: const Icon(Icons.upload_file_outlined),
                     title: const Text('バックアップを書き出す'),
-                    subtitle: const Text('JSONファイルを共有・保存'),
+                    subtitle: const Text('JSONファイルを共有・保存(自分で撮った写真は含まれません)'),
                     onTap: _exportBackup,
                   ),
                   const Divider(height: 1),
@@ -232,6 +232,14 @@ class _MyPageState extends State<MyPage> {
                     title: const Text('利用規約'),
                     trailing: const Icon(Icons.open_in_new, size: 18),
                     onTap: () => _openUrl(kTermsOfServiceUrl),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.gavel_outlined),
+                    title: const Text('権利者の方へ(掲載内容の削除依頼)'),
+                    subtitle: const Text('商品情報・画像の権利は各権利者に帰属します。ご連絡には速やかに対応します'),
+                    trailing: const Icon(Icons.mail_outline, size: 18),
+                    onTap: () => _openUrl('mailto:$kContactEmail?subject=${Uri.encodeComponent('【ガチャ活ポケット】掲載内容の削除依頼')}'),
                   ),
                 ],
               ),
@@ -361,7 +369,7 @@ class _MyPageState extends State<MyPage> {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 6),
       child: ListTile(
         dense: true,
-        leading: GachaImage(record.item.image, width: 48, height: 48, borderRadius: BorderRadius.circular(8)),
+        leading: GachaImage(record.item.image, maker: record.series.maker, width: 48, height: 48, borderRadius: BorderRadius.circular(8)),
         title: Text(record.item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(record.series.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         trailing: Text('${acquiredAt.month}/${acquiredAt.day}', style: TextStyle(color: Colors.grey[600])),

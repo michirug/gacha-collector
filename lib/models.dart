@@ -83,7 +83,6 @@ class GachaSeries {
   final String releaseDateText;
   final int price;
   final String mainImage;
-  final String? description;
   final String? numTypes;
   final String? targetAge;
   final String sourceUrl;
@@ -100,7 +99,6 @@ class GachaSeries {
     this.releaseDateText = '',
     required this.price,
     required this.mainImage,
-    this.description,
     this.numTypes,
     this.targetAge,
     this.sourceUrl = '',
@@ -146,7 +144,6 @@ class GachaSeries {
       releaseDateText: releaseDateText,
       price: parsePriceYen(json['price']?.toString()),
       mainImage: json['image_url']?.toString() ?? '',
-      description: json['description']?.toString() ?? '',
       numTypes: json['num_types']?.toString() ?? '',
       targetAge: json['target_age']?.toString() ?? '',
       sourceUrl: sourceUrl,
@@ -188,6 +185,8 @@ class CollectionEntry {
   DateTime? acquiredAt;
   int? paidPrice;
   int count;
+  // ユーザーが撮った写真のファイル名(端末内 photos/ 配下)。バックアップJSONには含まれるが写真本体は含まれない
+  String? photoPath;
 
   CollectionEntry({
     required this.itemId,
@@ -195,6 +194,7 @@ class CollectionEntry {
     this.acquiredAt,
     this.paidPrice,
     this.count = 1,
+    this.photoPath,
   });
 
   factory CollectionEntry.fromJson(Map<String, dynamic> json) {
@@ -206,6 +206,7 @@ class CollectionEntry {
           : null,
       paidPrice: int.tryParse(json['paidPrice']?.toString() ?? ''),
       count: int.tryParse(json['count']?.toString() ?? '') ?? 1,
+      photoPath: json['photoPath']?.toString(),
     );
   }
 
@@ -215,5 +216,6 @@ class CollectionEntry {
         if (acquiredAt != null) 'acquiredAt': acquiredAt!.toIso8601String(),
         if (paidPrice != null) 'paidPrice': paidPrice,
         'count': count,
+        if (photoPath != null) 'photoPath': photoPath,
       };
 }

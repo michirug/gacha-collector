@@ -201,7 +201,7 @@ class _HomePageState extends State<HomePage> {
         EmptyHint(icon: Icons.event_busy_outlined, message: emptyMessage)
       else
         SizedBox(
-          height: 236,
+          height: 262,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),

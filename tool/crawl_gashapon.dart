@@ -93,9 +93,6 @@ Map<String, dynamic>? parseDetailPage(
   final title = doc.querySelector('h1.pg-heading')?.text.trim() ?? '';
   if (title.isEmpty) return null;
 
-  final description =
-      doc.querySelector('.pg-detail__description')?.text.trim() ?? '';
-
   String price = '';
   String releaseDate = '';
   String numTypes = '';
@@ -139,9 +136,7 @@ Map<String, dynamic>? parseDetailPage(
     'release_date': releaseDate,
     'num_types': numTypes,
     'target_age': targetAge,
-    'description': description,
-    'special_site_name': '',
-    'additional_notes': '',
+    // 説明文はメーカーの著作物なので配信データに含めない(事実データのみ収録)
     'image_url': mainImage,
     'items': items,
   };

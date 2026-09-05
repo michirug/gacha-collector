@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'achievements.dart';
@@ -8,7 +11,10 @@ import 'gacha_repository.dart';
 import 'models.dart';
 import 'share_card.dart';
 import 'theme.dart';
+import 'user_photo_store.dart';
 import 'widgets.dart';
+
+const String kContactEmail = 'info@contentsmarketing.co.jp';
 
 // ItemListPage (シリーズ詳細ページ)
 class ItemListPage extends StatefulWidget {
@@ -39,6 +45,7 @@ class _ItemListPageState extends State<ItemListPage> {
     });
     // 初回ロード時は状態の同期のみ行い、演出は出さない(コンプ済みを開くたびに再生されるのを防ぐ)
     _checkCompletion(celebrate: false);
+    _loadUserPhotos();
   }
   Future<void> _toggleWishlist() async {
     final wishlist = await CollectionStore.loadWishlist();
@@ -115,6 +122,31 @@ class _ItemListPageState extends State<ItemListPage> {
                     IconButton(onPressed: current < 99 ? () { _changeItemCount(item.id, 1); setSheetState(() {}); } : null, icon: const Icon(Icons.add_circle_outline, size: 32),),
                   ],
                 ),
+                const Divider(height: 24),
+                Text('自分の写真', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[700])),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () { Navigator.pop(sheetContext); _setUserPhoto(item, ImageSource.camera); },
+                      icon: const Icon(Icons.photo_camera_outlined, size: 18),
+                      label: const Text('撮る'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () { Navigator.pop(sheetContext); _setUserPhoto(item, ImageSource.gallery); },
+                      icon: const Icon(Icons.photo_library_outlined, size: 18),
+                      label: const Text('アルバム'),
+                    ),
+                    if (_collection[item.id]?.photoPath != null)
+                      TextButton.icon(
+                        onPressed: () { Navigator.pop(sheetContext); _removeUserPhoto(item); },
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                        label: const Text('写真を削除'),
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 8),
               ],
             ),
@@ -122,6 +154,55 @@ class _ItemListPageState extends State<ItemListPage> {
         });
       },
     );
+  }
+
+  Future<void> _setUserPhoto(GachaItem item, ImageSource source) async {
+    final entry = _collection[item.id];
+    if (entry == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final fileName = await UserPhotoStore.pickAndSave(item.id, source);
+      if (fileName == null) return;
+      await UserPhotoStore.delete(entry.photoPath);
+      entry.photoPath = fileName;
+      await _saveCollection();
+      await _loadUserPhotos();
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('写真を保存できませんでした: $e')));
+    }
+  }
+
+  Future<void> _removeUserPhoto(GachaItem item) async {
+    final entry = _collection[item.id];
+    if (entry == null) return;
+    await UserPhotoStore.delete(entry.photoPath);
+    entry.photoPath = null;
+    await _saveCollection();
+    await _loadUserPhotos();
+  }
+
+  // photoPath(ファイル名) → File の解決結果。表示用にキャッシュする
+  final Map<String, File> _userPhotos = {};
+  Future<void> _loadUserPhotos() async {
+    final resolved = <String, File>{};
+    for (final item in widget.series.items) {
+      final path = _collection[item.id]?.photoPath;
+      if (path == null) continue;
+      final file = await UserPhotoStore.fileFor(path);
+      if (await file.exists()) resolved[item.id] = file;
+    }
+    if (!mounted) return;
+    setState(() {
+      _userPhotos
+        ..clear()
+        ..addAll(resolved);
+    });
+  }
+
+  Future<void> _contactAboutSeries() async {
+    final subject = Uri.encodeComponent('【ガチャ活ポケット】掲載内容について(${widget.series.id})');
+    final body = Uri.encodeComponent('対象商品: ${widget.series.name}\n公式URL: ${widget.series.sourceUrl}\n\nご用件(削除依頼・誤り指摘など):\n');
+    await launchUrl(Uri.parse('mailto:$kContactEmail?subject=$subject&body=$body'));
   }
 
   Future<void> _shareSeries() async {
@@ -203,7 +284,8 @@ class _ItemListPageState extends State<ItemListPage> {
       body: SafeArea(
         child: ListView(
           children: [
-            GachaImage(series.mainImage, height: 250, width: double.infinity, fit: BoxFit.contain),
+            GachaImage(series.mainImage, maker: series.maker, height: 250, width: double.infinity),
+            Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 0), child: ImageCredit(series.maker)),
             Padding(padding: const EdgeInsets.all(16.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Wrap(
                 spacing: 8,
@@ -219,8 +301,6 @@ class _ItemListPageState extends State<ItemListPage> {
                 ],
               ),
               const SizedBox(height: 16),
-              if (series.description != null && series.description!.isNotEmpty)
-                Text(series.description!, style: const TextStyle(height: 1.5)),
               if (series.sourceUrl.isNotEmpty)
                 Align(
                   alignment: Alignment.centerLeft,
@@ -242,7 +322,7 @@ class _ItemListPageState extends State<ItemListPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('アイテム一覧', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),),
-                  Text('タップで獲得切替・獲得済みを長押しでダブり数を編集', style: TextStyle(fontSize: 12, color: Colors.grey[600]),),
+                  Text('タップで獲得切替・獲得済みを長押しでダブり数や自分の写真を登録', style: TextStyle(fontSize: 12, color: Colors.grey[600]),),
                   if (series.lineupUnknown)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
@@ -280,7 +360,7 @@ class _ItemListPageState extends State<ItemListPage> {
                       children: [
                         Opacity(
                           opacity: isFound ? 1.0 : 0.3,
-                          child: GachaImage(item.image, borderRadius: BorderRadius.circular(10)),
+                          child: GachaImage(item.image, maker: series.maker, localFile: _userPhotos[item.id], borderRadius: BorderRadius.circular(10)),
                         ),
                         if (isFound)
                           const Center(
@@ -301,6 +381,21 @@ class _ItemListPageState extends State<ItemListPage> {
                   ),
                 );
               },
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('商品情報・画像の権利は各権利者に帰属します。掲載内容の削除依頼や誤りのご指摘は下記からお願いします。',
+                      style: TextStyle(fontSize: 11, color: Colors.grey[600], height: 1.4)),
+                  TextButton.icon(
+                    onPressed: _contactAboutSeries,
+                    icon: const Icon(Icons.mail_outline, size: 16),
+                    label: const Text('この商品の掲載について問い合わせる', style: TextStyle(fontSize: 12)),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

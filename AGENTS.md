@@ -32,7 +32,9 @@ v1.0再定義(リリース前に必須):
 - [x] 2. ホーム再設計(メーカーチップ/今月の新作/ウィッシュ発売間近/あと少しでコンプ/来月/発売カレンダー、ブランドテーマ、cached_network_image)。エミュレータで表示確認済み
 - [x] 3. バックアップ/復元(マイページ→JSON書き出し/復元(追加・置き換え))。エミュレータで往復確認済み
 - [x] 4. 譲/求カード生成(シリーズ詳細のswapアイコン。ダブり=譲、未獲得=求)
-- [ ] ストア掲載文(メーカー横断を訴求)・スクショを新UIに合わせて更新(`integration_test/screenshots_test.dart` は新UIに未対応、要修正) → Play Console提出(`store/store_listing.md` §8〜9)
+- [x] 5. 著作権リスク低減(段階A): 説明文の配信停止(既存JSONからも削除)、トリミング廃止・画像枠を正方形に、出典表記、権利者向け削除窓口(マイページ/シリーズ詳細→mailto)、`ImagePolicy`によるメーカー単位の公式画像オフ、端末内「自分の写真」(長押しシート→撮る/アルバム)
+- [ ] ストア掲載文(メーカー横断を訴求)・スクショを新UIに合わせて更新。**スクショに公式画像を入れない**(DEMO_MODEで自前のプレースホルダー/ユーザー写真を使う)。`integration_test/screenshots_test.dart` は新UIに未対応、要修正 → Play Console提出(`store/store_listing.md` §8〜9)
+- [ ] 段階B(v1.1・サーバー導入): 写真投稿→自動判定(不適切/一致度/画質)→承認→配信、通報・ブロック、投稿者クレジット。利用規約(投稿ライセンス)・プライバシーポリシー・データセーフティの改定が必要。バックエンド選定から設計メモを作る
 
 Play Console側(コードと無関係、先行して実施):
 - [ ] 組織アカウントの確認状況チェック。2026-09-30期限「Androidデベロッパーの確認」リマインダー(Google Play一斉送信)が届いている → Play Consoleホームで未登録アプリ・アカウント確認状態を確認
@@ -65,7 +67,9 @@ lib/
   my_page.dart            マイページ(サマリー/実績/最近の獲得/ウィッシュ/獲得中/バックアップ/法的文書)
   widgets.dart            GachaImage(キャッシュ画像)/MakerBadge/SeriesTile/SeriesPosterCard/SectionHeader/EmptyHint、formatYen
   theme.dart              ブランドテーマ(紫#7C4DFF×ピンク#FF7BAC、クリーム背景)
-  backup.dart             BackupService(JSON書き出し→share_plus、file_pickerで復元、追加/置き換え)
+  backup.dart             BackupService(JSON書き出し→share_plus、file_pickerで復元、追加/置き換え。写真本体は含まない)
+  image_policy.dart       ImagePolicy(assets/app_config.json をリモート取得し、メーカー/シリーズ単位で公式画像を非表示)
+  user_photo_store.dart   UserPhotoStore(image_pickerで撮影/選択→端末内 photos/ に保存、CollectionEntry.photoPath)
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
   collection_store.dart   SharedPreferences永続化・マイグレーション(schema v2)
@@ -88,6 +92,7 @@ test/
   completion_celebration_test.dart  コンプ演出の回帰テスト(開くだけでは出ない/最後の1個獲得で出る)
   crawl_makers_test.dart  各メーカーのパーサー回帰テスト(test/fixtures/*.html が実ページの保存物)
   backup_test.dart        バックアップのラウンドトリップ/不正ファイル拒否/マージ
+  image_policy_test.dart  リモート設定の解析、photoPathの往復
   その他 achievements/collection_migration/release_date(価格・メーカー解析含む)/spend_wishlist/widget_test
 integration_test/screenshots_test.dart  + test_driver/integration_test.dart  スクショ自動撮影
 tool/crawl_gashapon.dart  バンダイ(gashapon.jp)クローラー
@@ -98,7 +103,7 @@ tool/crawl_makers.dart    他メーカークローラー(--maker= --max= --backf
 
 ```powershell
 flutter analyze
-flutter test                                   # 36テスト(素材生成テストはskip)
+flutter test                                   # 39テスト(素材生成テストはskip)
 flutter build appbundle --release              # → build/app/outputs/bundle/release/app-release.aab
 
 # データ取得(新着のみ / 全件バックフィル。2秒間隔、100件ごとに保存、再実行は既存IDをスキップ)
@@ -121,7 +126,7 @@ flutter drive --driver=test_driver/integration_test.dart --target=integration_te
 - **テストでのcelebration.dart**: アニメが無限ループなので `pumpAndSettle` ではなく固定時間 `pump` を使う
 - **ウィジェットテストのタップ**: デフォルト画面800x600で下部要素は画面外 → `ensureVisible` してからタップ
 - **ターゲット年齢**: 子ども向けUXは作らない(ファミリーポリシー回避)。Play Consoleのターゲット層は13歳以上
-- **画像**: 商品画像はメーカー公式サイトから取得して表示(著作権指摘が来たら対応が必要)
+- **著作権方針(2026-09-04決定、詳細は store/strategy.md「著作権方針」)**: 「直リンクだから安全」とは考えない(漫画村事件の規範的主体論)。配信データは事実(商品名/価格/発売時期/種類数/ラインナップ名/画像URL)のみで、**説明文は収録しない**(クローラーも出力しない)。公式画像は `BoxFit.contain` で**トリミングせず**©表記を落とさない(リツイート事件の氏名表示権論点)。`GachaImage` には必ず `maker:` を渡し、`ImagePolicy`(`assets/app_config.json` をリモート取得)でメーカー単位/シリーズ単位に即時非表示できる。ストアのスクショに公式画像を入れない。ユーザー写真(`UserPhotoStore`、端末内 photos/)を公式画像より優先表示し、将来は投稿写真で公式画像を置き換えていく(v1.1でサーバー導入)
 
 ## 7. 戦略メモ要点(詳細は store/strategy.md)
 

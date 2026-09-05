@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'demo_seed.dart';
 import 'home_page.dart';
+import 'image_policy.dart';
 import 'my_page.dart';
 import 'theme.dart';
 
@@ -12,10 +15,12 @@ export 'series_page.dart';
 const bool kDemoMode = bool.fromEnvironment('DEMO_MODE');
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   if (kDemoMode) {
-    WidgetsFlutterBinding.ensureInitialized();
     await seedDemoData();
   }
+  // 公式画像の表示ポリシー(リモート設定)。起動をブロックしないよう待たない
+  unawaited(ImagePolicy.load());
   runApp(const GachaCollectorApp());
 }
 

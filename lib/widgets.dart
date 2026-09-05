@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'image_policy.dart';
 import 'models.dart';
 import 'theme.dart';
 
@@ -21,9 +24,13 @@ String shortReleaseLabel(GachaSeries series) {
   return '$yearPrefix${match.group(1)}月${match.group(2) ?? ''}';
 }
 
-// 画像キャッシュ付きのネットワーク画像。読み込み中・失敗時はブランド色のプレースホルダーを表示する
+// 商品画像。表示優先順は ユーザー写真(端末内) → 公式画像(直リンク・キャッシュ) → プレースホルダー。
+// 公式画像はトリミングせず(contain)全体を表示し、画像内の©表記・メーカーロゴを落とさない。
+// ImagePolicy でメーカー単位に非表示指定されている場合は公式画像を出さない。
 class GachaImage extends StatelessWidget {
   final String url;
+  final Maker? maker;
+  final File? localFile;
   final double? width;
   final double? height;
   final BoxFit fit;
@@ -32,24 +39,36 @@ class GachaImage extends StatelessWidget {
   const GachaImage(
     this.url, {
     super.key,
+    this.maker,
+    this.localFile,
     this.width,
     this.height,
-    this.fit = BoxFit.cover,
+    this.fit = BoxFit.contain,
     this.borderRadius,
   });
 
   @override
   Widget build(BuildContext context) {
-    final placeholder = Container(
-      width: width,
-      height: height,
-      color: kBrandPurple.withValues(alpha: 0.06),
-      child: Icon(Icons.toys_outlined,
-          size: 24, color: kBrandPurple.withValues(alpha: 0.35)),
-    );
-    final Widget image = url.isEmpty
-        ? placeholder
-        : CachedNetworkImage(
+    return ValueListenableBuilder<Set<String>>(
+      valueListenable: ImagePolicy.hiddenMakers,
+      builder: (context, _, _) {
+        final placeholder = Container(
+          width: width,
+          height: height,
+          color: kBrandPurple.withValues(alpha: 0.06),
+          child: Icon(Icons.toys_outlined,
+              size: 24, color: kBrandPurple.withValues(alpha: 0.35)),
+        );
+        Widget image;
+        if (localFile != null) {
+          // ユーザー写真は自分で撮ったものなので枠を埋める表示(cover)で良い
+          image = Image.file(localFile!,
+              width: width, height: height, fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => placeholder);
+        } else if (url.isEmpty || ImagePolicy.isMakerHidden(maker)) {
+          image = placeholder;
+        } else {
+          image = CachedNetworkImage(
             imageUrl: url,
             width: width,
             height: height,
@@ -58,8 +77,31 @@ class GachaImage extends StatelessWidget {
             placeholder: (_, _) => placeholder,
             errorWidget: (_, _, _) => placeholder,
           );
-    if (borderRadius == null) return image;
-    return ClipRRect(borderRadius: borderRadius!, child: image);
+        }
+        if (borderRadius == null) return image;
+        return ClipRRect(borderRadius: borderRadius!, child: image);
+      },
+    );
+  }
+}
+
+// 「画像: ○○公式サイト」の出典表記
+class ImageCredit extends StatelessWidget {
+  final Maker maker;
+  const ImageCredit(this.maker, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<Set<String>>(
+      valueListenable: ImagePolicy.hiddenMakers,
+      builder: (context, _, _) {
+        final hidden = ImagePolicy.isMakerHidden(maker);
+        return Text(
+          hidden ? '公式画像は現在表示していません' : '画像: ${maker.label}公式サイトより(権利は各権利者に帰属)',
+          style: TextStyle(fontSize: 10.5, color: Colors.grey[600]),
+        );
+      },
+    );
   }
 }
 
@@ -160,7 +202,7 @@ class SeriesPosterCard extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  GachaImage(series.mainImage, width: 150, height: 120),
+                  GachaImage(series.mainImage, maker: series.maker, width: 150, height: 150),
                   if (onWishTap != null)
                     Positioned(
                       top: 4,
@@ -246,7 +288,7 @@ class SeriesTile extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              GachaImage(series.mainImage,
+              GachaImage(series.mainImage, maker: series.maker,
                   width: 72, height: 72, borderRadius: BorderRadius.circular(12)),
               const SizedBox(width: 12),
               Expanded(
