@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'demo_art.dart';
 import 'image_policy.dart';
 import 'models.dart';
 import 'theme.dart';
@@ -65,6 +66,8 @@ class GachaImage extends StatelessWidget {
           image = Image.file(localFile!,
               width: width, height: height, fit: BoxFit.cover,
               errorBuilder: (_, _, _) => placeholder);
+        } else if (ImagePolicy.useDemoArt && url.isNotEmpty) {
+          image = SizedBox(width: width, height: height, child: DemoCapsuleArt(url));
         } else if (url.isEmpty || ImagePolicy.isMakerHidden(maker)) {
           image = placeholder;
         } else {
@@ -95,6 +98,7 @@ class ImageCredit extends StatelessWidget {
     return ValueListenableBuilder<Set<String>>(
       valueListenable: ImagePolicy.hiddenMakers,
       builder: (context, _, _) {
+        if (ImagePolicy.useDemoArt) return const SizedBox.shrink();
         final hidden = ImagePolicy.isMakerHidden(maker);
         return Text(
           hidden ? '公式画像は現在表示していません' : '画像: ${maker.label}公式サイトより(権利は各権利者に帰属)',

@@ -2,12 +2,14 @@
 // --dart-define=DEMO_MODE=true のときだけ main() から呼ばれる。リリースビルドには影響しない。
 import 'collection_store.dart';
 import 'gacha_repository.dart';
+import 'image_policy.dart';
 import 'models.dart';
 
 /// シード対象のシリーズ(新しい順)。スクショ撮影テストと共有する。
 List<GachaSeries> demoCandidateSeries(List<GachaSeries> allSeries) {
   return allSeries
-      .where((s) => s.items.length >= 4 && s.items.length <= 10 && s.price > 0)
+      .where((s) =>
+          s.items.length >= 4 && s.items.length <= 10 && s.price > 0 && !s.lineupUnknown)
       .toList()
     ..sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
 }
@@ -20,6 +22,8 @@ int demoPartialOwnedCount(GachaSeries series) =>
 const int kDemoCompleteSeriesCount = 5;
 
 Future<void> seedDemoData() async {
+  // ストア素材に公式画像を含めない: 見本イラストで描画する
+  ImagePolicy.useDemoArt = true;
   final allSeries = await GachaRepository.loadAll();
   final candidates = demoCandidateSeries(allSeries);
   if (candidates.length < 13) return;

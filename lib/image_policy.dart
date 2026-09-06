@@ -18,6 +18,8 @@ class ImagePolicy {
   static const String _prefsKey = 'app_config_json';
   static final ValueNotifier<Set<String>> hiddenMakers = ValueNotifier({});
   static final ValueNotifier<Set<String>> hiddenSeries = ValueNotifier({});
+  // DEMO_MODE: 公式画像の代わりに自前の見本イラストを描く(ストア素材に公式画像を含めないため)
+  static bool useDemoArt = false;
 
   static bool isMakerHidden(Maker? maker) =>
       maker != null && hiddenMakers.value.contains(maker.code);
