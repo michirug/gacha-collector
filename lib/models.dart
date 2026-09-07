@@ -187,6 +187,8 @@ class CollectionEntry {
   int count;
   // ユーザーが撮った写真のファイル名(端末内 photos/ 配下)。バックアップJSONには含まれるが写真本体は含まれない
   String? photoPath;
+  // みんなの図鑑に共有した場合の投稿ID(サーバー側 photos.id)。未共有なら null
+  String? sharedPhotoId;
 
   CollectionEntry({
     required this.itemId,
@@ -195,6 +197,7 @@ class CollectionEntry {
     this.paidPrice,
     this.count = 1,
     this.photoPath,
+    this.sharedPhotoId,
   });
 
   factory CollectionEntry.fromJson(Map<String, dynamic> json) {
@@ -207,6 +210,7 @@ class CollectionEntry {
       paidPrice: int.tryParse(json['paidPrice']?.toString() ?? ''),
       count: int.tryParse(json['count']?.toString() ?? '') ?? 1,
       photoPath: json['photoPath']?.toString(),
+      sharedPhotoId: json['sharedPhotoId']?.toString(),
     );
   }
 
@@ -217,5 +221,6 @@ class CollectionEntry {
         if (paidPrice != null) 'paidPrice': paidPrice,
         'count': count,
         if (photoPath != null) 'photoPath': photoPath,
+        if (sharedPhotoId != null) 'sharedPhotoId': sharedPhotoId,
       };
 }

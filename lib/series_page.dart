@@ -7,6 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'achievements.dart';
 import 'celebration.dart';
 import 'collection_store.dart';
+import 'community_consent_dialog.dart';
+import 'community_service.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
 import 'share_card.dart';
@@ -147,6 +149,28 @@ class _ItemListPageState extends State<ItemListPage> {
                       ),
                   ],
                 ),
+                if (CommunityService.isConfigured && _collection[item.id]?.photoPath != null) ...[
+                  const SizedBox(height: 8),
+                  if (_collection[item.id]?.sharedPhotoId != null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.public, size: 16, color: Colors.grey[600]),
+                        const SizedBox(width: 4),
+                        Text('みんなの図鑑に共有中', style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+                        TextButton(
+                          onPressed: () { Navigator.pop(sheetContext); _unsharePhoto(item); },
+                          child: const Text('取り消す', style: TextStyle(fontSize: 12)),
+                        ),
+                      ],
+                    )
+                  else
+                    TextButton.icon(
+                      onPressed: () { Navigator.pop(sheetContext); _sharePhoto(item, askFirst: true); },
+                      icon: const Icon(Icons.public, size: 18),
+                      label: const Text('みんなの図鑑に共有する'),
+                    ),
+                ],
                 const SizedBox(height: 8),
               ],
             ),
@@ -164,9 +188,21 @@ class _ItemListPageState extends State<ItemListPage> {
       final fileName = await UserPhotoStore.pickAndSave(item.id, source);
       if (fileName == null) return;
       await UserPhotoStore.delete(entry.photoPath);
+      if (entry.sharedPhotoId != null) {
+        // 写真を差し替えたら旧投稿は取り消す
+        await _tryRemoveShared(entry);
+      }
       entry.photoPath = fileName;
       await _saveCollection();
       await _loadUserPhotos();
+      // 同意済みで「自動で共有」がオンなら、そのまま共有する。初回は同意ダイアログを出す
+      if (CommunityService.isConfigured) {
+        final consented = await CommunityService.hasConsented();
+        if (!consented || await CommunityService.shareByDefault()) {
+          if (!mounted) return;
+          await _sharePhoto(item, askFirst: !consented);
+        }
+      }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('写真を保存できませんでした: $e')));
     }
@@ -176,9 +212,51 @@ class _ItemListPageState extends State<ItemListPage> {
     final entry = _collection[item.id];
     if (entry == null) return;
     await UserPhotoStore.delete(entry.photoPath);
+    await _tryRemoveShared(entry);
     entry.photoPath = null;
     await _saveCollection();
     await _loadUserPhotos();
+  }
+
+  Future<void> _tryRemoveShared(CollectionEntry entry) async {
+    final id = entry.sharedPhotoId;
+    if (id == null) return;
+    try {
+      await CommunityService.removeOwnPhoto(id);
+    } catch (_) {}
+    entry.sharedPhotoId = null;
+  }
+
+  // 「みんなの図鑑」への共有。askFirst=true なら規約への同意ダイアログを先に出す
+  Future<void> _sharePhoto(GachaItem item, {required bool askFirst}) async {
+    final entry = _collection[item.id];
+    final file = _userPhotos[item.id];
+    if (entry == null || file == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    if (askFirst) {
+      final agreed = await showCommunityConsentDialog(context);
+      if (agreed != true) return;
+      await CommunityService.recordConsent();
+    }
+    try {
+      final photoId = await CommunityService.uploadPhoto(
+          series: widget.series, item: item, file: file);
+      entry.sharedPhotoId = photoId;
+      await _saveCollection();
+      messenger.showSnackBar(const SnackBar(
+          content: Text('みんなの図鑑に送信しました。確認後に他の人にも表示されます(長押しから取り消せます)')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('共有できませんでした: $e')));
+    }
+  }
+
+  Future<void> _unsharePhoto(GachaItem item) async {
+    final entry = _collection[item.id];
+    if (entry == null) return;
+    await _tryRemoveShared(entry);
+    await _saveCollection();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('共有を取り消しました')));
   }
 
   // photoPath(ファイル名) → File の解決結果。表示用にキャッシュする

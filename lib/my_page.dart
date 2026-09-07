@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'achievements.dart';
 import 'backup.dart';
 import 'collection_store.dart';
+import 'community_service.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
 import 'series_page.dart';
@@ -36,6 +37,8 @@ class _MyPageState extends State<MyPage> {
   int _totalSpend = 0;
   int _monthSpend = 0;
   bool _isLoading = true;
+  bool _communityConsented = false;
+  bool _shareByDefault = false;
 
   @override
   void initState() {
@@ -53,6 +56,10 @@ class _MyPageState extends State<MyPage> {
     await AchievementService.evaluate(
         computeAchievementStats(_collection, _allSeries));
     _unlockedAchievements = await AchievementService.loadUnlocked();
+    if (CommunityService.isConfigured) {
+      _communityConsented = await CommunityService.hasConsented();
+      _shareByDefault = await CommunityService.shareByDefault();
+    }
     _processCollectionData();
   }
 
@@ -215,6 +222,47 @@ class _MyPageState extends State<MyPage> {
                 ],
               ),
             ),
+            if (CommunityService.isConfigured) ...[
+              const SectionHeader('みんなの図鑑(写真共有)'),
+              Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      secondary: const Icon(Icons.public),
+                      title: const Text('写真を登録したら自動で共有する'),
+                      subtitle: Text(_communityConsented
+                          ? '長押しメニューから個別に取り消せます'
+                          : '初回の共有時に利用規約への同意をお願いします'),
+                      value: _shareByDefault,
+                      onChanged: _communityConsented
+                          ? (v) async {
+                              await CommunityService.setShareByDefault(v);
+                              if (mounted) setState(() => _shareByDefault = v);
+                            }
+                          : null,
+                    ),
+                    if (CommunityService.currentUserId != null) ...[
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.fingerprint),
+                        title: const Text('匿名ID'),
+                        subtitle: Text(CommunityService.currentUserId!,
+                            style: const TextStyle(fontSize: 11)),
+                        trailing: const Icon(Icons.mail_outline, size: 18),
+                        onTap: () => _openUrl(
+                            'mailto:$kContactEmail?subject=${Uri.encodeComponent('【ガチャ活ポケット】共有データの削除依頼(${CommunityService.currentUserId})')}'),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        child: Text('このIDに紐付く共有データの削除は上記からご依頼ください。氏名などの個人情報は含まれません',
+                            style: TextStyle(fontSize: 11, color: Colors.grey[600])),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
             const SectionHeader('このアプリについて'),
             Card(
               margin: const EdgeInsets.symmetric(horizontal: 16.0),

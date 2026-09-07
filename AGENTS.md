@@ -37,7 +37,13 @@ v1.0再定義(リリース前に必須):
 - [x] 審査提出版を確定: タグ `v1.0.0`・ブランチ `release/1.0`(コミット `9c98b1e`)。提出用AABは `C:\Users\wioiw\Downloads\devin\gacha_collector\release\gacha_pocket_v1.0.0_739620B3.aab`(SHA256先頭 739620B3、リポジトリ外に保管)。以後 main は段階Bの開発に使い、v1.0の修正は release/1.0 で行う
 - [ ] **Play Console提出**(`store/store_listing.md` §8〜9)。データセーフティは引き続き「収集なし」(写真は端末内のみ)。**提出は本店所在地変更の登記完了 → D-U-N-S更新 → Play Consoleのデベロッパー情報(住所・新電話番号)更新・確認完了の後**に行う(デベロッパー情報の変更が再確認を起動して公開が止まるのを避ける)
 - **重要(段階B開発中の制約)**: 公開済みアプリ(v1.0)は `main` ブランチの `assets/gacha_data.json` と `assets/app_config.json` をraw URLで直接読む。main側でこれらのスキーマを変える場合は**後方互換(フィールド追加のみ)**にすること。互換を壊す変更が必要なら配信URLをバージョン付きパスに分ける
-- [ ] 段階B(v1.1・サーバー導入): 設計メモ `store/photo_sharing_design.md` 作成済。未決事項(バックエンド=Supabase案、承認人数、着手時期など)をユーザーと決めてから着手
+- 段階B(v1.1・サーバー導入、設計: `store/photo_sharing_design.md`)。決定: Supabase / 初期はニックネーム無し / 承認3人固定
+  - [x] B-0: スキーマ `supabase/migrations/0001_photos.sql`(テーブル・RLS・RPC・Storageバケット)、Edge Function骨格 `supabase/functions/judge-photo`、手順書 `supabase/README.md`、法的文書改定案 `store/legal_drafts_phase_b.md`(**docs/ は段階Bリリース時まで書き換えない**)
+  - [x] B-1(アプリ側): `CommunityService`(匿名サインイン/同意/アップロード/取り消し/承認・通報・ブロックRPC)、同意ダイアログ、長押しシートに「みんなの図鑑に共有」、マイページに自動共有トグルと匿名ID。`--dart-define=SUPABASE_URL/SUPABASE_ANON_KEY` 未指定なら全て無効(v1.0と同じ挙動)。写真は保存時に `sanitizeJpeg` でEXIF除去・長辺1200px
+  - [ ] **ユーザー作業**: Supabaseプロジェクト作成→SQL適用→anonキーを `--dart-define` で渡して実機確認(`supabase/README.md` §1〜3)
+  - [ ] B-2: 採用写真の配信(スナップショットJSON → `GachaImage` の優先順位に組み込み)、承認UI、通報UI、Edge Functionの一致度判定、Webhook設定
+  - [ ] B-3: いいね・差し替え・実績・クレジット
+- Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 
 Play Console側(コードと無関係、先行して実施):
 - [ ] 組織アカウントの確認状況チェック。2026-09-30期限「Androidデベロッパーの確認」リマインダー(Google Play一斉送信)が届いている → Play Consoleホームで未登録アプリ・アカウント確認状態を確認
@@ -72,7 +78,9 @@ lib/
   theme.dart              ブランドテーマ(紫#7C4DFF×ピンク#FF7BAC、クリーム背景)
   backup.dart             BackupService(JSON書き出し→share_plus、file_pickerで復元、追加/置き換え。写真本体は含まない)
   image_policy.dart       ImagePolicy(assets/app_config.json をリモート取得し、メーカー/シリーズ単位で公式画像を非表示)
-  user_photo_store.dart   UserPhotoStore(image_pickerで撮影/選択→端末内 photos/ に保存、CollectionEntry.photoPath)
+  user_photo_store.dart   UserPhotoStore(image_pickerで撮影/選択→sanitizeJpegでEXIF除去・縮小→端末内 photos/ に保存、CollectionEntry.photoPath)
+  community_service.dart  CommunityService(Supabase: 匿名認証・写真アップロード・取り消し・承認/通報/ブロックRPC。--dart-define未設定なら無効)
+  community_consent_dialog.dart  写真共有の初回同意ダイアログ(UGCポリシーの規約同意)
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
   collection_store.dart   SharedPreferences永続化・マイグレーション(schema v2)
@@ -100,13 +108,15 @@ test/
 integration_test/screenshots_test.dart  + test_driver/integration_test.dart  スクショ自動撮影
 tool/crawl_gashapon.dart  バンダイ(gashapon.jp)クローラー
 tool/crawl_makers.dart    他メーカークローラー(--maker= --max= --backfill)
+tool/publish_release.dart Play Publishing APIで配信(AAB/掲載文/スクショ)。手順: tool/PUBLISHING.md
+supabase/                 段階Bのバックエンド定義(migrations/ functions/ README.md)
 ```
 
 ## 5. よく使うコマンド
 
 ```powershell
 flutter analyze
-flutter test                                   # 39テスト(素材生成テストはskip)
+flutter test                                   # 42テスト(素材生成テストはskip)
 flutter build appbundle --release              # → build/app/outputs/bundle/release/app-release.aab
 
 # データ取得(新着のみ / 全件バックフィル。2秒間隔、100件ごとに保存、再実行は既存IDをスキップ)
