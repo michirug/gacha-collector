@@ -134,6 +134,8 @@ flutter drive --driver=test_driver/integration_test.dart --target=integration_te
 
 ## 6. 設計上の決定・注意点
 
+- **Gitの運用**: コミットしたら `main` は都度 `git push origin main` する(ユーザー了承済み、2026-09-06)。`release/1.0` と `v1.0.0` もリモートにpush済み。鍵・パスワード類は絶対にコミットしない(`android/key.properties` 等は gitignore)
+
 - **コンプ演出**: `_checkCompletion(celebrate: false)` を初期ロード時に呼び、既コンプ状態を同期。演出は最後の1個を獲得した瞬間のみ。壊さないこと(`test/completion_celebration_test.dart`が守る)
 - **DEMO_MODE**: `--dart-define=DEMO_MODE=true` のときだけ `seedDemoData()` が走る。本番ビルドには影響なし
 - **テストでのcelebration.dart**: アニメが無限ループなので `pumpAndSettle` ではなく固定時間 `pump` を使う
