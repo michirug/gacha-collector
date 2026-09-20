@@ -51,14 +51,23 @@ npx supabase functions deploy judge-photo --no-verify-jwt
 - `npx supabase secrets set MATCH_MODEL_API_KEY=<Gemini APIキー>` — 一致度判定。Google AI Studio(https://aistudio.google.com/apikey)で無料枠のキーを作る。未設定なら一致度 0.5 固定(承認任せ)
 - `npx supabase secrets set GOOGLE_VISION_API_KEY=<Cloud Vision キー>` — SafeSearch。未設定なら不適切判定をスキップ
 
-### 4-2. Webhook(ダッシュボード)
+**`npx supabase login` は一度やればトークンがPCに保存され、以後は Devin 側のシェルからも `npx supabase ...` が使える**
+(`functions deploy` / `secrets set` / `db query --linked` など。`db query --linked` は Management API 経由なので DB パスワード不要。
+1回の呼び出しに1文だけ渡す。複数文をまとめると黙って失敗する)。
 
-Database → Webhooks → Enable webhooks(初回)→ Create a new hook
-- Name: `judge_photo`
-- Table: `photos` / Events: **Insert** と **Update**
-- Type: **Supabase Edge Functions** → `judge-photo`
-- HTTP Headers: `x-webhook-secret` = 4-1 で控えた値を追加(Authorization ヘッダは自動で付くのでそのまま)
-- Timeout: `10000`(ms。Gemini 呼び出しが数秒かかる)
+### 4-2. Webhook
+
+Integrations → Database Webhooks → Install(pg_net 有効化、初回のみ)。その後はダッシュボードのフォームでも、
+次の SQL(フォームが裏で作るトリガーと同じ)でも作れる:
+
+```sql
+create trigger judge_photo after insert or update on public.photos
+for each row execute function supabase_functions.http_request(
+  'https://<project-ref>.supabase.co/functions/v1/judge-photo', 'POST',
+  '{"Content-type":"application/json","x-webhook-secret":"<WEBHOOK_SECRET>"}', '{}', '10000');
+```
+
+(2026-09-20 に作成済み。secret を変えたら `drop trigger judge_photo on photos` して作り直す)
 
 ### 4-3. 動作確認
 
