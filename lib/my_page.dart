@@ -514,7 +514,11 @@ class _MyPageState extends State<MyPage> {
         dense: true,
         leading: GachaImage(record.item.image, maker: record.series.maker, itemId: record.item.id, seriesId: record.series.id, width: 48, height: 48, borderRadius: BorderRadius.circular(8)),
         title: Text(record.item.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text(record.series.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+        subtitle: Text(
+          record.entry.place != null ? '${record.series.name}・📍${record.entry.place}' : record.series.name,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         trailing: Text('${acquiredAt.month}/${acquiredAt.day}', style: TextStyle(color: Colors.grey[600])),
         onTap: () => _openSeries(record.series),
       ),

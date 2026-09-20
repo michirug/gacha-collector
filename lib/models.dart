@@ -191,6 +191,9 @@ class CollectionEntry {
   String? photoPath;
   // みんなの図鑑に共有した場合の投稿ID(サーバー側 photos.id)。未共有なら null
   String? sharedPhotoId;
+  // 獲得時のメモと場所(店名など)。端末内のみ。空文字は未設定として扱う
+  String? memo;
+  String? place;
 
   CollectionEntry({
     required this.itemId,
@@ -200,7 +203,11 @@ class CollectionEntry {
     this.count = 1,
     this.photoPath,
     this.sharedPhotoId,
+    this.memo,
+    this.place,
   });
+
+  bool get hasNote => (memo?.isNotEmpty ?? false) || (place?.isNotEmpty ?? false);
 
   factory CollectionEntry.fromJson(Map<String, dynamic> json) {
     return CollectionEntry(
@@ -213,7 +220,14 @@ class CollectionEntry {
       count: int.tryParse(json['count']?.toString() ?? '') ?? 1,
       photoPath: json['photoPath']?.toString(),
       sharedPhotoId: json['sharedPhotoId']?.toString(),
+      memo: _nonEmpty(json['memo']),
+      place: _nonEmpty(json['place']),
     );
+  }
+
+  static String? _nonEmpty(dynamic value) {
+    final text = value?.toString().trim();
+    return text == null || text.isEmpty ? null : text;
   }
 
   Map<String, dynamic> toJson() => {
@@ -224,5 +238,7 @@ class CollectionEntry {
         'count': count,
         if (photoPath != null) 'photoPath': photoPath,
         if (sharedPhotoId != null) 'sharedPhotoId': sharedPhotoId,
+        if (memo != null && memo!.isNotEmpty) 'memo': memo,
+        if (place != null && place!.isNotEmpty) 'place': place,
       };
 }

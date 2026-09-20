@@ -65,7 +65,9 @@ v1.1 実装済み:
 
 - [x] ケンエレファント/トイズキャビン収録(2026-09-20): `KenElephantCrawler` / `ToysCabinCrawler`、`Maker.kenelephant` / `Maker.toyscabin`、fixture + テスト、Actions のステップ名・ストア掲載文を更新。構造メモは §3。**バックフィル完了: ケンエレファント527件(LINEUP無しの単品36件は除外、旧ストアから2023年1月に一括移行された158件は発売時期を空に)/ トイズキャビン418件 → 合計15,382件**
 
-v1.1以降の残り: 獲得時のメモ・場所、メーカー/作品名タグ検索、Pro買い切り、iOS。
+- [x] 獲得時のメモ・場所(2026-09-20): `CollectionEntry.memo/place`(JSON往復、空は未設定。バックアップにも自動で含まれる)。長押しシートに「メモ・回した場所を残す」行 → ダイアログ(場所40字・メモ200字、最近使った場所を最大8件チップで再利用)。アイテムタイル左上にメモバッジ(長押しツールチップで内容)、マイページ「最近の獲得」に 📍場所。テスト59件
+
+v1.1以降の残り: メーカー/作品名タグ検索、Pro買い切り、iOS。
 
 ## 3. 技術スタック・環境
 
@@ -140,7 +142,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 58テスト(素材生成テストはskip)
+flutter test                                   # 59テスト(素材生成テストはskip)
 
 # Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
 npx supabase db query --linked "select status, count(*) from photos group by status"

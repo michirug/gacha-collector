@@ -149,6 +149,31 @@ class _ItemListPageState extends State<ItemListPage> {
                   ],
                 ),
                 const Divider(height: 24),
+                // メモ・場所(端末内のみ)
+                Builder(builder: (context) {
+                  final entry = _collection[item.id];
+                  final place = entry?.place;
+                  final memo = entry?.memo;
+                  return ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    leading: Icon(entry?.hasNote == true ? Icons.sticky_note_2 : Icons.sticky_note_2_outlined, color: kBrandPurple),
+                    title: Text(
+                      entry?.hasNote == true
+                          ? [if (place != null) '📍$place', if (memo != null) memo].join('  ')
+                          : 'メモ・回した場所を残す',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: entry?.hasNote == true ? kBrandInk : Colors.grey[600]),
+                    ),
+                    trailing: const Icon(Icons.edit_outlined, size: 18),
+                    onTap: () async {
+                      await _editNote(item);
+                      setSheetState(() {});
+                    },
+                  );
+                }),
+                const Divider(height: 24),
                 Text('自分の写真', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Colors.grey[700])),
                 const SizedBox(height: 6),
                 Wrap(
@@ -218,6 +243,73 @@ class _ItemListPageState extends State<ItemListPage> {
         });
       },
     );
+  }
+
+  // 最近使った場所(店名)を新しい順に最大8件。入力の手間を減らすためのチップに使う
+  List<String> _recentPlaces() {
+    final entries = _collection.values.where((e) => e.place != null && e.place!.isNotEmpty).toList()
+      ..sort((a, b) => (b.acquiredAt ?? DateTime(1900)).compareTo(a.acquiredAt ?? DateTime(1900)));
+    final seen = <String>{};
+    return [for (final e in entries) if (seen.add(e.place!)) e.place!].take(8).toList();
+  }
+
+  Future<void> _editNote(GachaItem item) async {
+    final entry = _collection[item.id];
+    if (entry == null) return;
+    final placeController = TextEditingController(text: entry.place ?? '');
+    final memoController = TextEditingController(text: entry.memo ?? '');
+    final recent = _recentPlaces();
+    final saved = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(item.name, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 16)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: placeController,
+                decoration: const InputDecoration(labelText: '回した場所', hintText: '例: イオン○○店 3F', prefixIcon: Icon(Icons.place_outlined)),
+                textInputAction: TextInputAction.next,
+                maxLength: 40,
+              ),
+              if (recent.isNotEmpty)
+                Wrap(
+                  spacing: 6,
+                  runSpacing: -6,
+                  children: [
+                    for (final place in recent)
+                      ActionChip(
+                        label: Text(place, style: const TextStyle(fontSize: 12)),
+                        onPressed: () => placeController.text = place,
+                      ),
+                  ],
+                ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: memoController,
+                decoration: const InputDecoration(labelText: 'メモ', hintText: '例: 3回目で出た。友達と交換予定', prefixIcon: Icon(Icons.notes)),
+                maxLines: 3,
+                maxLength: 200,
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('キャンセル')),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, true), child: const Text('保存')),
+        ],
+      ),
+    );
+    if (saved != true) return;
+    final place = placeController.text.trim();
+    final memo = memoController.text.trim();
+    setState(() {
+      entry.place = place.isEmpty ? null : place;
+      entry.memo = memo.isEmpty ? null : memo;
+    });
+    await _saveCollection();
   }
 
   Future<void> _setUserPhoto(GachaItem item, ImageSource source) async {
@@ -515,6 +607,19 @@ class _ItemListPageState extends State<ItemListPage> {
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(color: kBrandPurple, borderRadius: BorderRadius.circular(10)),
                               child: Text('×${entry.count}', style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        if (entry != null && entry.hasNote)
+                          Positioned(
+                            top: 4,
+                            left: 4,
+                            child: Tooltip(
+                              message: [if (entry.place != null) '📍${entry.place}', if (entry.memo != null) entry.memo!].join('\n'),
+                              child: Container(
+                                padding: const EdgeInsets.all(3),
+                                decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.9), borderRadius: BorderRadius.circular(8)),
+                                child: const Icon(Icons.sticky_note_2, size: 14, color: kBrandPurpleDark),
+                              ),
                             ),
                           ),
                       ],
