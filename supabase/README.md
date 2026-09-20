@@ -31,17 +31,40 @@ flutter build appbundle --release --dart-define=SUPABASE_URL=... --dart-define=S
 
 未指定の場合、アプリは「写真共有なし」で動く(段階Aと同じ挙動)。`lib/community/community_service.dart` の `CommunityService.isConfigured` で判定している。
 
-## 4. Edge Function(B-2 で有効化)
+## 4. Edge Function(B-2)
+
+事前に SQL Editor で `supabase/migrations/0002_judge_support.sql` を実行(`item_label` 列の追加、`approve_photo` の条件緩和)。
+
+### 4-1. デプロイ(ユーザーのターミナルで実行。ログインはブラウザ認証なので手元で)
 
 ```powershell
-npm i -g supabase
-supabase login
-supabase link --project-ref xxxx
-supabase secrets set WEBHOOK_SECRET=<ランダム文字列> GOOGLE_VISION_API_KEY=<任意> MATCH_MODEL_API_KEY=<任意>
-supabase functions deploy judge-photo --no-verify-jwt
+cd <リポジトリ>/gacha_collector
+npx supabase login                                  # ブラウザが開く → Authorize
+npx supabase link --project-ref atficwbsfffthcorjnod  # DBパスワードを聞かれたら入力(空Enterでも link は通る)
+$secret = -join ((1..40) | % { '{0:x}' -f (Get-Random -Max 16) })   # Webhook 用ランダム文字列
+$secret                                              # ← 表示された値を控える(次の 4-2 で使う)
+npx supabase secrets set WEBHOOK_SECRET=$secret
+npx supabase functions deploy judge-photo --no-verify-jwt
 ```
 
-Database → Webhooks で `photos` テーブルの INSERT / UPDATE を `judge-photo` に送る Webhook を作成し、HTTP ヘッダ `x-webhook-secret` に同じ値を設定する。
+任意(後から追加可):
+- `npx supabase secrets set MATCH_MODEL_API_KEY=<Gemini APIキー>` — 一致度判定。Google AI Studio(https://aistudio.google.com/apikey)で無料枠のキーを作る。未設定なら一致度 0.5 固定(承認任せ)
+- `npx supabase secrets set GOOGLE_VISION_API_KEY=<Cloud Vision キー>` — SafeSearch。未設定なら不適切判定をスキップ
+
+### 4-2. Webhook(ダッシュボード)
+
+Database → Webhooks → Enable webhooks(初回)→ Create a new hook
+- Name: `judge_photo`
+- Table: `photos` / Events: **Insert** と **Update**
+- Type: **Supabase Edge Functions** → `judge-photo`
+- HTTP Headers: `x-webhook-secret` = 4-1 で控えた値を追加(Authorization ヘッダは自動で付くのでそのまま)
+- Timeout: `10000`(ms。Gemini 呼び出しが数秒かかる)
+
+### 4-3. 動作確認
+
+アプリから写真を共有 → Table Editor の `photos` で `auto_score` / `auto_detail` が数秒後に入る。
+Edge Functions → judge-photo → Logs / Invocations でエラーを確認できる。
+手で `status` を `approved` にすると publish が走り `public_url` が入り、`photos-approved` バケットにファイルが現れる。
 
 ## 5. 配信スナップショット(B-2)
 

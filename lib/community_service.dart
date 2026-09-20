@@ -95,6 +95,8 @@ class CommunityService {
       'maker': series.maker.code,
       'poster_id': uid,
       'storage_path': path,
+      // Edge Function の一致度判定用の表示名(個人情報は含まない)
+      'item_label': '${series.name} / ${item.name}',
     });
     return photoId;
   }

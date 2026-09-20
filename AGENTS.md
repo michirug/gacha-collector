@@ -45,7 +45,8 @@ v1.0再定義(リリース前に必須):
     - [x] 採用写真の配信(2026-09-20): `tool/export_community_photos.dart` が `approved_photo_snapshot` ビュー → `assets/community_photos.json`(`{items:{itemId:{url,poster}}, series:{seriesId:{url,poster}}}`、generated_at以外に差分が無ければ書かない)。Actions `update-community-photos.yml`(毎時15分)。アプリ側 `lib/community_photos.dart`(`CommunityPhotos`、ImagePolicyと同じ 同梱→キャッシュ→raw URL)、`GachaImage` に `itemId`/`seriesId` を渡すと 自分の写真→みんなの写真→公式画像 の優先順(`hide_series` はみんなの写真にも適用)、`ImageCredit` は投稿写真の場合「ガチャ活ユーザーの投稿写真」表記。テスト `test/community_photos_test.dart`
     - [ ] **ユーザー作業**: GitHub Secrets に `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` を登録(`supabase/README.md` §5)
     - [ ] 承認UI(他ユーザーのpending写真を「この写真は正しい?」で承認、3人で採用)、通報UI・ブロック(ブロック済み投稿者の写真を端末側で除外する処理も未実装)
-    - [ ] Edge Function `judge-photo` の一致度判定実装・デプロイ・Webhook設定(採用→approvedバケットへコピー・public_url付与はEdge Functionが担うので、これが無いとスナップショットは空のまま)
+    - [x] Edge Function `judge-photo` 実装(2026-09-20): Gemini(`MATCH_MODEL_API_KEY`、既定 gemini-2.5-flash、JSON応答)で「シリーズ名 / アイテム名」との一致度・顔検出・転載疑い、JPEGヘッダから解像度で画質採点。`migrations/0002_judge_support.sql`(`photos.item_label` 追加、`approve_photo` の auto_score>=0.5 条件を撤廃=未判定でも承認で採用可)。アプリは投稿時に `item_label` を送る
+    - [ ] **ユーザー作業**: 0002 SQL適用 → `npx supabase login/link/secrets set/functions deploy` → ダッシュボードで Webhook 作成(`supabase/README.md` §4)。採用→approvedバケットへコピー・public_url付与はEdge Functionが担うので、これが無いとスナップショットは空のまま
   - [ ] B-3: いいね・差し替え・実績・クレジット
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 
