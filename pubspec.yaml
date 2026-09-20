@@ -45,6 +45,9 @@ dependencies:
   supabase_flutter: ^2.17.2
   image: ^4.9.2
   uuid: ^4.6.0
+  flutter_local_notifications: ^20.1.0
+  timezone: ^0.10.1
+  flutter_timezone: ^5.1.0
 
 dev_dependencies:
   flutter_test:

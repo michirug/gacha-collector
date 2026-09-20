@@ -58,13 +58,18 @@ v1.0再定義(リリース前に必須):
 Play Console側(コードと無関係、先行して実施):
 - [ ] 組織アカウントの確認状況チェック。2026-09-30期限「Androidデベロッパーの確認」リマインダー(Google Play一斉送信)が届いている → Play Consoleホームで未登録アプリ・アカウント確認状態を確認
 
-v1.1以降: ウィッシュリスト新作のローカル通知、獲得時の写真・メモ・場所、メーカー/作品名タグ検索、Pro買い切り、iOS。
+v1.1 実装済み:
+- [x] ウィッシュリストの発売通知(2026-09-20): `lib/release_notifier.dart`(flutter_local_notifications 20.1.0 + timezone 0.10 + flutter_timezone 5.1。Dart 3.9 の制約でこの版)。`planReleaseNotifications(wishlist, allSeries, now)` が今日〜60日以内に `releaseDate`(上旬=5日/中旬=15日/下旬=25日/第N週=週頭)を迎えるウィッシュを抽出し、9:00 に `zonedSchedule`(inexactAllowWhileIdle、正確なアラーム権限は不要)。`CollectionStore.saveWishlist` が毎回 cancelAll→再予約(全ページ・バックアップ復元を網羅)、起動時も再予約。初回のウィッシュ追加時に POST_NOTIFICATIONS を1回だけ要求。マイページ「通知」にトグル(既定ON)と「テスト通知を送る」(予約件数を表示)。Android: `isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs 2.1.4`、Manifest に権限2つと receiver 2つ。エミュレータで 権限ダイアログ→`dumpsys alarm` に RTC_WAKEUP 2026-10-01 09:00 window=+1h→テスト通知の表示 を確認。テスト54件
+  - 未対応: 通知タップでシリーズ詳細を開く(payload=seriesId は渡している)、「新作が追加された」通知(バックグラウンド取得が必要=workmanager、Android 14+ 制約あり。需要を見て)
+
+v1.1以降の残り: 獲得時の写真・メモ・場所、メーカー/作品名タグ検索、ケンエレファント/トイズキャビン収録、Pro買い切り、iOS。
 
 ## 3. 技術スタック・環境
 
 - Flutter 3.35.5 / Dart 3.9.2、Windows(PowerShell)。`grep`コマンドは無いので `Select-String` を使う
-- 主要パッケージ: shared_preferences(全データ端末内保存)、http、share_plus、cached_network_image(画像キャッシュ)、file_picker(バックアップ復元)、flutter_launcher_icons(dev)、integration_test(dev)
-- Androidエミュレータ: `emulator-5554`(Pixel 9 Pro XL、物理1344x2992)。`adb` はPATHに無いので `$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe`。`flutter run` のstdinにはこのツールから書けない(ホットリロード不可→再起動する)
+- 主要パッケージ: shared_preferences(全データ端末内保存)、http、share_plus、cached_network_image(画像キャッシュ)、file_picker(バックアップ復元)、image_picker/image(自分の写真)、supabase_flutter(段階B)、flutter_local_notifications/timezone/flutter_timezone(発売通知)、flutter_launcher_icons(dev)、integration_test(dev)
+- Androidエミュレータ: `emulator-5554`(Pixel 9 Pro XL、物理1344x2992)と `Medium_Phone_API_36.1`(1080x2400)。`adb` はPATHに無いので `$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe`。`flutter run` のstdinにはこのツールから書けない(ホットリロード不可→再起動する)。**2026-09-20 に Pixel_9_Pro_XL の qemu がゾンビ化(taskkill 不可、5554 が offline のまま)し、PC再起動まで起動不能になった → `emulator.exe -avd Medium_Phone_API_36.1 -port 5556` で代替**。重い Gradle ビルド(SDK Platform の自動DLなど)と同時にエミュレータ操作をしない方が安全
+- Android SDK Platform 35 は flutter_local_notifications 導入時に自動インストール済み(初回ビルドが3分以上かかる原因だった)
 - ガチャデータはGitHub Actions(`.github/workflows/update-gacha-data.yml`、毎週月曜21:00 UTC)が `tool/crawl_gashapon.dart`(バンダイ)と `tool/crawl_makers.dart`(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA)で更新し `assets/gacha_data.json` にコミット。アプリは `https://raw.githubusercontent.com/michirug/gacha-collector/main/assets/gacha_data.json` から取得(`lib/gacha_repository.dart`)
 - **データJSONのスキーマ**: バンダイは `jan_code` がID(旧形式、`maker`省略=bandai)。他メーカーは `id`(`tta:Y909498` / `kitan:<slug>` / `bushi:<id>` / `sota:<slug>`)、`maker`、`source_url`、`lineup_unknown`(公式にラインナップ名が無く `No.1`〜 の仮アイテムを生成した場合 true)を持つ。アイテムIDは `<seriesId>::<itemTitle>` なので、ラインナップ名を後から変えるとユーザーの記録が外れる
 - **メーカーサイトの構造メモ**(2026-09-04確認、robots.txtは全社許可):
@@ -91,7 +96,8 @@ lib/
   user_photo_store.dart   UserPhotoStore(image_pickerで撮影/選択→sanitizeJpegでEXIF除去・縮小→端末内 photos/ に保存、CollectionEntry.photoPath)
   community_service.dart  CommunityService(Supabase: 匿名認証・写真アップロード・取り消し・承認/通報/ブロックRPC。--dart-define未設定なら無効)
   community_photos.dart   CommunityPhotos(assets/community_photos.json をリモート取得。採用済みユーザー写真の itemId/seriesId → URL、blockedPosters)
-  community_review.dart   PhotoReviewCard(承認カード)/通報理由シート/採用写真メニュー(通報・ブロック)
+  community_review.dart   PhotoReviewCard(承認カード)/通報理由シート/採用写真メニュー(通報・ブロック)/CommunityLikeButton
+  release_notifier.dart   ReleaseNotifier(ウィッシュの発売日ローカル通知)、planReleaseNotifications
   community_consent_dialog.dart  写真共有の初回同意ダイアログ(UGCポリシーの規約同意)
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
@@ -129,7 +135,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 51テスト(素材生成テストはskip)
+flutter test                                   # 54テスト(素材生成テストはskip)
 
 # Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
 npx supabase db query --linked "select status, count(*) from photos group by status"

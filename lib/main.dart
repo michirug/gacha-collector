@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'collection_store.dart';
 import 'community_photos.dart';
 import 'community_service.dart';
 import 'demo_seed.dart';
+import 'gacha_repository.dart';
 import 'home_page.dart';
 import 'image_policy.dart';
 import 'my_page.dart';
+import 'release_notifier.dart';
 import 'theme.dart';
 
 export 'home_page.dart';
@@ -30,6 +33,9 @@ Future<void> main() async {
   // ブロック済み投稿者(端末キャッシュ→サーバー)。起動をブロックしない
   unawaited(CommunityService.loadBlocked());
   unawaited(CommunityService.loadLiked());
+  // ウィッシュリストの発売通知(端末内)。初期化後、最新データで予約を作り直す
+  unawaited(ReleaseNotifier.init().then((_) async =>
+      ReleaseNotifier.reschedule(await CollectionStore.loadWishlist(), await GachaRepository.loadAll())));
   runApp(const GachaCollectorApp());
 }
 

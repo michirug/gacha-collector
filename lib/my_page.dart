@@ -8,6 +8,7 @@ import 'community_photos.dart';
 import 'community_service.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
+import 'release_notifier.dart';
 import 'series_page.dart';
 import 'share_card.dart';
 import 'theme.dart';
@@ -41,6 +42,7 @@ class _MyPageState extends State<MyPage> {
   bool _communityConsented = false;
   bool _shareByDefault = false;
   int _approvedPhotos = 0;
+  bool _notifyRelease = true;
 
   @override
   void initState() {
@@ -55,6 +57,7 @@ class _MyPageState extends State<MyPage> {
       ..clear()
       ..addAll(loaded);
     _wishlist = await CollectionStore.loadWishlist();
+    _notifyRelease = await ReleaseNotifier.isEnabled();
     var contribution = const <String, int>{};
     if (CommunityService.isConfigured) {
       _communityConsented = await CommunityService.hasConsented();
@@ -206,6 +209,39 @@ class _MyPageState extends State<MyPage> {
                   onTap: () => _openSeries(series),
                 ),
               ),
+            const SectionHeader('通知'),
+            Card(
+              margin: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(children: [
+                SwitchListTile(
+                  secondary: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('ウィッシュリストの発売通知'),
+                  subtitle: const Text('発売時期(上旬=5日・中旬=15日・下旬=25日)の朝9時にお知らせ。端末内で予約し、サーバーには送りません'),
+                  value: _notifyRelease,
+                  onChanged: (v) async {
+                    await ReleaseNotifier.setEnabled(v);
+                    if (v) await ReleaseNotifier.requestPermissionIfNeeded();
+                    await ReleaseNotifier.reschedule(_wishlist, _allSeries);
+                    if (mounted) setState(() => _notifyRelease = v);
+                  },
+                ),
+                if (_notifyRelease) ...[
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.notifications_none),
+                    title: const Text('テスト通知を送る'),
+                    subtitle: Text(
+                      '60日以内に発売時期を迎えるウィッシュ: ${planReleaseNotifications(_wishlist, _allSeries, DateTime.now()).length}件',
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                    onTap: () => ReleaseNotifier.showTest(
+                      wishCount: _wishlist.length,
+                      scheduledCount: planReleaseNotifications(_wishlist, _allSeries, DateTime.now()).length,
+                    ),
+                  ),
+                ],
+              ]),
+            ),
             const SectionHeader('バックアップ', subtitle: '機種変更やアプリの再インストールに備えて記録を保存できます'),
             Card(
               margin: const EdgeInsets.symmetric(horizontal: 16.0),

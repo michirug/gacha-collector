@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'gacha_repository.dart';
 import 'models.dart';
+import 'release_notifier.dart';
 
 class CollectionStore {
   static const String _collectionKey = 'collection';
@@ -18,7 +19,12 @@ class CollectionStore {
 
   static Future<void> saveWishlist(Set<String> seriesIds) async {
     final prefs = await SharedPreferences.getInstance();
+    final before = prefs.getStringList(_wishlistKey)?.length ?? 0;
     await prefs.setStringList(_wishlistKey, seriesIds.toList());
+    // 発売通知の予約を作り直す(全ページのウィッシュ操作・バックアップ復元がここを通る)
+    if (!ReleaseNotifier.isReady) return;
+    if (seriesIds.length > before) await ReleaseNotifier.requestPermissionIfNeeded();
+    await ReleaseNotifier.reschedule(seriesIds, await GachaRepository.loadAll());
   }
 
   static Future<Map<String, CollectionEntry>> load() async {
