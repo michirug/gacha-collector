@@ -60,7 +60,8 @@ Play Console側(コードと無関係、先行して実施):
 
 v1.1 実装済み:
 - [x] ウィッシュリストの発売通知(2026-09-20): `lib/release_notifier.dart`(flutter_local_notifications 20.1.0 + timezone 0.10 + flutter_timezone 5.1。Dart 3.9 の制約でこの版)。`planReleaseNotifications(wishlist, allSeries, now)` が今日〜60日以内に `releaseDate`(上旬=5日/中旬=15日/下旬=25日/第N週=週頭)を迎えるウィッシュを抽出し、9:00 に `zonedSchedule`(inexactAllowWhileIdle、正確なアラーム権限は不要)。`CollectionStore.saveWishlist` が毎回 cancelAll→再予約(全ページ・バックアップ復元を網羅)、起動時も再予約。初回のウィッシュ追加時に POST_NOTIFICATIONS を1回だけ要求。マイページ「通知」にトグル(既定ON)と「テスト通知を送る」(予約件数を表示)。Android: `isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs 2.1.4`、Manifest に権限2つと receiver 2つ。エミュレータで 権限ダイアログ→`dumpsys alarm` に RTC_WAKEUP 2026-10-01 09:00 window=+1h→テスト通知の表示 を確認。テスト54件
-  - 未対応: 通知タップでシリーズ詳細を開く(payload=seriesId は渡している)、「新作が追加された」通知(バックグラウンド取得が必要=workmanager、Android 14+ 制約あり。需要を見て)
+  - [x] 通知タップでシリーズ詳細を開く(`ReleaseNotifier.tappedSeriesId` を `MainScreen` が監視。コールドスタートは `getNotificationAppLaunchDetails`。テスト通知にも最初の予約シリーズを payload で載せて確認済み)
+  - 未対応: 「新作が追加された」通知(バックグラウンド取得が必要=workmanager、Android 14+ 制約あり。需要を見て)
 
 v1.1以降の残り: 獲得時の写真・メモ・場所、メーカー/作品名タグ検索、ケンエレファント/トイズキャビン収録、Pro買い切り、iOS。
 

@@ -10,6 +10,7 @@ import 'home_page.dart';
 import 'image_policy.dart';
 import 'my_page.dart';
 import 'release_notifier.dart';
+import 'series_page.dart';
 import 'theme.dart';
 
 export 'home_page.dart';
@@ -69,6 +70,31 @@ class _MainScreenState extends State<MainScreen> {
     HomePage(),
     MyPage(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    ReleaseNotifier.tappedSeriesId.addListener(_openTappedSeries);
+    // 通知からのコールドスタート分(initState より先に値が入っている場合)
+    WidgetsBinding.instance.addPostFrameCallback((_) => _openTappedSeries());
+  }
+
+  @override
+  void dispose() {
+    ReleaseNotifier.tappedSeriesId.removeListener(_openTappedSeries);
+    super.dispose();
+  }
+
+  // 発売通知をタップしたら、そのシリーズの詳細を開く
+  Future<void> _openTappedSeries() async {
+    final seriesId = ReleaseNotifier.tappedSeriesId.value;
+    if (seriesId == null) return;
+    ReleaseNotifier.tappedSeriesId.value = null;
+    final all = await GachaRepository.loadAll();
+    final series = all.where((s) => s.id == seriesId).firstOrNull;
+    if (series == null || !mounted) return;
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => ItemListPage(series: series)));
+  }
 
   @override
   Widget build(BuildContext context) {

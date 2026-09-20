@@ -23,6 +23,10 @@ class ReleaseNotifier {
   static bool _initialized = false;
   static bool get isReady => _initialized;
 
+  // 通知タップで開くべきシリーズID(payload)。アプリ側(MainScreen)が監視して詳細を開き、消費後に null に戻す。
+  // アプリが通知から起動された場合(コールドスタート)も init() 内でここに入る
+  static final ValueNotifier<String?> tappedSeriesId = ValueNotifier(null);
+
   static Future<void> init() async {
     if (kIsWeb || _initialized) return;
     try {
@@ -36,8 +40,17 @@ class ReleaseNotifier {
         settings: const InitializationSettings(
           android: AndroidInitializationSettings('@mipmap/ic_launcher'),
         ),
+        onDidReceiveNotificationResponse: (response) {
+          final payload = response.payload;
+          if (payload != null && payload.isNotEmpty) tappedSeriesId.value = payload;
+        },
       );
       _initialized = true;
+      final launch = await _plugin.getNotificationAppLaunchDetails();
+      final payload = launch?.notificationResponse?.payload;
+      if (launch?.didNotificationLaunchApp == true && payload != null && payload.isNotEmpty) {
+        tappedSeriesId.value = payload;
+      }
     } catch (_) {}
   }
 
@@ -75,13 +88,16 @@ class ReleaseNotifier {
   );
 
   // 設定画面の「テスト通知」。権限と表示を確認するために即時に1件出す
-  static Future<void> showTest({required int wishCount, required int scheduledCount}) async {
+  static Future<void> showTest(Set<String> wishlist, List<GachaSeries> allSeries) async {
     if (!_initialized) return;
     await requestPermissionIfNeeded();
+    final plans = planReleaseNotifications(wishlist, allSeries, DateTime.now());
     await _plugin.show(
       id: 0,
       title: 'ガチャ活ポケットの通知テスト',
-      body: 'ウィッシュリスト$wishCount件のうち、60日以内に発売時期を迎える$scheduledCount件を予約中です',
+      body: 'ウィッシュリスト${wishlist.length}件のうち、60日以内に発売時期を迎える${plans.length}件を予約中です'
+          '${plans.isEmpty ? '' : '。タップすると「${plans.first.title.replaceAll(' が発売時期です', '')}」を開きます'}',
+      payload: plans.isEmpty ? null : plans.first.seriesId,
       notificationDetails: _details,
     );
   }

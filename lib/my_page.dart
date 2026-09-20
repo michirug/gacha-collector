@@ -234,10 +234,7 @@ class _MyPageState extends State<MyPage> {
                       '60日以内に発売時期を迎えるウィッシュ: ${planReleaseNotifications(_wishlist, _allSeries, DateTime.now()).length}件',
                       style: const TextStyle(fontSize: 11),
                     ),
-                    onTap: () => ReleaseNotifier.showTest(
-                      wishCount: _wishlist.length,
-                      scheduledCount: planReleaseNotifications(_wishlist, _allSeries, DateTime.now()).length,
-                    ),
+                    onTap: () => ReleaseNotifier.showTest(_wishlist, _allSeries),
                   ),
                 ],
               ]),
