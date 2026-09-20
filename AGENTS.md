@@ -67,7 +67,9 @@ v1.1 実装済み:
 
 - [x] 獲得時のメモ・場所(2026-09-20): `CollectionEntry.memo/place`(JSON往復、空は未設定。バックアップにも自動で含まれる)。長押しシートに「メモ・回した場所を残す」行 → ダイアログ(場所40字・メモ200字、最近使った場所を最大8件チップで再利用)。アイテムタイル左上にメモバッジ(長押しツールチップで内容)、マイページ「最近の獲得」に 📍場所。テスト59件
 
-v1.1以降の残り: メーカー/作品名タグ検索、Pro買い切り、iOS。
+- [x] 作品名タグ検索(2026-09-20): `lib/work_tags.dart`。商品名から作品名を自動推定(「」引用 > 先頭トークン(英字は連結、【】・媒体接頭辞・末尾の数字/弾数/™を除去)。3シリーズ以上に先頭で現れるものだけタグ化=900タグ/15,382件中10,978件にタグ。タカラトミーアーツ式「肩ズンFig. 作品名」は末尾一致で拾う。一般語(カプセル/ミニチュア/かわいい/劇場版…)は除外)。手作業タグ付けもサーバーも不要。`WorkTagIndex.buildAsync` でアプリ内キャッシュ。さがす画面: 上位30タグのチップ行+「作品でさがす」で全タグの絞り込みシート、タグ選択でフィルタ。検索は `matchesSearch`(かな/全角半角/大小・記号を無視、空白区切りAND、タグ名も対象)。シリーズ詳細: 「「作品名」のほかのシリーズ」(メーカー横断・新しい順12件・すべて見る→BrowsePage(initialTag))。テスト64件。※タグには「ハグコット」「カプキャラ」等の商品ライン名も混ざる(仕様として許容)
+
+v1.1以降の残り: Pro買い切り、iOS。
 
 ## 3. 技術スタック・環境
 
@@ -105,6 +107,7 @@ lib/
   community_photos.dart   CommunityPhotos(assets/community_photos.json をリモート取得。採用済みユーザー写真の itemId/seriesId → URL、blockedPosters)
   community_review.dart   PhotoReviewCard(承認カード)/通報理由シート/採用写真メニュー(通報・ブロック)/CommunityLikeButton
   release_notifier.dart   ReleaseNotifier(ウィッシュの発売日ローカル通知)、planReleaseNotifications
+  work_tags.dart          WorkTagIndex(商品名から作品名タグを自動抽出)、normalizeForSearch/matchesSearch
   community_consent_dialog.dart  写真共有の初回同意ダイアログ(UGCポリシーの規約同意)
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
@@ -142,7 +145,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 59テスト(素材生成テストはskip)
+flutter test                                   # 64テスト(素材生成テストはskip)
 
 # Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
 npx supabase db query --linked "select status, count(*) from photos group by status"

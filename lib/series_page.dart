@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'achievements.dart';
+import 'browse_page.dart';
 import 'celebration.dart';
 import 'collection_store.dart';
 import 'community_consent_dialog.dart';
@@ -16,6 +17,7 @@ import 'share_card.dart';
 import 'theme.dart';
 import 'user_photo_store.dart';
 import 'widgets.dart';
+import 'work_tags.dart';
 
 const String kContactEmail = 'info@contentsmarketing.co.jp';
 
@@ -35,6 +37,7 @@ class _ItemListPageState extends State<ItemListPage> {
   void initState() {
     super.initState();
     _loadCollection();
+    _loadRelated();
   }
   Future<void> _loadCollection() async {
     final loaded = await CollectionStore.load();
@@ -409,6 +412,22 @@ class _ItemListPageState extends State<ItemListPage> {
     });
   }
 
+  // 作品タグと、同じタグの他シリーズ(発売が新しい順、最大12件)
+  WorkTag? _relatedTag;
+  List<GachaSeries> _related = const [];
+  Future<void> _loadRelated() async {
+    final all = await GachaRepository.loadAll();
+    final index = await WorkTagIndex.buildAsync(all);
+    final tag = index.tagOf(widget.series);
+    if (!mounted || tag == null) return;
+    final others = tag.series.where((s) => s.id != widget.series.id).toList()
+      ..sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
+    setState(() {
+      _relatedTag = tag;
+      _related = others.take(12).toList();
+    });
+  }
+
   Future<void> _contactAboutSeries() async {
     final subject = Uri.encodeComponent('【ガチャ活ポケット】掲載内容について(${widget.series.id})');
     final body = Uri.encodeComponent('対象商品: ${widget.series.name}\n公式URL: ${widget.series.sourceUrl}\n\nご用件(削除依頼・誤り指摘など):\n');
@@ -628,6 +647,33 @@ class _ItemListPageState extends State<ItemListPage> {
                 );
               },
             ),
+            // 同じ作品(タグ)の他シリーズ
+            if (_relatedTag != null && _related.isNotEmpty) ...[
+              SectionHeader(
+                '「${_relatedTag!.name}」のほかのシリーズ',
+                subtitle: '全${_relatedTag!.count}シリーズ',
+                onMore: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => BrowsePage(initialTag: _relatedTag!.name, title: _relatedTag!.name)),
+                ),
+              ),
+              SizedBox(
+                height: 262,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  itemCount: _related.length,
+                  separatorBuilder: (_, _) => const SizedBox(width: 10),
+                  itemBuilder: (context, i) => SeriesPosterCard(
+                    series: _related[i],
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => ItemListPage(series: _related[i])),
+                    ),
+                  ),
+                ),
+              ),
+            ],
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               child: Column(

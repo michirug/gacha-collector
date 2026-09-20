@@ -6,17 +6,20 @@ import 'models.dart';
 import 'series_page.dart';
 import 'theme.dart';
 import 'widgets.dart';
+import 'work_tags.dart';
 
 // 検索・絞り込み付きの全商品一覧。month を渡すとその月の発売カレンダーとして動作する
 class BrowsePage extends StatefulWidget {
   final DateTime? month;
   final Maker? initialMaker;
+  final String? initialTag;
   final String title;
 
   const BrowsePage({
     super.key,
     this.month,
     this.initialMaker,
+    this.initialTag,
     this.title = 'さがす',
   });
 
@@ -29,23 +32,28 @@ class _BrowsePageState extends State<BrowsePage> {
   List<GachaSeries> _found = [];
   Set<String> _wishlist = {};
   Maker? _selectedMaker;
+  String? _selectedTag;
   String _keyword = '';
   late DateTime? _month = widget.month;
   bool _isLoading = true;
+  WorkTagIndex? _tagIndex;
 
   @override
   void initState() {
     super.initState();
     _selectedMaker = widget.initialMaker;
+    _selectedTag = widget.initialTag;
     _load();
   }
 
   Future<void> _load() async {
     final series = await GachaRepository.loadAll();
     final wishlist = await CollectionStore.loadWishlist();
+    final tagIndex = _tagIndex ?? await WorkTagIndex.buildAsync(series);
     if (!mounted) return;
     _allSeries = series;
     _wishlist = wishlist;
+    _tagIndex = tagIndex;
     _isLoading = false;
     _applyFilters();
   }
@@ -59,17 +67,20 @@ class _BrowsePageState extends State<BrowsePage> {
   }
 
   void _applyFilters() {
-    final keyword = _keyword.toLowerCase();
+    final keyword = _keyword.trim();
     final month = _month;
+    final tagIndex = _tagIndex;
+    final tag = _selectedTag;
     final results = _allSeries.where((s) {
       if (_selectedMaker != null && s.maker != _selectedMaker) return false;
       if (month != null &&
           (s.releaseDate.year != month.year || s.releaseDate.month != month.month)) {
         return false;
       }
+      if (tag != null && tagIndex?.tagOf(s)?.name != tag) return false;
+      // 商品名・アイテム名・作品タグを、かな/全角半角/大文字小文字の違いを無視して AND 検索
       if (keyword.isNotEmpty &&
-          !s.name.toLowerCase().contains(keyword) &&
-          !s.items.any((i) => i.name.toLowerCase().contains(keyword))) {
+          !matchesSearch(keyword, [s.name, ...s.items.map((i) => i.name), tagIndex?.tagOf(s)?.name ?? ''])) {
         return false;
       }
       return true;
@@ -146,6 +157,52 @@ class _BrowsePageState extends State<BrowsePage> {
               ],
             ),
           ),
+          // 作品・シリーズ名タグ(商品名から自動抽出。3シリーズ以上あるものだけ)
+          if (_tagIndex != null)
+            SizedBox(
+              height: 44,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: ActionChip(
+                      avatar: const Icon(Icons.local_offer_outlined, size: 16),
+                      label: Text(_selectedTag ?? '作品でさがす', style: const TextStyle(fontSize: 12)),
+                      backgroundColor: _selectedTag != null ? kBrandPurple.withValues(alpha: 0.15) : null,
+                      onPressed: _pickTag,
+                    ),
+                  ),
+                  if (_selectedTag != null)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ActionChip(
+                        avatar: const Icon(Icons.close, size: 16),
+                        label: const Text('解除', style: TextStyle(fontSize: 12)),
+                        onPressed: () {
+                          _selectedTag = null;
+                          _applyFilters();
+                        },
+                      ),
+                    )
+                  else
+                    for (final tag in _tagIndex!.tags.take(30))
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 3),
+                        child: ChoiceChip(
+                          label: Text(tag.name, style: const TextStyle(fontSize: 12)),
+                          selected: false,
+                          visualDensity: VisualDensity.compact,
+                          onSelected: (_) {
+                            _selectedTag = tag.name;
+                            _applyFilters();
+                          },
+                        ),
+                      ),
+                ],
+              ),
+            ),
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -184,8 +241,81 @@ class _BrowsePageState extends State<BrowsePage> {
     );
   }
 
+  // 全タグから選ぶシート(絞り込み入力付き)
+  Future<void> _pickTag() async {
+    final index = _tagIndex;
+    if (index == null) return;
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) => _TagPickerSheet(tags: index.tags),
+    );
+    if (picked == null) return;
+    _selectedTag = picked;
+    _applyFilters();
+  }
+
   Widget _chip(String label, bool selected, VoidCallback onTap) => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
         child: ChoiceChip(label: Text(label), selected: selected, onSelected: (_) => onTap()),
       );
+}
+
+class _TagPickerSheet extends StatefulWidget {
+  final List<WorkTag> tags;
+  const _TagPickerSheet({required this.tags});
+
+  @override
+  State<_TagPickerSheet> createState() => _TagPickerSheetState();
+}
+
+class _TagPickerSheetState extends State<_TagPickerSheet> {
+  String _filter = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = _filter.trim().isEmpty
+        ? widget.tags
+        : widget.tags.where((t) => matchesSearch(_filter, [t.name])).toList();
+    return DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.75,
+      maxChildSize: 0.95,
+      builder: (context, controller) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(children: [
+              const Expanded(child: Text('作品・シリーズでさがす', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
+              Text('${widget.tags.length}件', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            ]),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              autofocus: false,
+              onChanged: (v) => setState(() => _filter = v),
+              decoration: const InputDecoration(hintText: '作品名で絞り込み', prefixIcon: Icon(Icons.search), isDense: true),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Expanded(
+            child: ListView.builder(
+              controller: controller,
+              itemCount: shown.length,
+              itemBuilder: (context, i) {
+                final tag = shown[i];
+                return ListTile(
+                  dense: true,
+                  title: Text(tag.name),
+                  trailing: Text('${tag.count}シリーズ', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                  onTap: () => Navigator.pop(context, tag.name),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
