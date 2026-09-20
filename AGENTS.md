@@ -46,7 +46,8 @@ v1.0再定義(リリース前に必須):
     - [ ] **ユーザー作業**: GitHub Secrets に `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` を登録(`supabase/README.md` §5)
     - [ ] 承認UI(他ユーザーのpending写真を「この写真は正しい?」で承認、3人で採用)、通報UI・ブロック(ブロック済み投稿者の写真を端末側で除外する処理も未実装)
     - [x] Edge Function `judge-photo` 実装(2026-09-20): Gemini(`MATCH_MODEL_API_KEY`、既定 gemini-2.5-flash、JSON応答)で「シリーズ名 / アイテム名」との一致度・顔検出・転載疑い、JPEGヘッダから解像度で画質採点。`migrations/0002_judge_support.sql`(`photos.item_label` 追加、`approve_photo` の auto_score>=0.5 条件を撤廃=未判定でも承認で採用可)。アプリは投稿時に `item_label` を送る
-    - [ ] **ユーザー作業**: 0002 SQL適用 → `npx supabase login/link/secrets set/functions deploy` → ダッシュボードで Webhook 作成(`supabase/README.md` §4)。採用→approvedバケットへコピー・public_url付与はEdge Functionが担うので、これが無いとスナップショットは空のまま
+    - [x] デプロイ完了(2026-09-20): 0002適用、`judge-photo` v1 ACTIVE(`--no-verify-jwt`)、secrets `WEBHOOK_SECRET`(値はユーザーのPowerShell履歴とDBトリガー定義内にのみ)、DBトリガー `judge_photo`(photos insert/update → Edge Function)。**一気通貫確認済み**: 投稿→auto_score付与→手動approved→approvedバケットへコピー・public_url→export→raw URL→アプリでシリーズ画像が投稿写真に切替・出典表記切替→removed→両バケットから物理削除。Gemini(`MATCH_MODEL_API_KEY`)/Vision キーは未設定(一致度0.5固定)
+    - **`npx supabase` はDevinのシェルからも使える**(ユーザーが `login` 済み、`link` 済み)。`npx supabase db query --linked "<1文>"` で運用SQL(承認・保留確認など)を直接実行できる
   - [ ] B-3: いいね・差し替え・実績・クレジット
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 

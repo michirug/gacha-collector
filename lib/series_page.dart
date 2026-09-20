@@ -166,7 +166,12 @@ class _ItemListPageState extends State<ItemListPage> {
                     )
                   else
                     TextButton.icon(
-                      onPressed: () { Navigator.pop(sheetContext); _sharePhoto(item, askFirst: true); },
+                      onPressed: () async {
+                        Navigator.pop(sheetContext);
+                        // 同意済みならダイアログを出さずにそのまま共有する
+                        final consented = await CommunityService.hasConsented();
+                        if (mounted) _sharePhoto(item, askFirst: !consented);
+                      },
                       icon: const Icon(Icons.public, size: 18),
                       label: const Text('みんなの図鑑に共有する'),
                     ),
