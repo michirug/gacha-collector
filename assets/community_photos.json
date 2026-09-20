@@ -1,5 +1,17 @@
 {
-  "generated_at": "2026-09-20T06:17:49.243925Z",
-  "items": {},
-  "series": {}
+  "generated_at": "2026-09-20T07:10:09.740283Z",
+  "items": {
+    "4582769934766000::Bedtime mit": {
+      "url": "https://atficwbsfffthcorjnod.supabase.co/storage/v1/object/public/photos-approved/5ed5d904-e960-4e66-842b-b593b6f6db41/f384548c-0c9b-4d5c-b8cb-2230670a9fcb.jpg",
+      "poster": "5ed5d904-e960-4e66-842b-b593b6f6db41",
+      "id": "f384548c-0c9b-4d5c-b8cb-2230670a9fcb"
+    }
+  },
+  "series": {
+    "4582769934766000": {
+      "url": "https://atficwbsfffthcorjnod.supabase.co/storage/v1/object/public/photos-approved/5ed5d904-e960-4e66-842b-b593b6f6db41/f384548c-0c9b-4d5c-b8cb-2230670a9fcb.jpg",
+      "poster": "5ed5d904-e960-4e66-842b-b593b6f6db41",
+      "id": "f384548c-0c9b-4d5c-b8cb-2230670a9fcb"
+    }
+  }
 }
