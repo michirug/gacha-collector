@@ -63,7 +63,9 @@ v1.1 実装済み:
   - [x] 通知タップでシリーズ詳細を開く(`ReleaseNotifier.tappedSeriesId` を `MainScreen` が監視。コールドスタートは `getNotificationAppLaunchDetails`。テスト通知にも最初の予約シリーズを payload で載せて確認済み)
   - 未対応: 「新作が追加された」通知(バックグラウンド取得が必要=workmanager、Android 14+ 制約あり。需要を見て)
 
-v1.1以降の残り: 獲得時の写真・メモ・場所、メーカー/作品名タグ検索、ケンエレファント/トイズキャビン収録、Pro買い切り、iOS。
+- [x] ケンエレファント/トイズキャビン収録(2026-09-20): `KenElephantCrawler` / `ToysCabinCrawler`、`Maker.kenelephant` / `Maker.toyscabin`、fixture + テスト、Actions のステップ名・ストア掲載文を更新。構造メモは §3。**バックフィル完了: ケンエレファント527件(LINEUP無しの単品36件は除外、旧ストアから2023年1月に一括移行された158件は発売時期を空に)/ トイズキャビン418件 → 合計15,382件**
+
+v1.1以降の残り: 獲得時のメモ・場所、メーカー/作品名タグ検索、Pro買い切り、iOS。
 
 ## 3. 技術スタック・環境
 
@@ -71,14 +73,16 @@ v1.1以降の残り: 獲得時の写真・メモ・場所、メーカー/作品�
 - 主要パッケージ: shared_preferences(全データ端末内保存)、http、share_plus、cached_network_image(画像キャッシュ)、file_picker(バックアップ復元)、image_picker/image(自分の写真)、supabase_flutter(段階B)、flutter_local_notifications/timezone/flutter_timezone(発売通知)、flutter_launcher_icons(dev)、integration_test(dev)
 - Androidエミュレータ: `emulator-5554`(Pixel 9 Pro XL、物理1344x2992)と `Medium_Phone_API_36.1`(1080x2400)。`adb` はPATHに無いので `$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe`。`flutter run` のstdinにはこのツールから書けない(ホットリロード不可→再起動する)。**2026-09-20 に Pixel_9_Pro_XL の qemu がゾンビ化(taskkill 不可、5554 が offline のまま)し、PC再起動まで起動不能になった → `emulator.exe -avd Medium_Phone_API_36.1 -port 5556` で代替**。重い Gradle ビルド(SDK Platform の自動DLなど)と同時にエミュレータ操作をしない方が安全
 - Android SDK Platform 35 は flutter_local_notifications 導入時に自動インストール済み(初回ビルドが3分以上かかる原因だった)
-- ガチャデータはGitHub Actions(`.github/workflows/update-gacha-data.yml`、毎週月曜21:00 UTC)が `tool/crawl_gashapon.dart`(バンダイ)と `tool/crawl_makers.dart`(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA)で更新し `assets/gacha_data.json` にコミット。アプリは `https://raw.githubusercontent.com/michirug/gacha-collector/main/assets/gacha_data.json` から取得(`lib/gacha_repository.dart`)
+- ガチャデータはGitHub Actions(`.github/workflows/update-gacha-data.yml`、毎週月曜21:00 UTC)が `tool/crawl_gashapon.dart`(バンダイ)と `tool/crawl_makers.dart`(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA/ケンエレファント/トイズキャビン)で更新し `assets/gacha_data.json` にコミット。アプリは `https://raw.githubusercontent.com/michirug/gacha-collector/main/assets/gacha_data.json` から取得(`lib/gacha_repository.dart`)
 - **データJSONのスキーマ**: バンダイは `jan_code` がID(旧形式、`maker`省略=bandai)。他メーカーは `id`(`tta:Y909498` / `kitan:<slug>` / `bushi:<id>` / `sota:<slug>`)、`maker`、`source_url`、`lineup_unknown`(公式にラインナップ名が無く `No.1`〜 の仮アイテムを生成した場合 true)を持つ。アイテムIDは `<seriesId>::<itemTitle>` なので、ラインナップ名を後から変えるとユーザーの記録が外れる
 - **メーカーサイトの構造メモ**(2026-09-04確認、robots.txtは全社許可):
   - タカラトミーアーツ: カレンダー `items/gacha/calendar/?ym=YYYYMM` → `items/item.html?n=<code>`。`section#detail .head h2/p`、`.summary` の「」からラインナップ名(個別画像なし)。年齢確認ページ(みまもりフィルター)に飛ぶ商品はパース失敗として捨てる
   - キタンクラブ: `products-sitemap.xml` / `/products/`(新着8件のみ、ページングなし) → `.c-productDetail__*`、`.c-productDetail__pickup-item` に個別名+画像
   - ブシロードクリエイティブ: `wp-sitemap-posts-product-1.xml` / `/product/?pagenum=N` → `.product__specList` dt/dd。ラインナップ名なし
   - SO-TA: `products-sitemap.xml` / `/products/capsuletoy/page/N/` → `.dataArea dl`、`.thumbList img`(先頭=メイン、`CPtenpo`/`-scaled`はPOP画像で除外)。ラインナップ名なし
-  - 未対応: ケンエレファント(Shopify、発売月がトピック記事側)、トイズキャビン(BASEショップのみ)
+  - ケンエレファント(2026-09-20追加、robots.txt で /products/ /collections/ 許可): Shopify `kenelestore.jp`。discover は `/collections/miniature/products.json?limit=250&page=N`(3ページ・約600点、毎回全ページ)。`product_type=ミニチュアコレクション` かつ handle `gc####[a-z]` のみ、同番号の BOX/カプセル別ページは1件に(id `kenele:gc####`)。詳細は `.product-meta-block`(`.meta-label`=LINEUP → `.meta-value` に「全N種<br>・名前<br>…」、※以降の注記は落とす)、`.price-info p` の「カプセル価格 : ¥500」、`og:image`。発売月は JSON tag `mcatem__N月発売` + `published_at` から年推定(タグ月が公開月-1より前なら翌年)、タグ無しは公開年月。LINEUP が無い単品(ルームライト等)はパース失敗=収録しない
+  - トイズキャビン(2026-09-20追加、robots.txt 全許可、`toyscabin.com`。以前のメモ「BASEのみ」は誤り): discover は `/product/` 1ページに全商品リンク(`/product/YYYYMMDD_N.php`、新しい順・400件超、ページ送りはJS)。詳細は `#titleBase`「Project：商品名　400円」、`#releaseBase`「Client：2026年12月　JAN CODE:…」、`.textFrame p`(id無し)の本文から「全N種」、`.imgFrame img`。ラインナップ名は無い。「全N種」も無い商品は画像枚数(最低1)の仮アイテムで収録(num_types 空)。id `tc:YYYYMMDD_N`
+  - v1.0(release/1.0)は新メーカーコードを `Maker.other`(「その他」)として表示する=後方互換OK
 - サーバー・ログイン・広告・課金なし。ユーザーデータは一切収集しない(データセーフティは「収集なし・共有なし」で申告)
 
 ## 4. ディレクトリ構成(重要ファイル)
@@ -136,7 +140,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 54テスト(素材生成テストはskip)
+flutter test                                   # 58テスト(素材生成テストはskip)
 
 # Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
 npx supabase db query --linked "select status, count(*) from photos group by status"
@@ -148,7 +152,7 @@ flutter build appbundle --release              # → build/app/outputs/bundle/re
 # データ取得(新着のみ / 全件バックフィル。2秒間隔、100件ごとに保存、再実行は既存IDをスキップ)
 dart run tool/crawl_gashapon.dart 100
 dart run tool/crawl_makers.dart --max=100
-dart run tool/crawl_makers.dart --backfill --max=5000 --maker=takaratomy_arts,kitan,bushiroad,sota
+dart run tool/crawl_makers.dart --backfill --max=5000 --maker=takaratomy_arts,kitan,bushiroad,sota,kenelephant,toyscabin
 
 # ストア素材の再生成(アイコン・フィーチャーグラフィック)
 flutter test test/store_assets --dart-define=GENERATE_ASSETS=true --update-goldens

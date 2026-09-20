@@ -6,7 +6,7 @@
 //   dart run tool/crawl_makers.dart --max=30              # 1メーカーあたりの取得上限
 //   dart run tool/crawl_makers.dart --backfill            # サイトマップ/過去カレンダーから全件取得
 //
-// 対応メーカー: takaratomy_arts / kitan / bushiroad / sota
+// 対応メーカー: takaratomy_arts / kitan / bushiroad / sota / kenelephant / toyscabin
 // 各エントリは `id`(メーカー接頭辞付き)・`maker`・`source_url` を持ち、
 // 公式にラインナップ名が無い場合は「No.1」… の仮アイテムを生成して `lineup_unknown: true` を付ける。
 
@@ -34,7 +34,7 @@ abstract class MakerCrawler {
 }
 
 Future<void> main(List<String> args) async {
-  var makers = <String>['takaratomy_arts', 'kitan', 'bushiroad', 'sota'];
+  var makers = <String>['takaratomy_arts', 'kitan', 'bushiroad', 'sota', 'kenelephant', 'toyscabin'];
   var maxPerMaker = 100;
   var backfill = false;
   for (final arg in args) {
@@ -64,6 +64,8 @@ Future<void> main(List<String> args) async {
     KitanCrawler(),
     BushiroadCrawler(),
     SotaCrawler(),
+    KenElephantCrawler(),
+    ToysCabinCrawler(),
   ].where((c) => makers.contains(c.code)).toList();
 
   final newEntries = <Map<String, dynamic>>[];
@@ -592,6 +594,255 @@ class SotaCrawler extends MakerCrawler {
       price: price,
       releaseDate: releaseDate,
       typeCount: typeCount ?? items.length,
+      targetAge: '',
+      mainImage: mainImage,
+      items: items,
+      lineupUnknown: true,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// ケンエレファント(Shopify ストア kenelestore.jp)
+//   discover: /collections/miniature/products.json?limit=250&page=N(公開JSON。robots.txt で許可)
+//             ストア全体(4,400点超)ではソフビや書籍が大半なので、カプセルトイのコレクション(600点・3ページ)を
+//             毎回全ページ読む(コレクション内の並び順は保証されないため新着だけの取得はしない)。
+//             product_type が「ミニチュアコレクション」で handle が gc#### のものだけを対象にし、
+//             同じ商品番号の BOX/カプセル別ページ(gc0733c / gc0733z 等)は1件にまとめる
+//   detail:   商品ページの .product-meta-block(LINEUP: 全N種 + ・ラインナップ名)、
+//             .price-info の「カプセル価格」、og:image。発売月は JSON の tag mcatem__N月発売
+//             (年は published_at から推定。tag が無ければ published_at の年月)
+// ---------------------------------------------------------------------------
+
+class KenElephantCrawler extends MakerCrawler {
+  static const _base = 'https://kenelestore.jp';
+  final Map<String, ({List<String> tags, DateTime? publishedAt})> _meta = {};
+
+  @override
+  String get code => 'kenelephant';
+  @override
+  String get label => 'ケンエレファント';
+
+  @override
+  Future<List<Candidate>> discover({required bool backfill}) async {
+    final result = <Candidate>[];
+    final seen = <String>{};
+    for (var page = 1; page <= 20; page++) {
+      if (page > 1) await Future.delayed(kRequestInterval);
+      final body = await fetch('$_base/collections/miniature/products.json?limit=250&page=$page');
+      if (body == null) break;
+      final products = (jsonDecode(body)['products'] as List?) ?? const [];
+      for (final p in products.cast<Map<String, dynamic>>()) {
+        final handle = p['handle']?.toString() ?? '';
+        final number = RegExp(r'^gc(\d{4})').firstMatch(handle)?.group(1);
+        if (number == null || p['product_type']?.toString() != 'ミニチュアコレクション') continue;
+        final id = 'kenele:gc$number';
+        if (!seen.add(id)) continue;
+        final tagsRaw = p['tags'];
+        final tags = tagsRaw is List
+            ? tagsRaw.map((t) => t.toString()).toList()
+            : (tagsRaw?.toString() ?? '').split(',').map((t) => t.trim()).toList();
+        _meta[id] = (
+          tags: tags,
+          publishedAt: DateTime.tryParse(p['published_at']?.toString() ?? ''),
+        );
+        result.add((id: id, url: '$_base/products/$handle'));
+      }
+      if (products.length < 250) break;
+    }
+    return result;
+  }
+
+  // <br> / 段落 / リスト境界で行に分け、タグを落として空行を除く
+  static List<String> _htmlLines(String innerHtml) => innerHtml
+      .replaceAll(RegExp(r'<script[\s\S]*?</script>|<style[\s\S]*?</style>'), '')
+      .split(RegExp(r'<br\s*/?>|</p>|</li>|</div>|</h\d>|\n'))
+      .map((l) => normalizeWhitespace(html_parser.parseFragment(l).text ?? ''))
+      .where((l) => l.isNotEmpty)
+      .toList();
+
+  // 「全N種」と「・名前」の行からラインナップを取り出す。
+  // requireHeading=true(本文から探す場合)は「ラインナップ」または「LINEUP」の見出し行以降だけを見て、
+  // 名前の列挙が始まった後に別の見出し(■/★/【)が来たら終わる。
+  // 名前末尾のサイズ注記「（約H63mm）」「(約W400×H400mm)」と「※…」は落とす
+  static ({int? typeCount, List<String> names}) parseLineupLines(List<String> lines,
+      {bool requireHeading = false}) {
+    int? typeCount;
+    final names = <String>[];
+    var active = !requireHeading;
+    for (final line in lines) {
+      if (!active) {
+        if (line.contains('ラインナップ') || line.contains('LINEUP')) {
+          active = true;
+          typeCount ??= parseTypeCount(line);
+        }
+        continue;
+      }
+      if (names.isNotEmpty && RegExp(r'^[■★【]').hasMatch(line)) break;
+      typeCount ??= parseTypeCount(line);
+      if (!line.startsWith('・')) continue;
+      final name = line
+          .substring(1)
+          .split('※')
+          .first
+          .replaceAll(RegExp(r'\s*[（(][^）)]*(約|mm|cm)[^）)]*[）)]\s*$'), '')
+          .trim();
+      if (name.isNotEmpty) names.add(name);
+      if (typeCount != null && names.length >= typeCount) break;
+    }
+    return (typeCount: typeCount, names: names);
+  }
+
+  // 「mcatem__9月発売」の月と公開日から「YYYY年M月」を作る
+  static String releaseDateFrom(List<String> tags, DateTime? publishedAt) {
+    final month = tags
+        .map((t) => RegExp(r'^mcatem__(\d{1,2})月発売$').firstMatch(t)?.group(1))
+        .whereType<String>()
+        .map(int.parse)
+        .firstOrNull;
+    if (month == null) {
+      // 2023年1月に旧ストアから一括移行された商品は published_at が実際の発売時期と無関係なので空にする
+      if (publishedAt == null || publishedAt.isBefore(DateTime(2023, 2))) return '';
+      return '${publishedAt.year}年${publishedAt.month}月';
+    }
+    final base = publishedAt ?? DateTime.now();
+    // 予約商品は数か月前に公開されるので、公開月より前の月なら翌年とみなす
+    final year = month < base.month - 1 ? base.year + 1 : base.year;
+    return '$year年$month月';
+  }
+
+  @override
+  Map<String, dynamic>? parseDetail(String htmlBody, Candidate candidate) {
+    final doc = html_parser.parse(htmlBody);
+    final title = normalizeWhitespace(doc.querySelector('h1')?.text ?? '');
+    if (title.isEmpty) return null;
+
+    var price = '';
+    for (final p in doc.querySelectorAll('.price-info p')) {
+      final text = normalizeWhitespace(p.text);
+      final match = RegExp(r'カプセル価格\s*[:：]\s*[¥￥]\s*([\d,]+)').firstMatch(text);
+      if (match != null) {
+        price = '${match.group(1)!.replaceAll(',', '')}円';
+        break;
+      }
+    }
+
+    // 新しいページは LINEUP メタブロック、古いページは本文の「■ラインナップ 全N種 ・A ・B…」
+    var lineup = (typeCount: null as int?, names: const <String>[]);
+    for (final block in doc.querySelectorAll('.product-meta-block')) {
+      if (normalizeWhitespace(block.querySelector('.meta-label')?.text ?? '') != 'LINEUP') continue;
+      final value = block.querySelector('.meta-value');
+      if (value != null) lineup = parseLineupLines(_htmlLines(value.innerHtml));
+      break;
+    }
+    if (lineup.names.isEmpty) {
+      final body = doc.body;
+      if (body != null) lineup = parseLineupLines(_htmlLines(body.innerHtml), requireHeading: true);
+    }
+    final typeCount = lineup.typeCount;
+    final names = lineup.names;
+
+    final mainImage = doc
+            .querySelector('meta[property="og:image"]')
+            ?.attributes['content']
+            ?.replaceFirst('http://', 'https://') ??
+        '';
+    final items = buildItems(
+        names: names, images: const [], mainImage: mainImage, typeCount: typeCount);
+    if (items.isEmpty) return null;
+
+    final meta = _meta[candidate.id];
+    return buildEntry(
+      id: candidate.id,
+      maker: code,
+      sourceUrl: candidate.url,
+      title: title,
+      price: price,
+      releaseDate: releaseDateFrom(meta?.tags ?? const [], meta?.publishedAt),
+      typeCount: typeCount ?? items.length,
+      targetAge: '',
+      mainImage: mainImage,
+      items: items,
+      lineupUnknown: names.isEmpty,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// トイズキャビン(toyscabin.com、robots.txt は全許可)
+//   discover: /product/ に全商品(400件超)のリンクが新しい順に並ぶ(ページ送りはJSのみ)
+//   detail:   #titleBase「Project：商品名　400円」/ #releaseBase「Client：2026年12月　JAN CODE:…」/
+//             .textFrame p の本文から「全N種」/ .imgFrame img。ラインナップ名の掲載は無い
+// ---------------------------------------------------------------------------
+
+class ToysCabinCrawler extends MakerCrawler {
+  static const _base = 'https://toyscabin.com';
+
+  @override
+  String get code => 'toyscabin';
+  @override
+  String get label => 'トイズキャビン';
+
+  @override
+  Future<List<Candidate>> discover({required bool backfill}) async {
+    final body = await fetch('$_base/product/');
+    if (body == null) return const [];
+    final seen = <String>{};
+    final result = <Candidate>[];
+    for (final m in RegExp(r'href="(/product/(\d{8}_\d+)\.php)"').allMatches(body)) {
+      final slug = m.group(2)!;
+      if (!seen.add(slug)) continue;
+      result.add((id: 'tc:$slug', url: '$_base${m.group(1)}'));
+    }
+    return result;
+  }
+
+  @override
+  Map<String, dynamic>? parseDetail(String htmlBody, Candidate candidate) {
+    final doc = html_parser.parse(htmlBody);
+    final titleLine = normalizeWhitespace(doc.querySelector('#titleBase')?.text ?? '')
+        .replaceFirst(RegExp(r'^Project\s*[:：]\s*'), '');
+    if (titleLine.isEmpty) return null;
+    final priceMatch = RegExp(r'(\d[\d,]*)\s*円\s*$').firstMatch(titleLine);
+    final title = normalizeWhitespace(
+        priceMatch == null ? titleLine : titleLine.substring(0, priceMatch.start));
+    final price = priceMatch == null ? '' : '${priceMatch.group(1)!.replaceAll(',', '')}円';
+
+    final releaseLine = normalizeWhitespace(doc.querySelector('#releaseBase')?.text ?? '');
+    final releaseDate =
+        RegExp(r'\d{4}年\s*\d{1,2}月(?:[上中下]旬|発売)?').firstMatch(releaseLine)?.group(0)?.replaceAll(' ', '') ?? '';
+
+    final description = doc
+        .querySelectorAll('.textFrame p')
+        .where((p) => p.id.isEmpty)
+        .map((p) => normalizeWhitespace(p.text))
+        .join(' ');
+    final typeCount = parseTypeCount(description);
+
+    final images = doc
+        .querySelectorAll('.imgFrame img')
+        .map((img) => img.attributes['src'] ?? '')
+        .where((src) => src.isNotEmpty)
+        .map((src) => absoluteUrl(candidate.url, src))
+        .toList();
+    final mainImage = images.isEmpty ? '' : images.first;
+    // 本文に「全N種」が無い商品も多い。その場合は新作情報としての価値を優先し、
+    // 画像枚数(最低1)ぶんの仮アイテムで収録する(num_types は空のまま)
+    final items = buildItems(
+        names: const [],
+        images: const [],
+        mainImage: mainImage,
+        typeCount: typeCount ?? (images.isEmpty ? 1 : images.length));
+    if (items.isEmpty) return null;
+
+    return buildEntry(
+      id: candidate.id,
+      maker: code,
+      sourceUrl: candidate.url,
+      title: title,
+      price: price,
+      releaseDate: releaseDate,
+      typeCount: typeCount,
       targetAge: '',
       mainImage: mainImage,
       items: items,

@@ -16,6 +16,8 @@ enum Maker {
   kitan('kitan', 'キタンクラブ', 'キタンクラブ'),
   bushiroad('bushiroad', 'ブシロードクリエイティブ', 'ブシロード'),
   sota('sota', 'SO-TA', 'SO-TA'),
+  kenelephant('kenelephant', 'ケンエレファント', 'ケンエレ'),
+  toyscabin('toyscabin', 'トイズキャビン', 'トイズキャビン'),
   other('other', 'その他', 'その他');
 
   const Maker(this.code, this.label, this.shortLabel);

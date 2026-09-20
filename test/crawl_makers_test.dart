@@ -82,6 +82,74 @@ void main() {
     });
   });
 
+  group('ケンエレファント', () {
+    test('LINEUP ブロックからラインナップ名、カプセル価格、og:image を取る', () {
+      final entry = KenElephantCrawler().parseDetail(
+        fixture('kenelephant_item.html'),
+        (id: 'kenele:gc0733', url: 'https://kenelestore.jp/products/gc0733c'),
+      )!;
+      expect(entry['title'], '冷蔵庫専用フィギュア たまごのふりして');
+      expect(entry['price'], '500円');
+      expect(entry['num_types'], '全6種');
+      expect(entry['lineup_unknown'], false);
+      expect(entry['image_url'], 'https://kenelestore.jp/cdn/shop/files/gc0733-01.jpg?v=1783669940');
+      final items = entry['items'] as List;
+      // 「※…」の注記は名前から落とす
+      expect(items.map((i) => i['title']).toList(), ['ニンゲン', 'ヒグマ', 'ペンギン', 'シロクマ', 'イエティ', 'ニワトリ']);
+    });
+
+    test('古いページの本文「■ラインナップ 全N種 ・名前(サイズ)」からも取れ、次の見出しで止まる', () {
+      final lines = [
+        '恐怖と笑いの天才のグッズコレクション！第2弾！',
+        '■ラインナップ 全6種',
+        '・ハンカチ（約W400×H400mm）',
+        '・小銭入れ（約H72mm）',
+        '・缶ミラー（約W63mmmm）',
+        '・3連アクリルキーホルダー（約W35~41mm）',
+        '・アクリルキーホルダー (約H62mm)',
+        '・エコバッグ（約H280mm）※色は選べません',
+        '■ 作家',
+        '・作家の紹介行(拾わない)',
+        '★ 中身につきまして',
+        '・全種類揃うコンプリートBOXです。',
+      ];
+      final result = KenElephantCrawler.parseLineupLines(lines, requireHeading: true);
+      expect(result.typeCount, 6);
+      expect(result.names, ['ハンカチ', '小銭入れ', '缶ミラー', '3連アクリルキーホルダー', 'アクリルキーホルダー', 'エコバッグ']);
+      // 見出しが無い本文からは拾わない
+      expect(KenElephantCrawler.parseLineupLines(['・注意事項A', '・注意事項B'], requireHeading: true).names, isEmpty);
+    });
+
+    test('発売月は tag の mcatem__N月発売 と公開日から年月を組む', () {
+      expect(KenElephantCrawler.releaseDateFrom(['GC', 'mcatem__9月発売'], DateTime(2026, 6, 10)), '2026年9月');
+      // 公開が10月で発売タグが1月 → 翌年
+      expect(KenElephantCrawler.releaseDateFrom(['mcatem__1月発売'], DateTime(2026, 10, 1)), '2027年1月');
+      // 発売月が公開月の直前(発売後に公開)は同年
+      expect(KenElephantCrawler.releaseDateFrom(['mcatem__6月発売'], DateTime(2026, 7, 1)), '2026年6月');
+      // タグが無ければ公開年月
+      expect(KenElephantCrawler.releaseDateFrom(['GC'], DateTime(2026, 7, 1)), '2026年7月');
+      expect(KenElephantCrawler.releaseDateFrom(const [], null), '');
+      // 2023年1月の一括移行分は発売時期不明
+      expect(KenElephantCrawler.releaseDateFrom(['GC'], DateTime(2023, 1, 20)), '');
+    });
+  });
+
+  group('トイズキャビン', () {
+    test('Project 行から商品名と価格、Client 行から発売月、本文から種類数を取る', () {
+      final entry = ToysCabinCrawler().parseDetail(
+        fixture('toyscabin_item.html'),
+        (id: 'tc:20260904_1488', url: 'https://toyscabin.com/product/20260904_1488.php'),
+      )!;
+      expect(entry['title'], 'YAMAHA バイクラバーキーホルダー レジェンド編');
+      expect(entry['price'], '400円');
+      expect(entry['release_date'], '2026年12月');
+      expect(entry['num_types'], '全6種');
+      expect(entry['lineup_unknown'], true);
+      expect(entry['image_url'], startsWith('https://toyscabin.com/product/upfiles/2026/09/'));
+      expect((entry['items'] as List).length, 6);
+    });
+  });
+
   group('extractQuotedNames', () {
     test('作品名の引用はラインナップとして拾わない', () {
       const text = 'TVアニメ「その着せ替え人形は恋をする」より、マスコットが登場！';

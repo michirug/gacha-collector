@@ -25,7 +25,7 @@ jobs:
       - name: クローラー実行(バンダイ)
         run: dart run tool/crawl_gashapon.dart 100
 
-      - name: クローラー実行(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA)
+      - name: クローラー実行(タカラトミーアーツ/キタンクラブ/ブシロードクリエイティブ/SO-TA/ケンエレファント/トイズキャビン)
         run: dart run tool/crawl_makers.dart --max=100
 
       - name: 変更があればコミット
