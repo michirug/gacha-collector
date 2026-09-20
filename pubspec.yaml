@@ -85,6 +85,7 @@ flutter:
   assets:
     - assets/gacha_data.json
     - assets/app_config.json
+    - assets/community_photos.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

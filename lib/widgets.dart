@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'community_photos.dart';
 import 'demo_art.dart';
 import 'image_policy.dart';
 import 'models.dart';
@@ -25,12 +26,15 @@ String shortReleaseLabel(GachaSeries series) {
   return '$yearPrefix${match.group(1)}月${match.group(2) ?? ''}';
 }
 
-// 商品画像。表示優先順は ユーザー写真(端末内) → 公式画像(直リンク・キャッシュ) → プレースホルダー。
+// 商品画像。表示優先順は ユーザー写真(端末内) → みんなの図鑑の採用写真 → 公式画像(直リンク・キャッシュ) → プレースホルダー。
 // 公式画像はトリミングせず(contain)全体を表示し、画像内の©表記・メーカーロゴを落とさない。
 // ImagePolicy でメーカー単位に非表示指定されている場合は公式画像を出さない。
+// itemId / seriesId を渡すと CommunityPhotos の採用写真を探す(シリーズ非表示指定があれば出さない)。
 class GachaImage extends StatelessWidget {
   final String url;
   final Maker? maker;
+  final String? itemId;
+  final String? seriesId;
   final File? localFile;
   final double? width;
   final double? height;
@@ -41,6 +45,8 @@ class GachaImage extends StatelessWidget {
     this.url, {
     super.key,
     this.maker,
+    this.itemId,
+    this.seriesId,
     this.localFile,
     this.width,
     this.height,
@@ -48,63 +54,91 @@ class GachaImage extends StatelessWidget {
     this.borderRadius,
   });
 
+  // 表示に使うみんなの図鑑の写真。アイテム指定があればアイテムの写真、無ければシリーズ代表写真
+  static CommunityPhoto? communityPhotoFor({String? itemId, String? seriesId}) {
+    if (seriesId != null && ImagePolicy.isSeriesHidden(seriesId)) return null;
+    return itemId != null ? CommunityPhotos.forItem(itemId) : CommunityPhotos.forSeries(seriesId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Set<String>>(
       valueListenable: ImagePolicy.hiddenMakers,
-      builder: (context, _, _) {
-        final placeholder = Container(
-          width: width,
-          height: height,
-          color: kBrandPurple.withValues(alpha: 0.06),
-          child: Icon(Icons.toys_outlined,
-              size: 24, color: kBrandPurple.withValues(alpha: 0.35)),
-        );
-        Widget image;
-        if (localFile != null) {
-          // ユーザー写真は自分で撮ったものなので枠を埋める表示(cover)で良い
-          image = Image.file(localFile!,
-              width: width, height: height, fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => placeholder);
-        } else if (ImagePolicy.useDemoArt && url.isNotEmpty) {
-          image = SizedBox(width: width, height: height, child: DemoCapsuleArt(url));
-        } else if (url.isEmpty || ImagePolicy.isMakerHidden(maker)) {
-          image = placeholder;
-        } else {
-          image = CachedNetworkImage(
-            imageUrl: url,
+      builder: (context, _, _) => ValueListenableBuilder<CommunityPhotoSnapshot>(
+        valueListenable: CommunityPhotos.snapshot,
+        builder: (context, _, _) {
+          final placeholder = Container(
             width: width,
             height: height,
-            fit: fit,
-            fadeInDuration: const Duration(milliseconds: 150),
-            placeholder: (_, _) => placeholder,
-            errorWidget: (_, _, _) => placeholder,
+            color: kBrandPurple.withValues(alpha: 0.06),
+            child: Icon(Icons.toys_outlined,
+                size: 24, color: kBrandPurple.withValues(alpha: 0.35)),
           );
-        }
-        if (borderRadius == null) return image;
-        return ClipRRect(borderRadius: borderRadius!, child: image);
-      },
+          final community = communityPhotoFor(itemId: itemId, seriesId: seriesId);
+          Widget image;
+          if (localFile != null) {
+            // ユーザー写真は自分で撮ったものなので枠を埋める表示(cover)で良い
+            image = Image.file(localFile!,
+                width: width, height: height, fit: BoxFit.cover,
+                errorBuilder: (_, _, _) => placeholder);
+          } else if (community != null && !ImagePolicy.useDemoArt) {
+            image = CachedNetworkImage(
+              imageUrl: community.url,
+              width: width,
+              height: height,
+              fit: BoxFit.cover,
+              fadeInDuration: const Duration(milliseconds: 150),
+              placeholder: (_, _) => placeholder,
+              errorWidget: (_, _, _) => placeholder,
+            );
+          } else if (ImagePolicy.useDemoArt && url.isNotEmpty) {
+            image = SizedBox(width: width, height: height, child: DemoCapsuleArt(url));
+          } else if (url.isEmpty || ImagePolicy.isMakerHidden(maker)) {
+            image = placeholder;
+          } else {
+            image = CachedNetworkImage(
+              imageUrl: url,
+              width: width,
+              height: height,
+              fit: fit,
+              fadeInDuration: const Duration(milliseconds: 150),
+              placeholder: (_, _) => placeholder,
+              errorWidget: (_, _, _) => placeholder,
+            );
+          }
+          if (borderRadius == null) return image;
+          return ClipRRect(borderRadius: borderRadius!, child: image);
+        },
+      ),
     );
   }
 }
 
-// 「画像: ○○公式サイト」の出典表記
+// 「画像: ○○公式サイト」の出典表記。seriesId を渡すとみんなの図鑑の写真が使われている場合の表記に切り替わる
 class ImageCredit extends StatelessWidget {
   final Maker maker;
-  const ImageCredit(this.maker, {super.key});
+  final String? seriesId;
+  const ImageCredit(this.maker, {super.key, this.seriesId});
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Set<String>>(
       valueListenable: ImagePolicy.hiddenMakers,
-      builder: (context, _, _) {
-        if (ImagePolicy.useDemoArt) return const SizedBox.shrink();
-        final hidden = ImagePolicy.isMakerHidden(maker);
-        return Text(
-          hidden ? '公式画像は現在表示していません' : '画像: ${maker.label}公式サイトより(権利は各権利者に帰属)',
-          style: TextStyle(fontSize: 10.5, color: Colors.grey[600]),
-        );
-      },
+      builder: (context, _, _) => ValueListenableBuilder<CommunityPhotoSnapshot>(
+        valueListenable: CommunityPhotos.snapshot,
+        builder: (context, _, _) {
+          if (ImagePolicy.useDemoArt) return const SizedBox.shrink();
+          final String text;
+          if (GachaImage.communityPhotoFor(seriesId: seriesId) != null) {
+            text = '画像: ガチャ活ユーザーの投稿写真(みんなの図鑑)';
+          } else if (ImagePolicy.isMakerHidden(maker)) {
+            text = '公式画像は現在表示していません';
+          } else {
+            text = '画像: ${maker.label}公式サイトより(権利は各権利者に帰属)';
+          }
+          return Text(text, style: TextStyle(fontSize: 10.5, color: Colors.grey[600]));
+        },
+      ),
     );
   }
 }
@@ -206,7 +240,7 @@ class SeriesPosterCard extends StatelessWidget {
             children: [
               Stack(
                 children: [
-                  GachaImage(series.mainImage, maker: series.maker, width: 150, height: 150),
+                  GachaImage(series.mainImage, maker: series.maker, seriesId: series.id, width: 150, height: 150),
                   if (onWishTap != null)
                     Positioned(
                       top: 4,
@@ -292,7 +326,7 @@ class SeriesTile extends StatelessWidget {
           padding: const EdgeInsets.all(10),
           child: Row(
             children: [
-              GachaImage(series.mainImage, maker: series.maker,
+              GachaImage(series.mainImage, maker: series.maker, seriesId: series.id,
                   width: 72, height: 72, borderRadius: BorderRadius.circular(12)),
               const SizedBox(width: 12),
               Expanded(

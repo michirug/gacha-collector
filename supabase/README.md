@@ -45,9 +45,23 @@ Database → Webhooks で `photos` テーブルの INSERT / UPDATE を `judge-ph
 
 ## 5. 配信スナップショット(B-2)
 
-`approved_photo_snapshot` ビューを1時間ごとに JSON へ書き出して配布する。方法は2択:
-- GitHub Actions から `service_role` キーでビューを読み、`assets/community_photos.json` にコミット(既存の `gacha_data.json` と同じ配信経路。**別ファイルにするので v1.0 アプリとの互換は壊れない**)
-- Supabase の pg_cron + Storage に JSON を書く
+`approved_photo_snapshot` ビューを GitHub Actions(`.github/workflows/update-community-photos.yml`、毎時15分)が
+`tool/export_community_photos.dart` で `assets/community_photos.json` に書き出してコミットする(既存の `gacha_data.json` と同じ配信経路。
+**別ファイルなので v1.0 アプリとの互換は壊れない**)。採用写真は RLS で誰でも読めるので publishable キーで足りる。
+
+**ユーザー作業(初回のみ)**: GitHub リポジトリ → Settings → Secrets and variables → Actions に以下を登録
+- `SUPABASE_URL` = `https://<project-ref>.supabase.co`
+- `SUPABASE_PUBLISHABLE_KEY` = `sb_publishable_...`
+
+手動実行: Actions タブ → 「みんなの図鑑 写真スナップショット更新」→ Run workflow。ローカルでは
+
+```powershell
+$env:SUPABASE_URL="https://xxxx.supabase.co"; $env:SUPABASE_KEY="sb_publishable_..."
+dart run tool/export_community_photos.dart
+```
+
+アプリ側は `lib/community_photos.dart`(`CommunityPhotos`)が 同梱→端末キャッシュ→raw URL の順で読み、
+`GachaImage` が 自分の写真 → みんなの写真 → 公式画像 → プレースホルダー の優先順で表示する。
 
 ## 6. 運用(モデレーション)
 

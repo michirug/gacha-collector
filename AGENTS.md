@@ -41,7 +41,11 @@ v1.0再定義(リリース前に必須):
   - [x] B-0: スキーマ `supabase/migrations/0001_photos.sql`(テーブル・RLS・RPC・Storageバケット)、Edge Function骨格 `supabase/functions/judge-photo`、手順書 `supabase/README.md`、法的文書改定案 `store/legal_drafts_phase_b.md`(**docs/ は段階Bリリース時まで書き換えない**)
   - [x] B-1(アプリ側): `CommunityService`(匿名サインイン/同意/アップロード/取り消し/承認・通報・ブロックRPC)、同意ダイアログ、長押しシートに「みんなの図鑑に共有」、マイページに自動共有トグルと匿名ID。`--dart-define=SUPABASE_URL/SUPABASE_ANON_KEY` 未指定なら全て無効(v1.0と同じ挙動)。写真は保存時に `sanitizeJpeg` でEXIF除去・長辺1200px
   - [x] Supabaseプロジェクト作成・SQL適用・匿名サインインON(2026-09-20)。Org `Pocket Applications`(Free) / project `gacha-pocket` / ref `atficwbsfffthcorjnod` / 東京。URL `https://atficwbsfffthcorjnod.supabase.co`。**publishable key(`sb_publishable_...`)はリポジトリに書かず、Supabaseダッシュボード Settings→API Keys から取得して `--dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...` で渡す**。エミュレータで 撮影→同意ダイアログ→アップロード→「共有中・取り消す」→取り消し まで動作確認済み。別匿名ユーザーからpendingが見えないこと(RLS)も確認
-  - [ ] B-2: 採用写真の配信(スナップショットJSON → `GachaImage` の優先順位に組み込み)、承認UI、通報UI、Edge Functionの一致度判定、Webhook設定
+  - [~] B-2:
+    - [x] 採用写真の配信(2026-09-20): `tool/export_community_photos.dart` が `approved_photo_snapshot` ビュー → `assets/community_photos.json`(`{items:{itemId:{url,poster}}, series:{seriesId:{url,poster}}}`、generated_at以外に差分が無ければ書かない)。Actions `update-community-photos.yml`(毎時15分)。アプリ側 `lib/community_photos.dart`(`CommunityPhotos`、ImagePolicyと同じ 同梱→キャッシュ→raw URL)、`GachaImage` に `itemId`/`seriesId` を渡すと 自分の写真→みんなの写真→公式画像 の優先順(`hide_series` はみんなの写真にも適用)、`ImageCredit` は投稿写真の場合「ガチャ活ユーザーの投稿写真」表記。テスト `test/community_photos_test.dart`
+    - [ ] **ユーザー作業**: GitHub Secrets に `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` を登録(`supabase/README.md` §5)
+    - [ ] 承認UI(他ユーザーのpending写真を「この写真は正しい?」で承認、3人で採用)、通報UI・ブロック(ブロック済み投稿者の写真を端末側で除外する処理も未実装)
+    - [ ] Edge Function `judge-photo` の一致度判定実装・デプロイ・Webhook設定(採用→approvedバケットへコピー・public_url付与はEdge Functionが担うので、これが無いとスナップショットは空のまま)
   - [ ] B-3: いいね・差し替え・実績・クレジット
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 
@@ -80,6 +84,7 @@ lib/
   image_policy.dart       ImagePolicy(assets/app_config.json をリモート取得し、メーカー/シリーズ単位で公式画像を非表示)
   user_photo_store.dart   UserPhotoStore(image_pickerで撮影/選択→sanitizeJpegでEXIF除去・縮小→端末内 photos/ に保存、CollectionEntry.photoPath)
   community_service.dart  CommunityService(Supabase: 匿名認証・写真アップロード・取り消し・承認/通報/ブロックRPC。--dart-define未設定なら無効)
+  community_photos.dart   CommunityPhotos(assets/community_photos.json をリモート取得。採用済みユーザー写真の itemId/seriesId → URL)
   community_consent_dialog.dart  写真共有の初回同意ダイアログ(UGCポリシーの規約同意)
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
@@ -109,6 +114,7 @@ integration_test/screenshots_test.dart  + test_driver/integration_test.dart  ス
 tool/crawl_gashapon.dart  バンダイ(gashapon.jp)クローラー
 tool/crawl_makers.dart    他メーカークローラー(--maker= --max= --backfill)
 tool/publish_release.dart Play Publishing APIで配信(AAB/掲載文/スクショ)。手順: tool/PUBLISHING.md
+tool/export_community_photos.dart  Supabase採用写真 → assets/community_photos.json(環境変数 SUPABASE_URL / SUPABASE_KEY)
 supabase/                 段階Bのバックエンド定義(migrations/ functions/ README.md)
 ```
 
@@ -116,7 +122,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 42テスト(素材生成テストはskip)
+flutter test                                   # 47テスト(素材生成テストはskip)
 flutter build appbundle --release              # → build/app/outputs/bundle/release/app-release.aab
 
 # データ取得(新着のみ / 全件バックフィル。2秒間隔、100件ごとに保存、再実行は既存IDをスキップ)

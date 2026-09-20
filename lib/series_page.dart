@@ -362,8 +362,8 @@ class _ItemListPageState extends State<ItemListPage> {
       body: SafeArea(
         child: ListView(
           children: [
-            GachaImage(series.mainImage, maker: series.maker, height: 250, width: double.infinity),
-            Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 0), child: ImageCredit(series.maker)),
+            GachaImage(series.mainImage, maker: series.maker, seriesId: series.id, height: 250, width: double.infinity),
+            Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 0), child: ImageCredit(series.maker, seriesId: series.id)),
             Padding(padding: const EdgeInsets.all(16.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Wrap(
                 spacing: 8,
@@ -438,7 +438,7 @@ class _ItemListPageState extends State<ItemListPage> {
                       children: [
                         Opacity(
                           opacity: isFound ? 1.0 : 0.3,
-                          child: GachaImage(item.image, maker: series.maker, localFile: _userPhotos[item.id], borderRadius: BorderRadius.circular(10)),
+                          child: GachaImage(item.image, maker: series.maker, itemId: item.id, seriesId: series.id, localFile: _userPhotos[item.id], borderRadius: BorderRadius.circular(10)),
                         ),
                         if (isFound)
                           const Center(

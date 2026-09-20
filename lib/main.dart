@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'community_photos.dart';
 import 'community_service.dart';
 import 'demo_seed.dart';
 import 'home_page.dart';
@@ -22,6 +23,8 @@ Future<void> main() async {
   }
   // 公式画像の表示ポリシー(リモート設定)。起動をブロックしないよう待たない
   unawaited(ImagePolicy.load());
+  // みんなの図鑑の採用写真(配信スナップショット)。同上
+  unawaited(CommunityPhotos.load());
   // 写真共有(Supabase)。--dart-define 未設定なら何もしない
   await CommunityService.init();
   runApp(const GachaCollectorApp());
