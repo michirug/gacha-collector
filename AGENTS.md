@@ -40,7 +40,7 @@ v1.0再定義(リリース前に必須):
 - 段階B(v1.1・サーバー導入、設計: `store/photo_sharing_design.md`)。決定: Supabase / 初期はニックネーム無し / 承認3人固定
   - [x] B-0: スキーマ `supabase/migrations/0001_photos.sql`(テーブル・RLS・RPC・Storageバケット)、Edge Function骨格 `supabase/functions/judge-photo`、手順書 `supabase/README.md`、法的文書改定案 `store/legal_drafts_phase_b.md`(**docs/ は段階Bリリース時まで書き換えない**)
   - [x] B-1(アプリ側): `CommunityService`(匿名サインイン/同意/アップロード/取り消し/承認・通報・ブロックRPC)、同意ダイアログ、長押しシートに「みんなの図鑑に共有」、マイページに自動共有トグルと匿名ID。`--dart-define=SUPABASE_URL/SUPABASE_ANON_KEY` 未指定なら全て無効(v1.0と同じ挙動)。写真は保存時に `sanitizeJpeg` でEXIF除去・長辺1200px
-  - [ ] **ユーザー作業**: Supabaseプロジェクト作成→SQL適用→anonキーを `--dart-define` で渡して実機確認(`supabase/README.md` §1〜3)
+  - [x] Supabaseプロジェクト作成・SQL適用・匿名サインインON(2026-09-20)。Org `Pocket Applications`(Free) / project `gacha-pocket` / ref `atficwbsfffthcorjnod` / 東京。URL `https://atficwbsfffthcorjnod.supabase.co`。**publishable key(`sb_publishable_...`)はリポジトリに書かず、Supabaseダッシュボード Settings→API Keys から取得して `--dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...` で渡す**。エミュレータで 撮影→同意ダイアログ→アップロード→「共有中・取り消す」→取り消し まで動作確認済み。別匿名ユーザーからpendingが見えないこと(RLS)も確認
   - [ ] B-2: 採用写真の配信(スナップショットJSON → `GachaImage` の優先順位に組み込み)、承認UI、通報UI、Edge Functionの一致度判定、Webhook設定
   - [ ] B-3: いいね・差し替え・実績・クレジット
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
