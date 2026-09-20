@@ -51,7 +51,8 @@ v1.0再定義(リリース前に必須):
     - [x] Edge Function `judge-photo` 実装(2026-09-20): Gemini(`MATCH_MODEL_API_KEY`、既定 gemini-2.5-flash、JSON応答)で「シリーズ名 / アイテム名」との一致度・顔検出・転載疑い、JPEGヘッダから解像度で画質採点。`migrations/0002_judge_support.sql`(`photos.item_label` 追加、`approve_photo` の auto_score>=0.5 条件を撤廃=未判定でも承認で採用可)。アプリは投稿時に `item_label` を送る
     - [x] デプロイ完了(2026-09-20): 0002適用、`judge-photo` v1 ACTIVE(`--no-verify-jwt`)、secrets `WEBHOOK_SECRET`(値はユーザーのPowerShell履歴とDBトリガー定義内にのみ)、DBトリガー `judge_photo`(photos insert/update → Edge Function)。**一気通貫確認済み**: 投稿→auto_score付与→手動approved→approvedバケットへコピー・public_url→export→raw URL→アプリでシリーズ画像が投稿写真に切替・出典表記切替→removed→両バケットから物理削除。Gemini(`MATCH_MODEL_API_KEY`)/Vision キーは未設定(一致度0.5固定)
     - **`npx supabase` はDevinのシェルからも使える**(ユーザーが `login` 済み、`link` 済み)。`npx supabase db query --linked "<1文>"` で運用SQL(承認・保留確認など)を直接実行できる
-  - [ ] B-3: いいね・差し替え・実績・クレジット
+  - [x] B-3(2026-09-20): `migrations/0004_likes_cap.sql`(`approve_photo` が採用後に同アイテムの採用写真を評価順で5枚に制限=最下位を removed、RPC `my_contribution()`=自分の採用写真をシリーズ別に集計)。**差し替え**は `approved_photo_snapshot` ビューが常に最良1枚(auto_score×0.5+min(likes,50)/100)を選ぶので自動。**いいね**: `toggle_like` RPC、`CommunityLikeButton`(シリーズ詳細の出典表記横・採用写真メニュー内)、`CommunityPhotos.likedPhotos/likeAdjust`(押した直後の件数補正、スナップショット再取得でリセット)、スナップショットに `likes`。**クレジット**: `communityCreditText`=「ガチャ活ユーザー xxxxxxさんの投稿写真」/自分なら「あなたの写真が図鑑に採用されています」(ニックネーム無し方針)。シェアカードは画像を描かないのでクレジット追加は無し。**実績**3種追加(図鑑職人=採用1枚/図鑑の匠=20枚/シリーズ完成=1シリーズ全アイテムが自分の写真)→ 合計15種、マイページに「図鑑に採用されたあなたの写真 N枚」。エミュレータで いいね→likes=1、実績2/15、クレジット表記 を確認。テスト51件
+  - 段階B 残り: `store/legal_drafts_phase_b.md` を docs/ に反映(リリース直前)、データセーフティ申告更新、Gemini/Vision キー(任意)、承認の重み付け(任意)
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 
 Play Console側(コードと無関係、先行して実施):
@@ -95,7 +96,7 @@ lib/
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
   collection_store.dart   SharedPreferences永続化・マイグレーション(schema v2)
-  achievements.dart       実績定義・評価(12種)
+  achievements.dart       実績定義・評価(15種。写真系3種は CommunityService.myContribution() から)
   celebration.dart        コンプ演出ダイアログ(無限アニメ → テストではpumpAndSettle禁止)
   share_card.dart         シェアカード描画(シリーズ/サマリー/譲・求、#ガチャ活ポケット)
   demo_seed.dart          DEMO_MODE用見本データ投入(39アイテム/5シリーズコンプ/17,600円/実績6/12)
@@ -128,7 +129,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 48テスト(素材生成テストはskip)
+flutter test                                   # 51テスト(素材生成テストはskip)
 
 # Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
 npx supabase db query --linked "select status, count(*) from photos group by status"

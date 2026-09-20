@@ -29,6 +29,7 @@ Future<void> main() async {
   await CommunityService.init();
   // ブロック済み投稿者(端末キャッシュ→サーバー)。起動をブロックしない
   unawaited(CommunityService.loadBlocked());
+  unawaited(CommunityService.loadLiked());
   runApp(const GachaCollectorApp());
 }
 

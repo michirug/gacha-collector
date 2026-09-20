@@ -40,6 +40,7 @@ class _MyPageState extends State<MyPage> {
   bool _isLoading = true;
   bool _communityConsented = false;
   bool _shareByDefault = false;
+  int _approvedPhotos = 0;
 
   @override
   void initState() {
@@ -54,13 +55,16 @@ class _MyPageState extends State<MyPage> {
       ..clear()
       ..addAll(loaded);
     _wishlist = await CollectionStore.loadWishlist();
-    await AchievementService.evaluate(
-        computeAchievementStats(_collection, _allSeries));
-    _unlockedAchievements = await AchievementService.loadUnlocked();
+    var contribution = const <String, int>{};
     if (CommunityService.isConfigured) {
       _communityConsented = await CommunityService.hasConsented();
       _shareByDefault = await CommunityService.shareByDefault();
+      contribution = await CommunityService.myContribution();
+      _approvedPhotos = computePhotoContribution(contribution, _allSeries).approvedPhotos;
     }
+    await AchievementService.evaluate(
+        computeAchievementStats(_collection, _allSeries, contribution: contribution));
+    _unlockedAchievements = await AchievementService.loadUnlocked();
     _processCollectionData();
   }
 
@@ -244,6 +248,13 @@ class _MyPageState extends State<MyPage> {
                           : null,
                     ),
                     if (CommunityService.currentUserId != null) ...[
+                      const Divider(height: 1),
+                      ListTile(
+                        leading: const Icon(Icons.photo_library_outlined),
+                        title: const Text('図鑑に採用されたあなたの写真'),
+                        trailing: Text('$_approvedPhotos枚',
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: kBrandPurpleDark)),
+                      ),
                       const Divider(height: 1),
                       ListTile(
                         leading: const Icon(Icons.fingerprint),

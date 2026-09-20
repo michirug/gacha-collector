@@ -61,8 +61,11 @@ class GachaImage extends StatelessWidget {
   }
 
   // 表示判断に関わるリモート状態(公式画像ポリシー・採用写真・ブロック)をまとめて監視する
-  static final Listenable displayState = Listenable.merge(
-      [ImagePolicy.hiddenMakers, ImagePolicy.hiddenSeries, CommunityPhotos.snapshot, CommunityPhotos.blockedPosters]);
+  static final Listenable displayState = Listenable.merge([
+    ImagePolicy.hiddenMakers, ImagePolicy.hiddenSeries,
+    CommunityPhotos.snapshot, CommunityPhotos.blockedPosters,
+    CommunityPhotos.likedPhotos, CommunityPhotos.likeAdjust,
+  ]);
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +117,21 @@ class GachaImage extends StatelessWidget {
   }
 }
 
+// 投稿写真のクレジット。ニックネームは持たない(初期方針)ので匿名IDの先頭6文字を「投稿者名」として使う。
+// 自分の写真なら「あなたの写真」と表示して貢献が分かるようにする
+String communityCreditText(CommunityPhoto photo, {String? myUserId}) {
+  final poster = photo.posterId;
+  if (poster != null && poster == myUserId) return '画像: あなたの写真が図鑑に採用されています';
+  final name = poster == null || poster.length < 6 ? 'ガチャ活ユーザー' : 'ガチャ活ユーザー ${poster.substring(0, 6)}';
+  return '画像: $nameさんの投稿写真(みんなの図鑑)';
+}
+
 // 「画像: ○○公式サイト」の出典表記。seriesId を渡すとみんなの図鑑の写真が使われている場合の表記に切り替わる
 class ImageCredit extends StatelessWidget {
   final Maker maker;
   final String? seriesId;
-  const ImageCredit(this.maker, {super.key, this.seriesId});
+  final String? myUserId;
+  const ImageCredit(this.maker, {super.key, this.seriesId, this.myUserId});
 
   @override
   Widget build(BuildContext context) {
@@ -127,8 +140,9 @@ class ImageCredit extends StatelessWidget {
         builder: (context, _) {
           if (ImagePolicy.useDemoArt) return const SizedBox.shrink();
           final String text;
-          if (GachaImage.communityPhotoFor(seriesId: seriesId) != null) {
-            text = '画像: ガチャ活ユーザーの投稿写真(みんなの図鑑)';
+          final community = GachaImage.communityPhotoFor(seriesId: seriesId);
+          if (community != null) {
+            text = communityCreditText(community, myUserId: myUserId);
           } else if (ImagePolicy.isMakerHidden(maker)) {
             text = '公式画像は現在表示していません';
           } else {

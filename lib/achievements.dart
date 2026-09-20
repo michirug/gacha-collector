@@ -9,12 +9,17 @@ class AchievementStats {
   final int completedSeries;
   final int totalSpend;
   final int duplicateCount;
+  // みんなの図鑑への貢献(段階B)。未参加なら 0
+  final int approvedPhotos;
+  final int photoCompletedSeries;
 
   const AchievementStats({
     required this.totalItems,
     required this.completedSeries,
     required this.totalSpend,
     required this.duplicateCount,
+    this.approvedPhotos = 0,
+    this.photoCompletedSeries = 0,
   });
 }
 
@@ -47,10 +52,29 @@ final List<Achievement> allAchievements = [
   Achievement(id: 'spend_10k', title: '沼のほとり', description: '総支出が1万円を超えた', icon: Icons.savings, isSatisfied: (s) => s.totalSpend >= 10000),
   Achievement(id: 'spend_50k', title: 'ガチャ沼', description: '総支出が5万円を超えた', icon: Icons.water, isSatisfied: (s) => s.totalSpend >= 50000),
   Achievement(id: 'spend_100k', title: '沼の主', description: '総支出が10万円を超えた', icon: Icons.tsunami, isSatisfied: (s) => s.totalSpend >= 100000),
+  Achievement(id: 'photo_1', title: '図鑑職人', description: '撮った写真がみんなの図鑑に採用された', icon: Icons.photo_camera, isSatisfied: (s) => s.approvedPhotos >= 1),
+  Achievement(id: 'photo_20', title: '図鑑の匠', description: '写真が20枚みんなの図鑑に採用された', icon: Icons.auto_awesome, isSatisfied: (s) => s.approvedPhotos >= 20),
+  Achievement(id: 'photo_series', title: 'シリーズ完成', description: '1シリーズ全アイテムの図鑑写真が自分の写真になった', icon: Icons.collections_bookmark, isSatisfied: (s) => s.photoCompletedSeries >= 1),
 ];
 
+// みんなの図鑑への貢献を集計する。contribution は CommunityService.myContribution()(seriesId → 採用アイテム数)
+({int approvedPhotos, int photoCompletedSeries}) computePhotoContribution(
+    Map<String, int> contribution, List<GachaSeries> allSeries) {
+  var approved = 0;
+  var completed = 0;
+  final itemCounts = {for (final s in allSeries) s.id: s.items.length};
+  for (final entry in contribution.entries) {
+    approved += entry.value;
+    final total = itemCounts[entry.key];
+    if (total != null && total > 0 && entry.value >= total) completed++;
+  }
+  return (approvedPhotos: approved, photoCompletedSeries: completed);
+}
+
 AchievementStats computeAchievementStats(
-    Map<String, CollectionEntry> collection, List<GachaSeries> allSeries) {
+    Map<String, CollectionEntry> collection, List<GachaSeries> allSeries,
+    {Map<String, int> contribution = const {}}) {
+  final photo = computePhotoContribution(contribution, allSeries);
   int completedSeries = 0;
   for (final series in allSeries) {
     if (series.items.isNotEmpty &&
@@ -70,6 +94,8 @@ AchievementStats computeAchievementStats(
     completedSeries: completedSeries,
     totalSpend: spend.total,
     duplicateCount: duplicateCount,
+    approvedPhotos: photo.approvedPhotos,
+    photoCompletedSeries: photo.photoCompletedSeries,
   );
 }
 

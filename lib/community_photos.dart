@@ -13,7 +13,8 @@ class CommunityPhoto {
   final String url;
   final String? posterId;
   final String? photoId;
-  const CommunityPhoto(this.url, {this.posterId, this.photoId});
+  final int likes;
+  const CommunityPhoto(this.url, {this.posterId, this.photoId, this.likes = 0});
 }
 
 class CommunityPhotoSnapshot {
@@ -33,6 +34,15 @@ class CommunityPhotos {
       ValueNotifier(const CommunityPhotoSnapshot());
   // 自分がブロックした投稿者(この人の写真は端末側で表示しない)。CommunityService が更新する
   static final ValueNotifier<Set<String>> blockedPosters = ValueNotifier({});
+  // 自分がいいねした写真ID(CommunityService が更新)と、いいね直後の表示補正(+1/-1)。
+  // スナップショットの likes は毎時更新なので、押した直後の見た目だけ端末側で補正する
+  static final ValueNotifier<Set<String>> likedPhotos = ValueNotifier({});
+  static final ValueNotifier<Map<String, int>> likeAdjust = ValueNotifier({});
+
+  static bool isLiked(String? photoId) => photoId != null && likedPhotos.value.contains(photoId);
+
+  static int likeCount(CommunityPhoto photo) =>
+      photo.likes + (photo.photoId == null ? 0 : (likeAdjust.value[photo.photoId] ?? 0));
 
   static CommunityPhoto? forItem(String? itemId) =>
       _visible(itemId == null ? null : snapshot.value.items[itemId]);
@@ -63,7 +73,8 @@ class CommunityPhotos {
       if (url is! String || url.isEmpty) continue;
       result[entry.key.toString()] = CommunityPhoto(url,
           posterId: v is Map ? v['poster']?.toString() : null,
-          photoId: v is Map ? v['id']?.toString() : null);
+          photoId: v is Map ? v['id']?.toString() : null,
+          likes: v is Map && v['likes'] is num ? (v['likes'] as num).toInt() : 0);
     }
     return result;
   }
@@ -82,6 +93,8 @@ class CommunityPhotos {
         final body = utf8.decode(response.bodyBytes);
         apply(body);
         await prefs.setString(_prefsKey, body);
+        // 新しいスナップショットには最新の likes が入っているので補正をリセット
+        likeAdjust.value = {};
       }
     } catch (_) {}
   }

@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
+import 'community_photos.dart';
 import 'community_service.dart';
 import 'models.dart';
 import 'theme.dart';
+import 'widgets.dart';
 
 // みんなの図鑑: 他ユーザーの審査中写真を「この写真は合ってる?」と1タップで確認するカード。
 // 3人の承認で採用(approve_photo RPC)。「違う」は wrong_item の通報として扱い、3件で保留になる。
@@ -230,19 +232,66 @@ Future<bool?> confirmBlockPoster(BuildContext context) {
   );
 }
 
-// 採用済み写真(みんなの図鑑)に対する操作メニュー: 通報 / 投稿者をブロック
+// 採用写真への「いいね」。押した直後は端末側で件数を補正して即時反映する
+class CommunityLikeButton extends StatelessWidget {
+  final CommunityPhoto photo;
+  final bool compact;
+  const CommunityLikeButton(this.photo, {super.key, this.compact = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final photoId = photo.photoId;
+    if (photoId == null) return const SizedBox.shrink();
+    return ListenableBuilder(
+      listenable: Listenable.merge([CommunityPhotos.likedPhotos, CommunityPhotos.likeAdjust]),
+      builder: (context, _) {
+        final liked = CommunityPhotos.isLiked(photoId);
+        final count = CommunityPhotos.likeCount(photo);
+        return TextButton.icon(
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: compact ? 6 : 10),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            foregroundColor: liked ? kBrandPinkDark : Colors.grey[700],
+          ),
+          onPressed: () async {
+            final messenger = ScaffoldMessenger.of(context);
+            try {
+              await CommunityService.toggleLike(photoId);
+            } catch (e) {
+              messenger.showSnackBar(SnackBar(content: Text('送信できませんでした: $e')));
+            }
+          },
+          icon: Icon(liked ? Icons.favorite : Icons.favorite_border, size: compact ? 16 : 18),
+          label: Text(count > 0 ? '$count' : 'いいね', style: TextStyle(fontSize: compact ? 11 : 12)),
+        );
+      },
+    );
+  }
+}
+
+// 採用済み写真(みんなの図鑑)に対する操作メニュー: いいね / 通報 / 投稿者をブロック
 Future<void> showCommunityPhotoMenu(BuildContext context,
-    {required String? photoId, required String? posterId}) async {
+    {required String? photoId, required String? posterId, CommunityPhoto? photo}) async {
   final action = await showModalBottomSheet<String>(
     context: context,
     builder: (sheetContext) => SafeArea(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text('みんなの図鑑の写真', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Row(children: [
+              const Expanded(child: Text('みんなの図鑑の写真', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
+              if (photo != null) CommunityLikeButton(photo),
+            ]),
           ),
+          if (photo != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: Text(communityCreditText(photo, myUserId: CommunityService.currentUserId),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[700])),
+            ),
           if (photoId != null)
             ListTile(
               leading: const Icon(Icons.flag_outlined),

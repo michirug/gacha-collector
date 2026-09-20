@@ -19,6 +19,7 @@ class CommunityService {
   static const String _consentKey = 'community_consent_at';
   static const String _shareDefaultKey = 'community_share_default';
   static const String _blockedKey = 'community_blocked_posters';
+  static const String _likedKey = 'community_liked_photos';
   static const String kPendingBucket = 'photos-pending';
 
   static bool get isConfigured => supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty;
@@ -182,6 +183,52 @@ class CommunityService {
           rows.map((r) => (r as Map)['blocked_id'].toString()).toSet();
       await _saveBlocked();
     } catch (_) {}
+  }
+
+  // --- いいね ---
+
+  // トグル。戻り値は押した後の状態(true=いいね済み)。端末側の表示も即時更新する
+  static Future<bool> toggleLike(String photoId) async {
+    await ensureSignedIn();
+    final liked = await _client.rpc('toggle_like', params: {'p_photo_id': photoId}) as bool;
+    final set = {...CommunityPhotos.likedPhotos.value};
+    liked ? set.add(photoId) : set.remove(photoId);
+    CommunityPhotos.likedPhotos.value = set;
+    final adjust = {...CommunityPhotos.likeAdjust.value};
+    adjust[photoId] = (adjust[photoId] ?? 0) + (liked ? 1 : -1);
+    CommunityPhotos.likeAdjust.value = adjust;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_likedKey, set.toList());
+    return liked;
+  }
+
+  static Future<void> loadLiked() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getStringList(_likedKey);
+    if (cached != null) CommunityPhotos.likedPhotos.value = cached.toSet();
+    if (!_initialized || currentUserId == null) return;
+    try {
+      final rows = await _client.from('likes').select('photo_id') as List;
+      final set = rows.map((r) => (r as Map)['photo_id'].toString()).toSet();
+      CommunityPhotos.likedPhotos.value = set;
+      await prefs.setStringList(_likedKey, set.toList());
+    } catch (_) {}
+  }
+
+  // --- 貢献(実績用) ---
+
+  // 採用中の自分の写真: シリーズID → 採用アイテム数。未参加なら空
+  static Future<Map<String, int>> myContribution() async {
+    if (!_initialized || currentUserId == null) return const {};
+    try {
+      final rows = await _client.rpc('my_contribution') as List;
+      return {
+        for (final r in rows.cast<Map<String, dynamic>>())
+          r['series_id'] as String: (r['approved_items'] as num).toInt(),
+      };
+    } catch (_) {
+      return const {};
+    }
   }
 
   static Future<void> _saveBlocked() async {

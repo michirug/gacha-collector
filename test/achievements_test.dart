@@ -16,6 +16,22 @@ GachaSeries buildSeries(String janCode, List<String> itemTitles) {
 }
 
 void main() {
+  group('みんなの図鑑への貢献(実績)', () {
+    test('採用枚数と「全アイテムが自分の写真」のシリーズ数を集計し、実績判定に使える', () {
+      final allSeries = [buildSeries('111', ['a', 'b']), buildSeries('222', ['c', 'd', 'e'])];
+      final stats = computeAchievementStats({}, allSeries, contribution: {'111': 2, '222': 1, 'unknown': 5});
+      expect(stats.approvedPhotos, 8);
+      expect(stats.photoCompletedSeries, 1);
+      final byId = {for (final a in allAchievements) a.id: a};
+      expect(byId['photo_1']!.isSatisfied(stats), isTrue);
+      expect(byId['photo_20']!.isSatisfied(stats), isFalse);
+      expect(byId['photo_series']!.isSatisfied(stats), isTrue);
+      // 未参加(既定値)なら写真系の実績は付かない
+      final none = computeAchievementStats({}, allSeries);
+      expect(byId['photo_1']!.isSatisfied(none), isFalse);
+    });
+  });
+
   group('computeAchievementStats', () {
     test('獲得数・コンプ数・支出・ダブり数を集計する', () {
       final allSeries = [

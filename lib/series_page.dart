@@ -206,10 +206,10 @@ class _ItemListPageState extends State<ItemListPage> {
                     onPressed: () {
                       final photo = GachaImage.communityPhotoFor(itemId: item.id, seriesId: widget.series.id)!;
                       Navigator.pop(sheetContext);
-                      showCommunityPhotoMenu(context, photoId: photo.photoId, posterId: photo.posterId);
+                      showCommunityPhotoMenu(context, photoId: photo.photoId, posterId: photo.posterId, photo: photo);
                     },
-                    icon: const Icon(Icons.flag_outlined, size: 18),
-                    label: const Text('表示中の写真(みんなの図鑑)について'),
+                    icon: const Icon(Icons.public, size: 18),
+                    label: const Text('表示中の写真(みんなの図鑑)にいいね・通報'),
                   ),
                 const SizedBox(height: 8),
               ],
@@ -406,19 +406,22 @@ class _ItemListPageState extends State<ItemListPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
               child: Row(children: [
-                Expanded(child: ImageCredit(series.maker, seriesId: series.id)),
-                // みんなの図鑑の写真が表示されているときだけ、通報/ブロックのメニューを出す
+                Expanded(child: ImageCredit(series.maker, seriesId: series.id, myUserId: CommunityService.currentUserId)),
+                // みんなの図鑑の写真が表示されているときだけ、いいねと 通報/ブロックのメニューを出す
                 ListenableBuilder(
                   listenable: GachaImage.displayState,
                   builder: (context, _) {
                     final photo = GachaImage.communityPhotoFor(seriesId: series.id);
                     if (photo == null || !CommunityService.isConfigured) return const SizedBox.shrink();
-                    return IconButton(
-                      icon: const Icon(Icons.more_horiz, size: 18),
-                      tooltip: '写真について',
-                      visualDensity: VisualDensity.compact,
-                      onPressed: () => showCommunityPhotoMenu(context, photoId: photo.photoId, posterId: photo.posterId),
-                    );
+                    return Row(mainAxisSize: MainAxisSize.min, children: [
+                      CommunityLikeButton(photo, compact: true),
+                      IconButton(
+                        icon: const Icon(Icons.more_horiz, size: 18),
+                        tooltip: '写真について',
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () => showCommunityPhotoMenu(context, photoId: photo.photoId, posterId: photo.posterId, photo: photo),
+                      ),
+                    ]);
                   },
                 ),
               ]),

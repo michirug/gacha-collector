@@ -11,6 +11,8 @@ void main() {
   tearDown(() {
     CommunityPhotos.snapshot.value = const CommunityPhotoSnapshot();
     CommunityPhotos.blockedPosters.value = {};
+    CommunityPhotos.likedPhotos.value = {};
+    CommunityPhotos.likeAdjust.value = {};
     ImagePolicy.hiddenSeries.value = {};
   });
 
@@ -27,8 +29,9 @@ void main() {
       final series = snapshot['series'] as Map;
       expect(items.keys, ['kitan:owl::フクロウ', 'kitan:owl::ミミズク']);
       expect(items['kitan:owl::フクロウ'], {'url': 'https://cdn/a.jpg', 'poster': 'p1', 'id': 'ph1'});
+      expect((items['kitan:owl::ミミズク'] as Map)['likes'], 40);
       // 0.7*0.5 + 40/100 = 0.75 > 0.9*0.5 = 0.45 なのでミミズクが代表
-      expect(series, {'kitan:owl': {'url': 'https://cdn/b.jpg', 'poster': 'p2'}});
+      expect(series, {'kitan:owl': {'url': 'https://cdn/b.jpg', 'poster': 'p2', 'likes': 40}});
       expect(snapshot['generated_at'], isA<String>());
     });
 
@@ -80,6 +83,25 @@ void main() {
       expect(CommunityPhotos.forItem('a::2')?.url, 'https://cdn/2.jpg');
       CommunityPhotos.blockedPosters.value = {};
       expect(CommunityPhotos.forItem('a::1'), isNotNull);
+    });
+
+    test('いいね数はスナップショット値+端末側の補正、いいね済みは自分の一覧で判定', () {
+      CommunityPhotos.apply('{"items":{"a::1":{"url":"https://cdn/1.jpg","id":"ph1","likes":3},"a::2":{"url":"https://cdn/2.jpg","id":"ph2"}}}');
+      final p1 = CommunityPhotos.forItem('a::1')!;
+      expect(CommunityPhotos.likeCount(p1), 3);
+      expect(CommunityPhotos.isLiked('ph1'), isFalse);
+      CommunityPhotos.likedPhotos.value = {'ph1'};
+      CommunityPhotos.likeAdjust.value = {'ph1': 1};
+      expect(CommunityPhotos.likeCount(p1), 4);
+      expect(CommunityPhotos.isLiked('ph1'), isTrue);
+      expect(CommunityPhotos.likeCount(CommunityPhotos.forItem('a::2')!), 0);
+    });
+
+    test('クレジット表記: 匿名IDの先頭6文字、自分の写真なら「あなたの写真」', () {
+      const photo = CommunityPhoto('u', posterId: '9d084b6d-2b37-4e39-b0bc-1f4210586a6b');
+      expect(communityCreditText(photo), contains('ガチャ活ユーザー 9d084bさん'));
+      expect(communityCreditText(photo, myUserId: '9d084b6d-2b37-4e39-b0bc-1f4210586a6b'), contains('あなたの写真'));
+      expect(communityCreditText(const CommunityPhoto('u')), contains('ガチャ活ユーザーさん'));
     });
   });
 }

@@ -12,8 +12,9 @@
 // 出力形式(v1.0 アプリは読まない別ファイルなので、後方互換の制約は無い):
 //   {
 //     "generated_at": "2026-09-20T00:00:00Z",
-//     "items":  { "<itemId>":   { "url": "...", "poster": "<uuid>", "id": "<photo uuid>" } },
+//     "items":  { "<itemId>":   { "url": "...", "poster": "<uuid>", "id": "<photo uuid>", "likes": 3 } },
 //     "series": { "<seriesId>": { "url": "...", "poster": "<uuid>", "id": "<photo uuid>" } }   // そのシリーズの最良1枚
+//   likes は 0 のとき省略
 //   }
 
 import 'dart:convert';
@@ -72,7 +73,7 @@ Future<List<Map<String, dynamic>>> fetchAllRows(Uri base, String key) async {
 
 // ビューの行(アイテムごとに最良1枚)から配信用JSONを組み立てる。キーはソートして出力を安定させる
 Map<String, dynamic> buildSnapshot(List<Map<String, dynamic>> rows) {
-  final items = <String, Map<String, String>>{};
+  final items = <String, Map<String, Object>>{};
   final bestPerSeries = <String, Map<String, dynamic>>{};
   for (final row in rows) {
     final url = row['public_url'] as String?;
@@ -91,10 +92,11 @@ Map<String, dynamic> buildSnapshot(List<Map<String, dynamic>> rows) {
   };
 }
 
-Map<String, String> _entry(Map<String, dynamic> row) => {
+Map<String, Object> _entry(Map<String, dynamic> row) => {
       'url': row['public_url'] as String,
       if (row['poster_id'] != null) 'poster': row['poster_id'] as String,
       if (row['id'] != null) 'id': row['id'] as String,
+      if ((row['likes'] as num?) != null && (row['likes'] as num) > 0) 'likes': (row['likes'] as num).toInt(),
     };
 
 // ビューの並び順と同じ評価式: auto_score×0.5 + min(likes,50)/100
