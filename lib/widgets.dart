@@ -60,13 +60,15 @@ class GachaImage extends StatelessWidget {
     return itemId != null ? CommunityPhotos.forItem(itemId) : CommunityPhotos.forSeries(seriesId);
   }
 
+  // 表示判断に関わるリモート状態(公式画像ポリシー・採用写真・ブロック)をまとめて監視する
+  static final Listenable displayState = Listenable.merge(
+      [ImagePolicy.hiddenMakers, ImagePolicy.hiddenSeries, CommunityPhotos.snapshot, CommunityPhotos.blockedPosters]);
+
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<Set<String>>(
-      valueListenable: ImagePolicy.hiddenMakers,
-      builder: (context, _, _) => ValueListenableBuilder<CommunityPhotoSnapshot>(
-        valueListenable: CommunityPhotos.snapshot,
-        builder: (context, _, _) {
+    return ListenableBuilder(
+        listenable: displayState,
+        builder: (context, _) {
           final placeholder = Container(
             width: width,
             height: height,
@@ -108,9 +110,7 @@ class GachaImage extends StatelessWidget {
           }
           if (borderRadius == null) return image;
           return ClipRRect(borderRadius: borderRadius!, child: image);
-        },
-      ),
-    );
+        });
   }
 }
 
@@ -122,11 +122,9 @@ class ImageCredit extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<Set<String>>(
-      valueListenable: ImagePolicy.hiddenMakers,
-      builder: (context, _, _) => ValueListenableBuilder<CommunityPhotoSnapshot>(
-        valueListenable: CommunityPhotos.snapshot,
-        builder: (context, _, _) {
+    return ListenableBuilder(
+        listenable: GachaImage.displayState,
+        builder: (context, _) {
           if (ImagePolicy.useDemoArt) return const SizedBox.shrink();
           final String text;
           if (GachaImage.communityPhotoFor(seriesId: seriesId) != null) {
@@ -137,9 +135,7 @@ class ImageCredit extends StatelessWidget {
             text = '画像: ${maker.label}公式サイトより(権利は各権利者に帰属)';
           }
           return Text(text, style: TextStyle(fontSize: 10.5, color: Colors.grey[600]));
-        },
-      ),
-    );
+        });
   }
 }
 

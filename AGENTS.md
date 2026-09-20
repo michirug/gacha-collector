@@ -3,6 +3,8 @@
 新セッション開始時に必ず最初に読むこと。前セッション(Cascade)からの引き継ぎ資料。
 ユーザーとのやり取りは **日本語**。回答は簡潔に。
 
+**仕事の進め方(ユーザー指示 2026-09-20)**: 自分(エージェント)側でできる作業は、ユーザーに相談を待たず**自主的に実行する**か、少なくとも「私がやります」と提案する。ユーザーに手作業を頼むのは、ブラウザ認証・APIキー発行・支払い・法人手続きなど本当に本人しかできないものに限る。頼む前に「このPCの認証済みCLI(`npx supabase`, `gh`, `git`, `adb` 等)で代替できないか」を必ず確認する(例: Supabase の Webhook はダッシュボード操作を頼む代わりに `npx supabase db query --linked` で作成できた)。
+
 ---
 
 ## 1. プロダクト概要
@@ -43,8 +45,9 @@ v1.0再定義(リリース前に必須):
   - [x] Supabaseプロジェクト作成・SQL適用・匿名サインインON(2026-09-20)。Org `Pocket Applications`(Free) / project `gacha-pocket` / ref `atficwbsfffthcorjnod` / 東京。URL `https://atficwbsfffthcorjnod.supabase.co`。**publishable key(`sb_publishable_...`)はリポジトリに書かず、Supabaseダッシュボード Settings→API Keys から取得して `--dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...` で渡す**。エミュレータで 撮影→同意ダイアログ→アップロード→「共有中・取り消す」→取り消し まで動作確認済み。別匿名ユーザーからpendingが見えないこと(RLS)も確認
   - [~] B-2:
     - [x] 採用写真の配信(2026-09-20): `tool/export_community_photos.dart` が `approved_photo_snapshot` ビュー → `assets/community_photos.json`(`{items:{itemId:{url,poster}}, series:{seriesId:{url,poster}}}`、generated_at以外に差分が無ければ書かない)。Actions `update-community-photos.yml`(毎時15分)。アプリ側 `lib/community_photos.dart`(`CommunityPhotos`、ImagePolicyと同じ 同梱→キャッシュ→raw URL)、`GachaImage` に `itemId`/`seriesId` を渡すと 自分の写真→みんなの写真→公式画像 の優先順(`hide_series` はみんなの写真にも適用)、`ImageCredit` は投稿写真の場合「ガチャ活ユーザーの投稿写真」表記。テスト `test/community_photos_test.dart`
-    - [ ] **ユーザー作業**: GitHub Secrets に `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` を登録(`supabase/README.md` §5)
-    - [ ] 承認UI(他ユーザーのpending写真を「この写真は正しい?」で承認、3人で採用)、通報UI・ブロック(ブロック済み投稿者の写真を端末側で除外する処理も未実装)
+    - [x] GitHub Secrets `SUPABASE_URL` / `SUPABASE_PUBLISHABLE_KEY` 登録済み(`gh secret set`、2026-09-20)。Actions 手動実行 success。**`gh` CLI もこのPCで `michirug` としてログイン済み**(`"$env:ProgramFiles\GitHub CLI\gh.exe"`、PATH未反映の場合はフルパス)。Secrets/Actions/Issues/PR操作は自分でできる
+    - [x] 承認UI・通報UI・ブロック(2026-09-20): `migrations/0003_review.sql`(pendingバケットの読み取りを authenticated 全員に、RPC `pending_photos_for_review(series_id, limit)`=自分の投稿・既判定・ブロック済みを除外、ビューに `id` 追加)。`lib/community_review.dart`: `PhotoReviewCard`(シリーズ詳細のアイテム一覧直上。「合ってる」=approve_photo / 「違う」=report wrong_item / メニュー: あとで・通報・投稿者ブロック。表示は `CommunityService.canReview()`=同意済みorサインイン済みのみ、閲覧だけのユーザーに匿名アカウントを作らせない)、`showReportReasonSheet`、`showCommunityPhotoMenu`(採用写真の出典表記横「…」と、アイテム長押しシートから通報/ブロック)。ブロックは `blocks` テーブル+端末 `CommunityPhotos.blockedPosters`(SharedPreferences キャッシュ、起動時にサーバーで上書き)で `GachaImage` から除外。マイページに「表示しない投稿者 N人」→解除。`_syncSharedStatus` で運営削除済みの共有を「共有中」表示から外す。スナップショットに `id` を含めた。2匿名ユーザー(エミュレータ pm clear で切替)+REST の3人目で 承認→approvals加算/通報→reports加算/ブロック→候補から消える を確認。テスト48件
+    - [ ] 承認の重み付け・通報者の承認無効化などは B-3 以降。承認3人はまだ実ユーザーがいないので、当面は運営が `npx supabase db query --linked "update photos set status='approved', approved_at=now() where id='...'"` で採用してもよい(publishはEdge Functionが自動で行う)
     - [x] Edge Function `judge-photo` 実装(2026-09-20): Gemini(`MATCH_MODEL_API_KEY`、既定 gemini-2.5-flash、JSON応答)で「シリーズ名 / アイテム名」との一致度・顔検出・転載疑い、JPEGヘッダから解像度で画質採点。`migrations/0002_judge_support.sql`(`photos.item_label` 追加、`approve_photo` の auto_score>=0.5 条件を撤廃=未判定でも承認で採用可)。アプリは投稿時に `item_label` を送る
     - [x] デプロイ完了(2026-09-20): 0002適用、`judge-photo` v1 ACTIVE(`--no-verify-jwt`)、secrets `WEBHOOK_SECRET`(値はユーザーのPowerShell履歴とDBトリガー定義内にのみ)、DBトリガー `judge_photo`(photos insert/update → Edge Function)。**一気通貫確認済み**: 投稿→auto_score付与→手動approved→approvedバケットへコピー・public_url→export→raw URL→アプリでシリーズ画像が投稿写真に切替・出典表記切替→removed→両バケットから物理削除。Gemini(`MATCH_MODEL_API_KEY`)/Vision キーは未設定(一致度0.5固定)
     - **`npx supabase` はDevinのシェルからも使える**(ユーザーが `login` 済み、`link` 済み)。`npx supabase db query --linked "<1文>"` で運用SQL(承認・保留確認など)を直接実行できる
@@ -86,7 +89,8 @@ lib/
   image_policy.dart       ImagePolicy(assets/app_config.json をリモート取得し、メーカー/シリーズ単位で公式画像を非表示)
   user_photo_store.dart   UserPhotoStore(image_pickerで撮影/選択→sanitizeJpegでEXIF除去・縮小→端末内 photos/ に保存、CollectionEntry.photoPath)
   community_service.dart  CommunityService(Supabase: 匿名認証・写真アップロード・取り消し・承認/通報/ブロックRPC。--dart-define未設定なら無効)
-  community_photos.dart   CommunityPhotos(assets/community_photos.json をリモート取得。採用済みユーザー写真の itemId/seriesId → URL)
+  community_photos.dart   CommunityPhotos(assets/community_photos.json をリモート取得。採用済みユーザー写真の itemId/seriesId → URL、blockedPosters)
+  community_review.dart   PhotoReviewCard(承認カード)/通報理由シート/採用写真メニュー(通報・ブロック)
   community_consent_dialog.dart  写真共有の初回同意ダイアログ(UGCポリシーの規約同意)
   models.dart             GachaType/Maker/GachaSeries/GachaItem/CollectionEntry、parseJapaneseReleaseDate、parsePriceYen
   gacha_repository.dart   データ取得(raw.githubusercontent)
@@ -124,7 +128,13 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 47テスト(素材生成テストはskip)
+flutter test                                   # 48テスト(素材生成テストはskip)
+
+# Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
+npx supabase db query --linked "select status, count(*) from photos group by status"
+npx supabase db query --linked --file supabase/migrations/000N_xxx.sql
+npx supabase functions deploy judge-photo --no-verify-jwt
+& "$env:ProgramFiles\GitHub CLI\gh.exe" run list --repo michirug/gacha-collector --limit 5
 flutter build appbundle --release              # → build/app/outputs/bundle/release/app-release.aab
 
 # データ取得(新着のみ / 全件バックフィル。2秒間隔、100件ごとに保存、再実行は既存IDをスキップ)

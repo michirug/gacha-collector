@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'achievements.dart';
 import 'backup.dart';
 import 'collection_store.dart';
+import 'community_photos.dart';
 import 'community_service.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
@@ -259,6 +260,22 @@ class _MyPageState extends State<MyPage> {
                             style: TextStyle(fontSize: 11, color: Colors.grey[600])),
                       ),
                     ],
+                    // ブロック済み投稿者(端末側で写真を非表示)。ここから解除できる
+                    ValueListenableBuilder<Set<String>>(
+                      valueListenable: CommunityPhotos.blockedPosters,
+                      builder: (context, blocked, _) {
+                        if (blocked.isEmpty) return const SizedBox.shrink();
+                        return Column(children: [
+                          const Divider(height: 1),
+                          ListTile(
+                            leading: const Icon(Icons.block),
+                            title: Text('表示しない投稿者 ${blocked.length}人'),
+                            subtitle: const Text('タップして解除', style: TextStyle(fontSize: 11)),
+                            onTap: () => _showBlockedPosters(blocked),
+                          ),
+                        ]);
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -317,6 +334,40 @@ class _MyPageState extends State<MyPage> {
 
   Future<void> _openUrl(String url) async {
     await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _showBlockedPosters(Set<String> blocked) async {
+    final messenger = ScaffoldMessenger.of(context);
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Text('表示しない投稿者', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+            ),
+            for (final id in blocked)
+              ListTile(
+                leading: const Icon(Icons.person_off_outlined),
+                title: Text(id, style: const TextStyle(fontSize: 12)),
+                trailing: TextButton(
+                  onPressed: () async {
+                    Navigator.pop(sheetContext);
+                    try {
+                      await CommunityService.unblockPoster(id);
+                    } catch (e) {
+                      messenger.showSnackBar(SnackBar(content: Text('解除できませんでした: $e')));
+                    }
+                  },
+                  child: const Text('解除'),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _exportBackup() async {

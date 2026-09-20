@@ -12,8 +12,8 @@
 // 出力形式(v1.0 アプリは読まない別ファイルなので、後方互換の制約は無い):
 //   {
 //     "generated_at": "2026-09-20T00:00:00Z",
-//     "items":  { "<itemId>":   { "url": "...", "poster": "<uuid>" } },
-//     "series": { "<seriesId>": { "url": "...", "poster": "<uuid>" } }   // そのシリーズの最良1枚
+//     "items":  { "<itemId>":   { "url": "...", "poster": "<uuid>", "id": "<photo uuid>" } },
+//     "series": { "<seriesId>": { "url": "...", "poster": "<uuid>", "id": "<photo uuid>" } }   // そのシリーズの最良1枚
 //   }
 
 import 'dart:convert';
@@ -52,7 +52,7 @@ Future<List<Map<String, dynamic>>> fetchAllRows(Uri base, String key) async {
   for (var offset = 0;; offset += kPageSize) {
     final res = await http.get(
       base.replace(path: '/rest/v1/approved_photo_snapshot', queryParameters: {
-        'select': 'item_id,series_id,maker,public_url,poster_id,likes,auto_score,approved_at',
+        'select': 'id,item_id,series_id,maker,public_url,poster_id,likes,auto_score,approved_at',
         'order': 'item_id.asc',
       }),
       headers: {
@@ -94,6 +94,7 @@ Map<String, dynamic> buildSnapshot(List<Map<String, dynamic>> rows) {
 Map<String, String> _entry(Map<String, dynamic> row) => {
       'url': row['public_url'] as String,
       if (row['poster_id'] != null) 'poster': row['poster_id'] as String,
+      if (row['id'] != null) 'id': row['id'] as String,
     };
 
 // ビューの並び順と同じ評価式: auto_score×0.5 + min(likes,50)/100

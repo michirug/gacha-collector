@@ -10,12 +10,13 @@ import '../tool/export_community_photos.dart';
 void main() {
   tearDown(() {
     CommunityPhotos.snapshot.value = const CommunityPhotoSnapshot();
+    CommunityPhotos.blockedPosters.value = {};
     ImagePolicy.hiddenSeries.value = {};
   });
 
   group('配信スナップショットの生成(tool/export_community_photos.dart)', () {
     final rows = <Map<String, dynamic>>[
-      {'item_id': 'kitan:owl::フクロウ', 'series_id': 'kitan:owl', 'maker': 'kitan', 'public_url': 'https://cdn/a.jpg', 'poster_id': 'p1', 'likes': 0, 'auto_score': 0.9, 'approved_at': '2026-09-01T00:00:00Z'},
+      {'id': 'ph1', 'item_id': 'kitan:owl::フクロウ', 'series_id': 'kitan:owl', 'maker': 'kitan', 'public_url': 'https://cdn/a.jpg', 'poster_id': 'p1', 'likes': 0, 'auto_score': 0.9, 'approved_at': '2026-09-01T00:00:00Z'},
       {'item_id': 'kitan:owl::ミミズク', 'series_id': 'kitan:owl', 'maker': 'kitan', 'public_url': 'https://cdn/b.jpg', 'poster_id': 'p2', 'likes': 40, 'auto_score': 0.7, 'approved_at': '2026-09-02T00:00:00Z'},
       {'item_id': 'sota:cat::No.1', 'series_id': 'sota:cat', 'maker': 'sota', 'public_url': null, 'poster_id': 'p3', 'likes': 0, 'auto_score': null, 'approved_at': null},
     ];
@@ -25,7 +26,7 @@ void main() {
       final items = snapshot['items'] as Map;
       final series = snapshot['series'] as Map;
       expect(items.keys, ['kitan:owl::フクロウ', 'kitan:owl::ミミズク']);
-      expect(items['kitan:owl::フクロウ'], {'url': 'https://cdn/a.jpg', 'poster': 'p1'});
+      expect(items['kitan:owl::フクロウ'], {'url': 'https://cdn/a.jpg', 'poster': 'p1', 'id': 'ph1'});
       // 0.7*0.5 + 40/100 = 0.75 > 0.9*0.5 = 0.45 なのでミミズクが代表
       expect(series, {'kitan:owl': {'url': 'https://cdn/b.jpg', 'poster': 'p2'}});
       expect(snapshot['generated_at'], isA<String>());
@@ -69,6 +70,16 @@ void main() {
       expect(GachaImage.communityPhotoFor(seriesId: 'a')?.url, 'https://cdn/series.jpg');
       ImagePolicy.apply('{"hide_series":["a"]}');
       expect(GachaImage.communityPhotoFor(itemId: 'a::1', seriesId: 'a'), isNull);
+    });
+
+    test('ブロックした投稿者の写真は端末側で除外され、photo id も読める', () {
+      CommunityPhotos.apply('{"items":{"a::1":{"url":"https://cdn/1.jpg","poster":"bad","id":"ph1"},"a::2":{"url":"https://cdn/2.jpg","poster":"good"}}}');
+      expect(CommunityPhotos.forItem('a::1')?.photoId, 'ph1');
+      CommunityPhotos.blockedPosters.value = {'bad'};
+      expect(CommunityPhotos.forItem('a::1'), isNull);
+      expect(CommunityPhotos.forItem('a::2')?.url, 'https://cdn/2.jpg');
+      CommunityPhotos.blockedPosters.value = {};
+      expect(CommunityPhotos.forItem('a::1'), isNotNull);
     });
   });
 }

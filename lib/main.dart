@@ -27,6 +27,8 @@ Future<void> main() async {
   unawaited(CommunityPhotos.load());
   // 写真共有(Supabase)。--dart-define 未設定なら何もしない
   await CommunityService.init();
+  // ブロック済み投稿者(端末キャッシュ→サーバー)。起動をブロックしない
+  unawaited(CommunityService.loadBlocked());
   runApp(const GachaCollectorApp());
 }
 

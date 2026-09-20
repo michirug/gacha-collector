@@ -95,6 +95,12 @@ dart run tool/export_community_photos.dart
 アプリ側は `lib/community_photos.dart`(`CommunityPhotos`)が 同梱→端末キャッシュ→raw URL の順で読み、
 `GachaImage` が 自分の写真 → みんなの写真 → 公式画像 → プレースホルダー の優先順で表示する。
 
+## 5-2. 承認・通報(B-2、`0003_review.sql` 適用済み)
+
+- 承認候補は RPC `pending_photos_for_review(series_id, limit)`。アプリはシリーズ詳細に `PhotoReviewCard` を出し、「合ってる」→`approve_photo`、「違う」→`report_photo('wrong_item')`
+- pending バケットは authenticated 全員が読める(署名URL 1時間)。パスは RPC 経由でのみ分かる
+- ブロックは `blocks` テーブル + 端末側キャッシュ。ブロック済み投稿者の写真は候補にも図鑑にも出ない
+
 ## 6. 運用(モデレーション)
 
 - 保留(`held`)・通報の多い投稿は Table Editor で `photos` を `status = held` で絞って確認し、`approved` / `rejected` を手で更新

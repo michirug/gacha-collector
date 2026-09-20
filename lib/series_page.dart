@@ -8,6 +8,7 @@ import 'achievements.dart';
 import 'celebration.dart';
 import 'collection_store.dart';
 import 'community_consent_dialog.dart';
+import 'community_review.dart';
 import 'community_service.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
@@ -48,6 +49,29 @@ class _ItemListPageState extends State<ItemListPage> {
     // 初回ロード時は状態の同期のみ行い、演出は出さない(コンプ済みを開くたびに再生されるのを防ぐ)
     _checkCompletion(celebrate: false);
     _loadUserPhotos();
+    _syncSharedStatus();
+  }
+
+  // 運営側で削除・拒否された共有写真は「共有中」表示から外す(端末の sharedPhotoId はサーバーと同期されないため)
+  Future<void> _syncSharedStatus() async {
+    if (!CommunityService.isConfigured || CommunityService.currentUserId == null) return;
+    var changed = false;
+    for (final item in widget.series.items) {
+      final entry = _collection[item.id];
+      final id = entry?.sharedPhotoId;
+      if (id == null) continue;
+      try {
+        final status = await CommunityService.photoStatus(id);
+        if (status == null || status == 'removed' || status == 'rejected') {
+          entry!.sharedPhotoId = null;
+          changed = true;
+        }
+      } catch (_) {}
+    }
+    if (changed) {
+      await _saveCollection();
+      if (mounted) setState(() {});
+    }
   }
   Future<void> _toggleWishlist() async {
     final wishlist = await CollectionStore.loadWishlist();
@@ -176,6 +200,17 @@ class _ItemListPageState extends State<ItemListPage> {
                       label: const Text('みんなの図鑑に共有する'),
                     ),
                 ],
+                if (CommunityService.isConfigured && _collection[item.id]?.photoPath == null &&
+                    GachaImage.communityPhotoFor(itemId: item.id, seriesId: widget.series.id) != null)
+                  TextButton.icon(
+                    onPressed: () {
+                      final photo = GachaImage.communityPhotoFor(itemId: item.id, seriesId: widget.series.id)!;
+                      Navigator.pop(sheetContext);
+                      showCommunityPhotoMenu(context, photoId: photo.photoId, posterId: photo.posterId);
+                    },
+                    icon: const Icon(Icons.flag_outlined, size: 18),
+                    label: const Text('表示中の写真(みんなの図鑑)について'),
+                  ),
                 const SizedBox(height: 8),
               ],
             ),
@@ -368,7 +403,26 @@ class _ItemListPageState extends State<ItemListPage> {
         child: ListView(
           children: [
             GachaImage(series.mainImage, maker: series.maker, seriesId: series.id, height: 250, width: double.infinity),
-            Padding(padding: const EdgeInsets.fromLTRB(16, 6, 16, 0), child: ImageCredit(series.maker, seriesId: series.id)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 6, 16, 0),
+              child: Row(children: [
+                Expanded(child: ImageCredit(series.maker, seriesId: series.id)),
+                // みんなの図鑑の写真が表示されているときだけ、通報/ブロックのメニューを出す
+                ListenableBuilder(
+                  listenable: GachaImage.displayState,
+                  builder: (context, _) {
+                    final photo = GachaImage.communityPhotoFor(seriesId: series.id);
+                    if (photo == null || !CommunityService.isConfigured) return const SizedBox.shrink();
+                    return IconButton(
+                      icon: const Icon(Icons.more_horiz, size: 18),
+                      tooltip: '写真について',
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => showCommunityPhotoMenu(context, photoId: photo.photoId, posterId: photo.posterId),
+                    );
+                  },
+                ),
+              ]),
+            ),
             Padding(padding: const EdgeInsets.all(16.0), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Wrap(
                 spacing: 8,
@@ -415,6 +469,7 @@ class _ItemListPageState extends State<ItemListPage> {
                 ],
               ),
             ),
+            if (CommunityService.isConfigured) PhotoReviewCard(series: series),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),

@@ -12,7 +12,8 @@ const String kCommunityPhotosUrl =
 class CommunityPhoto {
   final String url;
   final String? posterId;
-  const CommunityPhoto(this.url, {this.posterId});
+  final String? photoId;
+  const CommunityPhoto(this.url, {this.posterId, this.photoId});
 }
 
 class CommunityPhotoSnapshot {
@@ -30,12 +31,17 @@ class CommunityPhotos {
   static const String _prefsKey = 'community_photos_json';
   static final ValueNotifier<CommunityPhotoSnapshot> snapshot =
       ValueNotifier(const CommunityPhotoSnapshot());
+  // 自分がブロックした投稿者(この人の写真は端末側で表示しない)。CommunityService が更新する
+  static final ValueNotifier<Set<String>> blockedPosters = ValueNotifier({});
 
   static CommunityPhoto? forItem(String? itemId) =>
-      itemId == null ? null : snapshot.value.items[itemId];
+      _visible(itemId == null ? null : snapshot.value.items[itemId]);
 
   static CommunityPhoto? forSeries(String? seriesId) =>
-      seriesId == null ? null : snapshot.value.series[seriesId];
+      _visible(seriesId == null ? null : snapshot.value.series[seriesId]);
+
+  static CommunityPhoto? _visible(CommunityPhoto? photo) =>
+      photo != null && blockedPosters.value.contains(photo.posterId) ? null : photo;
 
   static void apply(String jsonText) {
     try {
@@ -55,8 +61,9 @@ class CommunityPhotos {
       final v = entry.value;
       final url = v is Map ? v['url'] : v;
       if (url is! String || url.isEmpty) continue;
-      result[entry.key.toString()] =
-          CommunityPhoto(url, posterId: v is Map ? v['poster']?.toString() : null);
+      result[entry.key.toString()] = CommunityPhoto(url,
+          posterId: v is Map ? v['poster']?.toString() : null,
+          photoId: v is Map ? v['id']?.toString() : null);
     }
     return result;
   }
