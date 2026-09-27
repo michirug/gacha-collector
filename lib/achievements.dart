@@ -77,10 +77,7 @@ AchievementStats computeAchievementStats(
   final photo = computePhotoContribution(contribution, allSeries);
   int completedSeries = 0;
   for (final series in allSeries) {
-    if (series.items.isNotEmpty &&
-        series.items.every((item) => collection.containsKey(item.id))) {
-      completedSeries++;
-    }
+    if (series.isCompletedBy(collection)) completedSeries++;
   }
   final priceBySeriesId = {
     for (final series in allSeries) series.id: series.price

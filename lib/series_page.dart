@@ -441,7 +441,7 @@ class _ItemListPageState extends State<ItemListPage> {
       context,
       buildSeriesShareCard(series: widget.series, collected: collected, total: total),
       'gacha_series_share.png',
-      '「${widget.series.name}」獲得 $collected/$total #ガチャ活ポケット #ガチャ活',
+      '「${widget.series.name}」獲得 ${widget.series.lineupCountKnown ? '$collected/$total' : '$collected'} #ガチャ活ポケット #ガチャ活',
     );
   }
 
@@ -480,7 +480,7 @@ class _ItemListPageState extends State<ItemListPage> {
   }
 
   void _checkCompletion({bool celebrate = true}) {
-    bool allItemsOwned = widget.series.items.every((item) => _collection.containsKey(item.id));
+    bool allItemsOwned = widget.series.isCompletedBy(_collection);
     if (_isSeriesCompleted != allItemsOwned) {
       setState(() { _isSeriesCompleted = allItemsOwned; });
       if (allItemsOwned && celebrate) { _playCompletionAnimation(); }
@@ -548,6 +548,7 @@ class _ItemListPageState extends State<ItemListPage> {
                   _InfoChip(formatYen(series.price)),
                   if (series.releaseDateText.isNotEmpty) _InfoChip(series.releaseDateText),
                   if (series.numTypes != null && series.numTypes!.isNotEmpty) _InfoChip(series.numTypes!),
+                  if (!series.lineupCountKnown) const _InfoChip('種類数 未掲載'),
                   if (series.targetAge != null && series.targetAge!.isNotEmpty) _InfoChip('対象年齢 ${series.targetAge}'),
                 ],
               ),
@@ -564,7 +565,8 @@ class _ItemListPageState extends State<ItemListPage> {
               const SizedBox(height: 8),
               _isSeriesCompleted
                   ? const Text('🎉 このシリーズはコンプリート済みです！🎉', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: kBrandPurpleDark),)
-                  : Text('獲得 $collectedCount / ${series.items.length}', style: const TextStyle(fontSize: 16, color: Colors.grey),),
+                  : Text(series.lineupCountKnown ? '獲得 $collectedCount / ${series.items.length}' : '獲得 $collectedCount',
+                      style: const TextStyle(fontSize: 16, color: Colors.grey),),
             ],),),
             const Divider(),
             Padding(
@@ -577,7 +579,10 @@ class _ItemListPageState extends State<ItemListPage> {
                   if (series.lineupUnknown)
                     Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: Text('公式サイトにラインナップ名の掲載がないため、番号(No.)で管理します',
+                      child: Text(
+                          series.lineupCountKnown
+                              ? '公式サイトにラインナップ名の掲載がないため、番号(No.)で管理します'
+                              : '公式サイトにラインナップ名・種類数の掲載がないため、獲得した個数は長押しの「ダブり数」で記録してください(コンプ判定はしません)',
                           style: TextStyle(fontSize: 12, color: kBrandPinkDark)),
                     ),
                 ],

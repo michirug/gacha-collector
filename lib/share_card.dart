@@ -11,7 +11,7 @@ import 'models.dart';
 
 Widget buildSeriesShareCard(
     {required GachaSeries series, required int collected, required int total}) {
-  final isComplete = total > 0 && collected == total;
+  final isComplete = series.lineupCountKnown && total > 0 && collected == total;
   return _ShareCardFrame(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -29,7 +29,7 @@ Widget buildSeriesShareCard(
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 16, color: Colors.white)),
         const SizedBox(height: 16),
-        Text('獲得 $collected / $total',
+        Text(series.lineupCountKnown ? '獲得 $collected / $total' : '獲得 $collected',
             style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.bold,

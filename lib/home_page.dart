@@ -113,6 +113,7 @@ class _HomePageState extends State<HomePage> {
 
   List<GachaSeries> _inProgress() {
     final list = _filtered.where((s) {
+      if (!s.lineupCountKnown) return false;
       final c = _collectedCount(s);
       return c > 0 && c < s.items.length;
     }).toList();

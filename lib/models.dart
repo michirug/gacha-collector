@@ -92,6 +92,14 @@ class GachaSeries {
   final bool lineupUnknown;
   final List<GachaItem> items;
 
+  // 公式サイトに種類数(全N種)も無く、items は画像枚数ぶんの仮アイテム(トイズキャビンの大半)。
+  // この場合 items.length はラインナップ数ではないので、コンプ判定・進捗率には使わない
+  bool get lineupCountKnown => !lineupUnknown || (numTypes?.isNotEmpty ?? false);
+
+  // ラインナップ数が分かっていて、全アイテムを持っていればコンプ
+  bool isCompletedBy(Map<String, CollectionEntry> collection) =>
+      lineupCountKnown && items.isNotEmpty && items.every((item) => collection.containsKey(item.id));
+
   GachaSeries({
     required this.id,
     required this.name,

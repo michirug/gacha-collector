@@ -155,7 +155,7 @@ class _MyPageState extends State<MyPage> {
   }
 
   int get _completedSeriesCount => _collectedSeries
-      .where((s) => s.items.every((item) => _collection.containsKey(item.id)))
+      .where((s) => s.isCompletedBy(_collection))
       .length;
 
   @override

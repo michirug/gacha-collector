@@ -53,6 +53,36 @@ void main() {
       final stats = computeAchievementStats({}, [buildSeries('111', [])]);
       expect(stats.completedSeries, 0);
     });
+
+    test('種類数が公式未掲載(lineup_unknown かつ num_types 空)のシリーズは仮アイテムを全部持ってもコンプ扱いしない', () {
+      final unknownCount = GachaSeries.fromJson({
+        'id': 'tc:1',
+        'maker': 'toyscabin',
+        'title': '仮アイテムだけのシリーズ',
+        'price': '500円',
+        'num_types': '',
+        'lineup_unknown': true,
+        'items': [{'title': 'No.1', 'image_url': ''}],
+      });
+      final knownCount = GachaSeries.fromJson({
+        'id': 'sota:1',
+        'maker': 'sota',
+        'title': '種類数あり',
+        'price': '300円',
+        'num_types': '全2種',
+        'lineup_unknown': true,
+        'items': [{'title': 'No.1', 'image_url': ''}, {'title': 'No.2', 'image_url': ''}],
+      });
+      expect(unknownCount.lineupCountKnown, isFalse);
+      expect(knownCount.lineupCountKnown, isTrue);
+      final collection = {
+        for (final s in [unknownCount, knownCount])
+          for (final i in s.items) i.id: CollectionEntry(itemId: i.id),
+      };
+      expect(unknownCount.isCompletedBy(collection), isFalse);
+      expect(knownCount.isCompletedBy(collection), isTrue);
+      expect(computeAchievementStats(collection, [unknownCount, knownCount]).completedSeries, 1);
+    });
   });
 
   group('AchievementService.evaluate', () {

@@ -328,6 +328,7 @@ class SeriesTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = series.items.length;
+    final countLabel = series.lineupCountKnown ? '全$total種' : '種類数未掲載';
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -355,7 +356,7 @@ class SeriesTile extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            '${shortReleaseLabel(series)}・${formatYen(series.price)}・全$total種',
+                            '${shortReleaseLabel(series)}・${formatYen(series.price)}・$countLabel',
                             style: TextStyle(fontSize: 11.5, color: Colors.grey[600]),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -363,7 +364,7 @@ class SeriesTile extends StatelessWidget {
                         ),
                       ],
                     ),
-                    if (collected != null && total > 0) ...[
+                    if (collected != null && total > 0 && series.lineupCountKnown) ...[
                       const SizedBox(height: 8),
                       Row(
                         children: [
