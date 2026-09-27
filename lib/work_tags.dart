@@ -25,7 +25,41 @@ const Set<String> _genericWords = {
   'プレミアム', 'ビッグ', 'でか', 'リアル', 'ソフビ', 'まるごと', '豆ガシャ本', 'アクリル', 'ラバー', 'ぬいぐるみ',
   'ミニチュアコレクション', 'カプセルトイ', 'あつまれ', 'ざ', 'the', 'new', 'いきもの', '動物', 'ねこ', 'いぬ',
   'かわいい', '劇場版', '映画', '限定', 'バンダイナムコアミューズメント限定', 'ガシャポン限定', '数量限定', 'アニメ',
+  // メーカーの商品ライン名。「ハグコット サンリオキャラクターズ」のように作品名が後ろに来るので先頭からは外し、
+  // 末尾トークンで作品名を拾わせる(2026-09-27。タグ一覧の上位に商品ラインが並んでいたため)
+  'めじるしアクセサリー', 'カプセルラバーマスコット', 'ラバーマスコット', 'カプキャラ', 'ハグコット', 'はぐこっとーと',
+  '肩ズンfig.', '肩ズンfig', 'putitto', 'まちぼうけ', 'ならぶんです。', 'ならぶんです', 'ringcolle!', 'ringcolle',
+  'gasha', 'gasha portraits', 'gashabox', 'でふぉラバ!', 'でふぉラバ！', 'コレキャラ！', 'コレキャラ!', 'ぴた！でふぉめ',
+  'ぴた!でふぉめ', 'かぷばっぐ', 'アニコラ', 'ガシャポン！コレクション', 'ガシャポン!コレクション', 'ホビーガチャ',
+  'hg', 'aip', 'カプセルプラレール', 'アルティメットルミナス', 'ガシャポンライダー', 'ガシャポン戦士',
 };
+
+// 同じ作品の別表記をひとつのタグにまとめる(正規化キー → 表示名)
+const Map<String, String> _aliases = {
+  'ぽけっともんすたー': 'ポケモン',
+  'onepiece': 'ONE PIECE',
+  'わんぴーす': 'ONE PIECE',
+  'moomin': 'ムーミン',
+  'tomandjerry': 'トムとジェリー',
+  'disney': 'ディズニー',
+  'でぃずにーきゃらくたー': 'ディズニー',
+  'bang': 'バンドリ！',
+  'bangdream': 'バンドリ！',
+  'どらごんぼーる超': 'ドラゴンボール',
+  'kamenrider': '仮面ライダー',
+  '仮面らいだーしりーず': '仮面ライダー',
+  'sanrio': 'サンリオキャラクターズ',
+  'さんりお': 'サンリオキャラクターズ',
+  'あんぱんまん': 'それいけ！アンパンマン',
+  'すぬーぴー': 'PEANUTS',
+  'peanuts': 'PEANUTS',
+};
+
+// タグをまとめるためのキー。全角/半角・カナ/かな・記号の違いを無視し、別名を寄せる
+String workTagKey(String name) {
+  final key = normalizeForSearch(name);
+  return normalizeForSearch(_aliases[key] ?? name);
+}
 
 // 英字作品名の連結を止める、商品種別を表す英単語
 const Set<String> _latinProductWords = {
@@ -115,34 +149,56 @@ class WorkTagIndex {
   }
 
   static WorkTagIndex build(List<GachaSeries> allSeries) {
-    // 先頭トークンの出現回数(同じシリーズは1回)
+    // 先頭トークンの出現回数(同じシリーズは1回)。表記ゆれ・別名は workTagKey でまとめる
     final leadingCounts = <String, int>{};
+    final surfaceCounts = <String, Map<String, int>>{};
     final leading = <String, String?>{};
+    void countSurface(String key, String surface) {
+      final m = surfaceCounts.putIfAbsent(key, () => {});
+      m[surface] = (m[surface] ?? 0) + 1;
+    }
     for (final s in allSeries) {
       final head = leadingWorkCandidate(s.name);
-      leading[s.id] = head;
-      if (head != null) leadingCounts[head] = (leadingCounts[head] ?? 0) + 1;
+      final key = head == null ? null : workTagKey(head);
+      leading[s.id] = key;
+      if (key != null && head != null) {
+        leadingCounts[key] = (leadingCounts[key] ?? 0) + 1;
+        countSurface(key, head);
+      }
     }
     final accepted = {
       for (final e in leadingCounts.entries)
         if (e.value >= kWorkTagMinSeries) e.key,
     };
-    final grouped = <String, List<GachaSeries>>{};
-    final seriesToTag = <String, String>{};
+    final groupedByKey = <String, List<GachaSeries>>{};
     for (final s in allSeries) {
-      var tag = leading[s.id];
-      if (tag == null || !accepted.contains(tag)) {
+      var key = leading[s.id];
+      if (key == null || !accepted.contains(key)) {
         final tail = trailingWorkCandidate(s.name);
-        tag = tail != null && accepted.contains(tail) ? tail : null;
+        final tailKey = tail == null ? null : workTagKey(tail);
+        key = tailKey != null && accepted.contains(tailKey) ? tailKey : null;
+        if (key != null && tail != null) countSurface(key, tail);
       }
-      if (tag == null) continue;
-      grouped.putIfAbsent(tag, () => []).add(s);
-      seriesToTag[s.id] = tag;
+      if (key == null) continue;
+      groupedByKey.putIfAbsent(key, () => []).add(s);
     }
-    return WorkTagIndex._(
-      {for (final e in grouped.entries) e.key: WorkTag(e.key, e.value)},
-      seriesToTag,
-    );
+    // 表示名: 別名表に登録があればそれ、無ければ最も多く使われた表記
+    final displayName = <String, String>{};
+    final aliasByKey = {for (final e in _aliases.entries) normalizeForSearch(e.value): e.value};
+    for (final key in groupedByKey.keys) {
+      final surfaces = surfaceCounts[key]!.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+      displayName[key] = aliasByKey[key] ?? surfaces.first.key;
+    }
+    final byName = <String, WorkTag>{};
+    final seriesToTag = <String, String>{};
+    for (final e in groupedByKey.entries) {
+      final name = displayName[e.key]!;
+      byName[name] = WorkTag(name, e.value);
+      for (final s in e.value) {
+        seriesToTag[s.id] = name;
+      }
+    }
+    return WorkTagIndex._(byName, seriesToTag);
   }
 }
 

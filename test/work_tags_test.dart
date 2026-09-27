@@ -63,6 +63,26 @@ void main() {
       expect(index.tagOf(all[7]), isNull); // ドラえもんは2件なのでタグ化しない
       expect(index.tagOf(all[9]), isNull);
     });
+
+    test('表記ゆれ・別名はひとつのタグにまとまり、商品ライン名は先頭でも作品名にしない', () {
+      final index = WorkTagIndex.build([
+        s('1', 'ポケモン つみポーチ'),
+        s('2', 'ポケットモンスター ラバーマスコット'),
+        s('11', 'ポケットモンスター ミニチュア'),
+        s('3', 'ＭＯＯＭＩＮ　はぐこっとーと'),
+        s('4', 'ムーミン ミニチュア'),
+        s('5', 'MOOMIN カプセルウォータードーム'),
+        s('6', 'ハグコット ポケモン'),
+        s('7', 'カプセルラバーマスコット ムーミン'),
+        s('8', 'でふぉラバ! 呪術廻戦'),
+        s('9', 'でふぉラバ！ 東京リベンジャーズ'),
+        s('10', 'でふぉラバ! SK∞'),
+      ]);
+      expect(index.tags.map((t) => t.name).toSet(), {'ポケモン', 'ムーミン'});
+      expect(index.byName('ポケモン')!.count, 4); // ポケットモンスター と ハグコット末尾を含む
+      expect(index.byName('ムーミン')!.count, 4);
+      expect(index.byName('でふぉラバ!'), isNull);
+    });
   });
 
   group('検索の正規化', () {
