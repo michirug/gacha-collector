@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 商品データ・画像の取得。debug/profile の Manifest は自動で付くが release はここに無いと通信できない -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="ガチャ活ポケット"
         android:name="${applicationName}"
