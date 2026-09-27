@@ -52,7 +52,7 @@ v1.0再定義(リリース前に必須):
     - [x] デプロイ完了(2026-09-20): 0002適用、`judge-photo` v1 ACTIVE(`--no-verify-jwt`)、secrets `WEBHOOK_SECRET`(値はユーザーのPowerShell履歴とDBトリガー定義内にのみ)、DBトリガー `judge_photo`(photos insert/update → Edge Function)。**一気通貫確認済み**: 投稿→auto_score付与→手動approved→approvedバケットへコピー・public_url→export→raw URL→アプリでシリーズ画像が投稿写真に切替・出典表記切替→removed→両バケットから物理削除。Gemini(`MATCH_MODEL_API_KEY`)/Vision キーは未設定(一致度0.5固定)
     - **`npx supabase` はDevinのシェルからも使える**(ユーザーが `login` 済み、`link` 済み)。`npx supabase db query --linked "<1文>"` で運用SQL(承認・保留確認など)を直接実行できる
   - [x] B-3(2026-09-20): `migrations/0004_likes_cap.sql`(`approve_photo` が採用後に同アイテムの採用写真を評価順で5枚に制限=最下位を removed、RPC `my_contribution()`=自分の採用写真をシリーズ別に集計)。**差し替え**は `approved_photo_snapshot` ビューが常に最良1枚(auto_score×0.5+min(likes,50)/100)を選ぶので自動。**いいね**: `toggle_like` RPC、`CommunityLikeButton`(シリーズ詳細の出典表記横・採用写真メニュー内)、`CommunityPhotos.likedPhotos/likeAdjust`(押した直後の件数補正、スナップショット再取得でリセット)、スナップショットに `likes`。**クレジット**: `communityCreditText`=「ガチャ活ユーザー xxxxxxさんの投稿写真」/自分なら「あなたの写真が図鑑に採用されています」(ニックネーム無し方針)。シェアカードは画像を描かないのでクレジット追加は無し。**実績**3種追加(図鑑職人=採用1枚/図鑑の匠=20枚/シリーズ完成=1シリーズ全アイテムが自分の写真)→ 合計15種、マイページに「図鑑に採用されたあなたの写真 N枚」。エミュレータで いいね→likes=1、実績2/15、クレジット表記 を確認。テスト51件
-  - [x] v1.1 提出準備(2026-09-27): 法的文書の改定版は**ブランチ `release/1.1-docs`**(main の docs/ は v1.0 提出前なので未変更。v1.1 リリース時に main へマージし `2026年XX月XX日` を実日付に)。Play Console 申告の差分は `store/data_safety_v1_1.md`(データセーフティ「収集あり」/IARC の UGC「はい」/掲載文の「外部に送信されません」の修正/提出順序)。`store/store_listing.md` は v1.1 版(v1.0 提出時は release/1.0 のものを使う)。`store/release_notes.txt` は v1.1 文言。**提出用 AAB**(`C:\Users\wioiw\Downloads\devin\gacha_collector\release\`): v1.0 = `gacha_pocket_v1.0.1_9087C46E.aab`、v1.1 = `gacha_pocket_v1.1.0_*.aab`(main が進んだら `flutter build appbundle --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...` で再ビルドし SHA 先頭8桁でリネーム。新作追加通知のコミット後に**未再ビルド**)。**publishable key は `npx supabase projects api-keys --project-ref atficwbsfffthcorjnod -o json` で取得できる**(ユーザーに聞かなくてよい。会話ログに出さないこと)
+  - [x] v1.1 提出準備(2026-09-27): 法的文書の改定版は**ブランチ `release/1.1-docs`**(main の docs/ は v1.0 提出前なので未変更。v1.1 リリース時に main へマージし `2026年XX月XX日` を実日付に)。Play Console 申告の差分は `store/data_safety_v1_1.md`(データセーフティ「収集あり」/IARC の UGC「はい」/掲載文の「外部に送信されません」の修正/提出順序)。`store/store_listing.md` は v1.1 版(v1.0 提出時は release/1.0 のものを使う)。`store/release_notes.txt` は v1.1 文言。**提出用 AAB**(`C:\Users\wioiw\Downloads\devin\gacha_collector\release\`): v1.0 = `gacha_pocket_v1.0.1_9087C46E.aab`、v1.1 = `gacha_pocket_v1.1.0_62A71398.aab`(2026-09-27 の全修正+新作追加通知を含む。main が進んだら `flutter build appbundle --release --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...` で再ビルドし SHA 先頭8桁でリネーム)。**publishable key は `npx supabase projects api-keys --project-ref atficwbsfffthcorjnod -o json` で取得できる**(ユーザーに聞かなくてよい。会話ログに出さないこと)
   - 段階B 残り: Gemini/Vision キー(任意)、承認の重み付け(任意)
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 
@@ -157,7 +157,7 @@ supabase/                 段階Bのバックエンド定義(migrations/ functio
 
 ```powershell
 flutter analyze
-flutter test                                   # 64テスト(素材生成テストはskip)
+flutter test                                   # 72テスト(素材生成テストはskip)
 
 # Supabase / GitHub の運用(認証済み。1回の db query は1文だけ、複数文は --file で)
 npx supabase db query --linked "select status, count(*) from photos group by status"
