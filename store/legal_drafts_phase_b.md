@@ -1,7 +1,8 @@
 # 段階B向け 法的文書の改定案(ドラフト・未公開)
 
-`docs/` は GitHub Pages で公開中で、v1.0 アプリからリンクされているため、**段階Bをリリースするまで `docs/` は書き換えない**。
-段階Bのリリース時に、このファイルの内容を `docs/privacy_policy.md` / `docs/terms_of_service.md` に反映し、改定日を入れる。
+`docs/` は GitHub Pages で公開中で、v1.0 アプリからリンクされているため、**段階Bをリリースするまで main の `docs/` は書き換えない**。
+**反映済みの完成版はブランチ `release/1.1-docs` にある**(2026-09-27)。v1.1 リリース時に `git merge release/1.1-docs` して改定日の `2026年XX月XX日` を実日付に置換し、main に push すれば Pages が更新される。
+この下のセクション A/B は差分の元資料、C/D は Play Console 側の作業メモとして残す(C の整理版は `store/data_safety_v1_1.md`)。
 
 ---
 
