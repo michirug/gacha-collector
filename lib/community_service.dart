@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+import 'app_events.dart';
 import 'community_photos.dart';
 import 'models.dart';
 
@@ -44,6 +45,7 @@ class CommunityService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_consentKey, DateTime.now().toIso8601String());
     await prefs.setBool(_shareDefaultKey, true);
+    AppEvents.bumpUserData();
   }
 
   // 「写真を登録したら自動でみんなの図鑑にも送る」設定。同意後のデフォルトは true
@@ -55,6 +57,7 @@ class CommunityService {
   static Future<void> setShareByDefault(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_shareDefaultKey, value);
+    AppEvents.bumpUserData();
   }
 
   // --- 匿名ID ---

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_events.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
 import 'release_notifier.dart';
@@ -21,6 +22,7 @@ class CollectionStore {
     final prefs = await SharedPreferences.getInstance();
     final before = prefs.getStringList(_wishlistKey)?.length ?? 0;
     await prefs.setStringList(_wishlistKey, seriesIds.toList());
+    AppEvents.bumpUserData();
     // 発売通知の予約を作り直す(全ページのウィッシュ操作・バックアップ復元がここを通る)
     if (!ReleaseNotifier.isReady) return;
     if (seriesIds.length > before) await ReleaseNotifier.requestPermissionIfNeeded();
@@ -48,6 +50,7 @@ class CollectionStore {
       mapToSave[key] = value.toJson();
     });
     await prefs.setString(_collectionKey, jsonEncode(mapToSave));
+    AppEvents.bumpUserData();
   }
 
   static Future<void> _migrateIfNeeded(SharedPreferences prefs) async {
