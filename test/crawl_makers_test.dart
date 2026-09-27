@@ -120,6 +120,23 @@ void main() {
       expect(KenElephantCrawler.parseLineupLines(['・注意事項A', '・注意事項B'], requireHeading: true).names, isEmpty);
     });
 
+    test('stripSizeNote は括弧なし・コロン付き・括弧後ろのサイズ注記も落とす', () {
+      const cases = {
+        'Andre：約65.5mm': 'Andre',
+        'お顔コインケース：約H100mm': 'お顔コインケース',
+        'Naughty（約H60×W46mm）': 'Naughty',
+        'スパンク Loving (約H120mm)': 'スパンク Loving',
+        'AKAGAIWOMAN（アカガイウーマン）約H88mm': 'AKAGAIWOMAN（アカガイウーマン）',
+        'KOHADAMEN (コハダメン）約H103mm': 'KOHADAMEN (コハダメン）',
+        'ポーチ：約W90×H90×D83mm': 'ポーチ',
+        '3連アクリルキーホルダー（約W35~41mm）': '3連アクリルキーホルダー',
+        // サイズ注記ではないものは触らない
+        'Vol.2 ダブルミラー': 'Vol.2 ダブルミラー',
+        'B-2': 'B-2',
+      };
+      cases.forEach((raw, want) => expect(KenElephantCrawler.stripSizeNote(raw), want, reason: raw));
+    });
+
     test('発売月は tag の mcatem__N月発売 と公開日から年月を組む', () {
       expect(KenElephantCrawler.releaseDateFrom(['GC', 'mcatem__9月発売'], DateTime(2026, 6, 10)), '2026年9月');
       // 公開が10月で発売タグが1月 → 翌年

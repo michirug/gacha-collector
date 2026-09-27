@@ -681,16 +681,34 @@ class KenElephantCrawler extends MakerCrawler {
       if (names.isNotEmpty && RegExp(r'^[■★【]').hasMatch(line)) break;
       typeCount ??= parseTypeCount(line);
       if (!line.startsWith('・')) continue;
-      final name = line
-          .substring(1)
-          .split('※')
-          .first
-          .replaceAll(RegExp(r'\s*[（(][^）)]*(約|mm|cm)[^）)]*[）)]\s*$'), '')
-          .trim();
+      final name = stripSizeNote(line.substring(1).split('※').first);
       if (name.isNotEmpty) names.add(name);
       if (typeCount != null && names.length >= typeCount) break;
     }
     return (typeCount: typeCount, names: names);
+  }
+
+  // 名前末尾のサイズ注記を落とす。「Andre：約65.5mm」「Naughty（約H60×W46mm）」「スパンク (約H120mm)」
+  // 「AKAGAIWOMAN（アカガイウーマン）約H88mm」「ポーチ：約W90×H90×D83mm」など。
+  // ラインナップ名はアイテムIDになるので、ここを変えると既存の記録が外れる(初回リリース前に確定させる)
+  static final _sizeNotes = [
+    // 括弧内に 約/mm/cm を含む注記
+    RegExp(r'\s*[（(][^）)]*(?:約|mm|cm)[^）)]*[）)]\s*$'),
+    // 括弧なしの「：約65.5mm」「約H60×W46mm」
+    RegExp(r'\s*[：:]?\s*約\s*[HWD]?\d[\d.~]*(?:\s*[×xX]\s*[HWD]?\d[\d.~]*)*\s*(?:mm|cm)\s*$'),
+  ];
+
+  static String stripSizeNote(String raw) {
+    var name = raw.trim();
+    for (var i = 0; i < 3; i++) {
+      var stripped = name;
+      for (final re in _sizeNotes) {
+        stripped = stripped.replaceFirst(re, '').trim();
+      }
+      if (stripped == name || stripped.isEmpty) break;
+      name = stripped;
+    }
+    return name.replaceFirst(RegExp(r'[：:]\s*$'), '').trim();
   }
 
   // 「mcatem__9月発売」の月と公開日から「YYYY年M月」を作る
