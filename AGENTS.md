@@ -57,7 +57,8 @@ v1.0再定義(リリース前に必須):
 - Publishing API: `tool/publish_release.dart` + 手順書 `tool/PUBLISHING.md` 作成済(2回目以降のアップデート用。サービスアカウント作成はユーザー作業)。リリースノートは `store/release_notes.txt`
 
 Play Console側(コードと無関係、先行して実施):
-- [ ] 組織アカウントの確認状況チェック。2026-09-30期限「Androidデベロッパーの確認」リマインダー(Google Play一斉送信)が届いている → Play Consoleホームで未登録アプリ・アカウント確認状態を確認
+- [x] 組織アカウントの確認状況チェック(2026-09-27): 「Androidデベロッパーの確認」は Play 配信中アプリのパッケージ名登録要件。**未公開の本アプリは対象外で、初回アップロード時に自動登録される**(手動登録は Play App Signing の鍵と不一致になるのでやらない)。ID タブ・アカウントの詳細は警告なし(組織/D&B/D-U-N-S 718508801)。住所は旧住所(SHIBAURA)のまま
+- [ ] 本店移転の反映(登記は完了済み 2026-09-27時点。ユーザー作業): ① TSR「自社 D-U-N-S Number の登録情報修正」(https://duns.tsr-net.co.jp/ 、無料、7営業日、英文住所のみ、履歴事項全部証明書PDFを用意。TSR は実質本社住所ルールなので登記本店=実務拠点であること) → ② D&B US への反映(数日〜2か月)を待つと Play Console 所有者宛に「再確認」メールが届く → ③ 「デベロッパー アカウント」→「あなたの情報」→「組織の詳細を更新」からお支払いプロファイルの住所を更新し書類再提出(D&B英文住所・お支払いプロファイル・登記の3点一致) → ④ 電話番号更新 → v1.0 提出
 
 v1.1 実装済み:
 - [x] ウィッシュリストの発売通知(2026-09-20): `lib/release_notifier.dart`(flutter_local_notifications 20.1.0 + timezone 0.10 + flutter_timezone 5.1。Dart 3.9 の制約でこの版)。`planReleaseNotifications(wishlist, allSeries, now)` が今日〜60日以内に `releaseDate`(上旬=5日/中旬=15日/下旬=25日/第N週=週頭)を迎えるウィッシュを抽出し、9:00 に `zonedSchedule`(inexactAllowWhileIdle、正確なアラーム権限は不要)。`CollectionStore.saveWishlist` が毎回 cancelAll→再予約(全ページ・バックアップ復元を網羅)、起動時も再予約。初回のウィッシュ追加時に POST_NOTIFICATIONS を1回だけ要求。マイページ「通知」にトグル(既定ON)と「テスト通知を送る」(予約件数を表示)。Android: `isCoreLibraryDesugaringEnabled` + `desugar_jdk_libs 2.1.4`、Manifest に権限2つと receiver 2つ。エミュレータで 権限ダイアログ→`dumpsys alarm` に RTC_WAKEUP 2026-10-01 09:00 window=+1h→テスト通知の表示 を確認。テスト54件
