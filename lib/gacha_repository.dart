@@ -20,6 +20,11 @@ class GachaRepository {
     return _cache ??= _load();
   }
 
+  @visibleForTesting
+  static void setForTesting(List<GachaSeries> series) {
+    _cache = Future.value(series);
+  }
+
   static Future<List<GachaSeries>> _load() async {
     try {
       List<GachaSeries>? fromLocalCache;

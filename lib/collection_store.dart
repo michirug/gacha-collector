@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_events.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
 
@@ -19,6 +20,7 @@ class CollectionStore {
   static Future<void> saveWishlist(Set<String> seriesIds) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_wishlistKey, seriesIds.toList());
+    AppEvents.bumpUserData();
   }
 
   static Future<Map<String, CollectionEntry>> load() async {
@@ -42,6 +44,7 @@ class CollectionStore {
       mapToSave[key] = value.toJson();
     });
     await prefs.setString(_collectionKey, jsonEncode(mapToSave));
+    AppEvents.bumpUserData();
   }
 
   static Future<void> _migrateIfNeeded(SharedPreferences prefs) async {

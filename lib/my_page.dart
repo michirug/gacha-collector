@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'achievements.dart';
+import 'app_events.dart';
 import 'backup.dart';
 import 'collection_store.dart';
 import 'gacha_repository.dart';
@@ -36,11 +37,40 @@ class _MyPageState extends State<MyPage> {
   int _totalSpend = 0;
   int _monthSpend = 0;
   bool _isLoading = true;
+  // 別タブでデータが変わった印。マイページが表示されているときだけ再読込する(集計を毎タップ走らせない)
+  bool _dirty = false;
+  bool _reloading = false;
 
   @override
   void initState() {
     super.initState();
+    AppEvents.userDataRevision.addListener(_onUserDataChanged);
+    AppEvents.selectedTab.addListener(_reloadIfVisible);
     _loadAllData();
+  }
+
+  @override
+  void dispose() {
+    AppEvents.userDataRevision.removeListener(_onUserDataChanged);
+    AppEvents.selectedTab.removeListener(_reloadIfVisible);
+    super.dispose();
+  }
+
+  void _onUserDataChanged() {
+    _dirty = true;
+    _reloadIfVisible();
+  }
+
+  void _reloadIfVisible() {
+    if (!_dirty || _reloading || !mounted || AppEvents.selectedTab.value != 1) return;
+    // 上に別画面(シリーズ詳細など)が乗っている間は待つ。戻ったときは push 側の then() か次のタブ切替で読む
+    if (!(ModalRoute.of(context)?.isCurrent ?? true)) return;
+    _dirty = false;
+    _reloading = true;
+    _loadAllData().whenComplete(() {
+      _reloading = false;
+      _reloadIfVisible();
+    });
   }
 
   Future<void> _loadAllData() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_events.dart';
 import 'browse_page.dart';
 import 'collection_store.dart';
 import 'gacha_repository.dart';
@@ -25,7 +26,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    AppEvents.userDataRevision.addListener(_reloadUserData);
     _load();
+  }
+
+  @override
+  void dispose() {
+    AppEvents.userDataRevision.removeListener(_reloadUserData);
+    super.dispose();
   }
 
   Future<void> _load() async {
