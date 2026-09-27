@@ -96,6 +96,9 @@ class GachaSeries {
   // この場合 items.length はラインナップ数ではないので、コンプ判定・進捗率には使わない
   bool get lineupCountKnown => !lineupUnknown || (numTypes?.isNotEmpty ?? false);
 
+  // 公式に一部しか個別掲載が無く、残りを「No.k」で埋めているアイテムがある(バンダイのディスク・メダル系)
+  bool get hasPlaceholderItems => items.any((i) => RegExp(r'^No\.\d+$').hasMatch(i.name));
+
   // ラインナップ数が分かっていて、全アイテムを持っていればコンプ
   bool isCompletedBy(Map<String, CollectionEntry> collection) =>
       lineupCountKnown && items.isNotEmpty && items.every((item) => collection.containsKey(item.id));

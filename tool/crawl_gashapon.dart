@@ -120,11 +120,13 @@ Map<String, dynamic>? parseDetailPage(
   final seenTitles = <String>{};
   for (final img in doc.querySelectorAll('li.pg-detail__thumb img')) {
     final itemTitle = _normalizeWhitespace(img.attributes['title'] ?? '');
+    // 古い商品は個別画像の src が空のことがある(例: 4543112865946000「キーの芽」)。名前があれば収録し、画像はメイン画像で代用
     final src = img.attributes['src'] ?? '';
-    if (itemTitle.isEmpty || src.isEmpty) continue;
+    if (itemTitle.isEmpty) continue;
     if (!seenTitles.add(itemTitle)) continue;
-    items.add({'title': itemTitle, 'image_url': src});
+    items.add({'title': itemTitle, 'image_url': src.isEmpty ? mainImage : src});
   }
+  padItemsToTypeCount(items, numTypes, mainImage);
 
   return {
     'jan_code': int.tryParse(janCode) ?? janCode,
@@ -144,4 +146,19 @@ Map<String, dynamic>? parseDetailPage(
 
 String _normalizeWhitespace(String text) {
   return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+}
+
+// 公式ページが「全N種」のうち一部しか個別に載せていない場合(ディスク・メダル系で多い)、
+// 足りない分を「No.k」の仮アイテムで埋めてコンプ管理できるようにする。既存アイテムの後ろに足すのでIDは変わらない
+void padItemsToTypeCount(List<Map<String, String>> items, String numTypes, String mainImage) {
+  final match = RegExp(r'全\s*(\d+)\s*種').firstMatch(numTypes);
+  if (match == null) return;
+  final total = int.parse(match.group(1)!);
+  if (total <= items.length || total > 100) return;
+  final existing = items.map((i) => i['title']).toSet();
+  for (var k = items.length + 1; items.length < total; k++) {
+    final title = 'No.$k';
+    if (existing.contains(title)) continue;
+    items.add({'title': title, 'image_url': mainImage});
+  }
 }

@@ -584,6 +584,12 @@ class _ItemListPageState extends State<ItemListPage> {
                               ? '公式サイトにラインナップ名の掲載がないため、番号(No.)で管理します'
                               : '公式サイトにラインナップ名・種類数の掲載がないため、獲得した個数は長押しの「ダブり数」で記録してください(コンプ判定はしません)',
                           style: TextStyle(fontSize: 12, color: kBrandPinkDark)),
+                    )
+                  else if (series.hasPlaceholderItems)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Text('公式サイトに個別掲載のないアイテムは番号(No.)で管理します',
+                          style: TextStyle(fontSize: 12, color: kBrandPinkDark)),
                     ),
                 ],
               ),
