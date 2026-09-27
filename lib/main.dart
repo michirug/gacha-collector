@@ -10,6 +10,7 @@ import 'gacha_repository.dart';
 import 'home_page.dart';
 import 'image_policy.dart';
 import 'my_page.dart';
+import 'new_arrivals_notifier.dart';
 import 'release_notifier.dart';
 import 'series_page.dart';
 import 'theme.dart';
@@ -38,6 +39,8 @@ Future<void> main() async {
   // ウィッシュリストの発売通知(端末内)。初期化後、最新データで予約を作り直す
   unawaited(ReleaseNotifier.init().then((_) async =>
       ReleaseNotifier.reschedule(await CollectionStore.loadWishlist(), await GachaRepository.loadAll())));
+  // 新作追加の通知(WorkManager の定期タスク登録)
+  unawaited(NewArrivalsNotifier.init());
   runApp(const GachaCollectorApp());
 }
 

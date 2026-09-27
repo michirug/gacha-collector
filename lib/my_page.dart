@@ -9,6 +9,7 @@ import 'community_photos.dart';
 import 'community_service.dart';
 import 'gacha_repository.dart';
 import 'models.dart';
+import 'new_arrivals_notifier.dart';
 import 'release_notifier.dart';
 import 'series_page.dart';
 import 'share_card.dart';
@@ -44,6 +45,7 @@ class _MyPageState extends State<MyPage> {
   bool _shareByDefault = false;
   int _approvedPhotos = 0;
   bool _notifyRelease = true;
+  bool _notifyNewArrivals = true;
   // 別タブでデータが変わった印。マイページが表示されているときだけ再読込する(集計とRPCを毎タップ走らせない)
   bool _dirty = false;
   bool _reloading = false;
@@ -88,6 +90,7 @@ class _MyPageState extends State<MyPage> {
       ..addAll(loaded);
     _wishlist = await CollectionStore.loadWishlist();
     _notifyRelease = await ReleaseNotifier.isEnabled();
+    _notifyNewArrivals = await NewArrivalsNotifier.isEnabled();
     var contribution = const <String, int>{};
     if (CommunityService.isConfigured) {
       _communityConsented = await CommunityService.hasConsented();
@@ -266,6 +269,26 @@ class _MyPageState extends State<MyPage> {
                     ),
                     onTap: () => ReleaseNotifier.showTest(_wishlist, _allSeries),
                   ),
+                ],
+                if (NewArrivalsNotifier.isSupported) ...[
+                  const Divider(height: 1),
+                  SwitchListTile(
+                    secondary: const Icon(Icons.new_releases_outlined),
+                    title: const Text('新作追加のお知らせ'),
+                    subtitle: const Text('新しい商品情報が追加されたら(週1回程度)まとめてお知らせ。あなたが集めている作品の新作を優先して表示します'),
+                    value: _notifyNewArrivals,
+                    onChanged: (v) async {
+                      await NewArrivalsNotifier.setEnabled(v);
+                      if (mounted) setState(() => _notifyNewArrivals = v);
+                    },
+                  ),
+                  if (_notifyNewArrivals)
+                    ListTile(
+                      leading: const Icon(Icons.refresh),
+                      title: const Text('新作をいま確認する'),
+                      subtitle: const Text('最新の商品情報を取得し、追加があれば通知します', style: TextStyle(fontSize: 11)),
+                      onTap: _checkNewArrivalsNow,
+                    ),
                 ],
               ]),
             ),
@@ -450,6 +473,24 @@ class _MyPageState extends State<MyPage> {
       await BackupService.exportAndShare();
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text('書き出しに失敗しました: $e')));
+    }
+  }
+
+  Future<void> _checkNewArrivalsNow() async {
+    final messenger = ScaffoldMessenger.of(context);
+    await ReleaseNotifier.requestPermissionIfNeeded();
+    messenger.showSnackBar(const SnackBar(content: Text('最新の商品情報を確認しています…')));
+    final added = await NewArrivalsNotifier.checkNow();
+    if (!mounted) return;
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(SnackBar(
+        content: Text(added == 0 ? '新しい商品情報はありませんでした(すでに最新です)' : '新作$added件が追加されました。通知を送りました')));
+    if (added > 0) {
+      // 取得したデータをアプリ内にも反映する
+      GachaRepository.clearCache();
+      _dirty = true;
+      _reloadIfVisible();
+      AppEvents.bumpUserData();
     }
   }
 

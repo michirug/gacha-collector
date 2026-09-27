@@ -25,6 +25,11 @@ class GachaRepository {
     _cache = Future.value(series);
   }
 
+  // 次の loadAll() でローカルキャッシュファイルから読み直す(手動で最新データを取り直したとき)
+  static void clearCache() {
+    _cache = null;
+  }
+
   static Future<List<GachaSeries>> _load() async {
     try {
       List<GachaSeries>? fromLocalCache;
@@ -63,7 +68,13 @@ class GachaRepository {
   }
 
   static Future<void> _refreshInBackground() async {
-    if (kIsWeb || kRemoteDataUrl.isEmpty) return;
+    await refreshFromRemote();
+  }
+
+  // 配信 JSON を条件付き GET(ETag)で取得し、変わっていればローカルキャッシュを置き換える。
+  // 戻り値は「前回のキャッシュに無かったシリーズ」(新作追加通知に使う)。未変更・初回・失敗時は空
+  static Future<List<GachaSeries>> refreshFromRemote() async {
+    if (kIsWeb || kRemoteDataUrl.isEmpty) return const [];
     try {
       final prefs = await SharedPreferences.getInstance();
       final headers = <String, String>{};
@@ -73,11 +84,20 @@ class GachaRepository {
       }
       final response =
           await http.get(Uri.parse(kRemoteDataUrl), headers: headers);
-      if (response.statusCode != 200) return;
+      if (response.statusCode != 200) return const [];
       final body = response.body;
       final parsed = await compute(parseGachaSeriesList, body);
-      if (parsed.isEmpty) return;
+      if (parsed.isEmpty) return const [];
       final file = await _localCacheFile();
+      Set<String>? knownIds;
+      if (await file.exists()) {
+        try {
+          final previous = await compute(parseGachaSeriesList, await file.readAsString());
+          knownIds = previous.map((s) => s.id).toSet();
+        } catch (_) {
+          knownIds = null;
+        }
+      }
       final tmpFile = File('${file.path}.tmp');
       await tmpFile.writeAsString(body, flush: true);
       if (await file.exists()) {
@@ -88,8 +108,10 @@ class GachaRepository {
       if (newEtag != null) {
         await prefs.setString('gacha_data_etag', newEtag);
       }
+      if (knownIds == null) return const [];
+      return parsed.where((s) => !knownIds!.contains(s.id)).toList();
     } catch (_) {
-      return;
+      return const [];
     }
   }
 }
