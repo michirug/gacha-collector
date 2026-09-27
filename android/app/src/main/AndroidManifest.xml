@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 商品データ・画像・みんなの図鑑の取得。debug/profile の Manifest は自動で付くが release はここに無いと通信できない -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- ウィッシュリストの発売通知(端末内スケジュール、サーバー不要)。正確なアラームは使わない -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
