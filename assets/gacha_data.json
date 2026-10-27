@@ -604911,5 +604911,1278 @@
         "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/09/16185435/image-7-640x633.png"
       }
     ]
+  },
+  {
+    "jan_code": 4582770027594000,
+    "maker": "bandai",
+    "source_url": "https://gashapon.jp/products/detail.php?jan_code=4582770027594000",
+    "category": "station",
+    "title": "ゲゲゲの鬼太郎（第4期） ねむらせ隊",
+    "price": "400円",
+    "release_date": "2026年10月 第5週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255224_1.jpg",
+    "items": [
+      {
+        "title": "鬼太郎＆目玉おやじ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255224_2.jpg"
+      },
+      {
+        "title": "ねずみ男",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255224_3.jpg"
+      },
+      {
+        "title": "ねこ娘",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255224_4.jpg"
+      },
+      {
+        "title": "一反木綿",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255224_5.jpg"
+      },
+      {
+        "title": "ぬりかべ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000255224_6.jpg"
+      }
+    ]
+  },
+  {
+    "jan_code": 4582770069143000,
+    "maker": "bandai",
+    "source_url": "https://gashapon.jp/products/detail.php?jan_code=4582770069143000",
+    "category": "station",
+    "title": "MINECRAFT クリスタルチャーム",
+    "price": "400円",
+    "release_date": "2026年10月 第5週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000256787_1.jpg",
+    "items": [
+      {
+        "title": "STEVE(スティーブ)",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000256787_2.jpg"
+      },
+      {
+        "title": "CREEPER(クリーパー)",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000256787_3.jpg"
+      },
+      {
+        "title": "ENDERMAN(エンダーマン)",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000256787_4.jpg"
+      },
+      {
+        "title": "PIG(ブタ)",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000256787_5.jpg"
+      },
+      {
+        "title": "FOX(キツネ)",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000256787_6.jpg"
+      }
+    ]
+  },
+  {
+    "jan_code": 4582770139747000,
+    "maker": "bandai",
+    "source_url": "https://gashapon.jp/products/detail.php?jan_code=4582770139747000",
+    "category": "station",
+    "title": "ポケットモンスター ポケモンラバーマスコット31",
+    "price": "300円",
+    "release_date": "2026年10月 第5週",
+    "num_types": "全8種",
+    "target_age": "6才以上",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_1.jpg",
+    "items": [
+      {
+        "title": "ピカチュウ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_2.jpg"
+      },
+      {
+        "title": "フシギダネ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_3.jpg"
+      },
+      {
+        "title": "ヒトカゲ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_4.jpg"
+      },
+      {
+        "title": "ゼニガメ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_5.jpg"
+      },
+      {
+        "title": "プリン",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_6.jpg"
+      },
+      {
+        "title": "ミュウ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_7.jpg"
+      },
+      {
+        "title": "ゲンガー",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_8.jpg"
+      },
+      {
+        "title": "イーブイ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258527_9.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y905407",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y905407",
+    "category": "capsule",
+    "title": "でふぉラバ! 薬屋のひとりごとキーホルダーvol.4",
+    "price": "300円(税込)",
+    "release_date": "2026年10月（10月19日週発売）",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "猫猫1",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg"
+      },
+      {
+        "title": "壬氏1",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg"
+      },
+      {
+        "title": "猫猫2",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg"
+      },
+      {
+        "title": "壬氏2",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg"
+      },
+      {
+        "title": "高順",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg"
+      },
+      {
+        "title": "玉葉妃",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905407_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y911231",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y911231",
+    "category": "capsule",
+    "title": "パンダの穴 サメフライ めじるしガチャマスコット",
+    "price": "300円(税込)",
+    "release_date": "2026年10月（10月19日週発売）",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ホホジロザメフライ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg"
+      },
+      {
+        "title": "ノコギリザメフライ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg"
+      },
+      {
+        "title": "ジンベエザメフライ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg"
+      },
+      {
+        "title": "ネコザメフライ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg"
+      },
+      {
+        "title": "シュモクザメフライ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg"
+      },
+      {
+        "title": "マンタフライ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911231_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y907623",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y907623",
+    "category": "capsule",
+    "title": "むぎゅっと! ゴジラ",
+    "price": "400円(税込)",
+    "release_date": "2026年11月（11月9日週発売）",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907623_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ゴジラ（1974）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907623_b.jpg"
+      },
+      {
+        "title": "ガイガン（1972）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907623_b.jpg"
+      },
+      {
+        "title": "ヘドラ（1971）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907623_b.jpg"
+      },
+      {
+        "title": "モスラ幼虫（1961）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907623_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y905711",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y905711",
+    "category": "capsule",
+    "title": "ポケットトミカ はたらく現場!建設編",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全7種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "メガパワークレーン（イエロー）+建設資材2個",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      },
+      {
+        "title": "メガパワークレーン（グリーン）+建設資材2個",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      },
+      {
+        "title": "オフロードダンプ（イエロー）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      },
+      {
+        "title": "オフロードダンプ（オレンジ）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      },
+      {
+        "title": "いすゞ ギガ フルトレーラーダンプ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      },
+      {
+        "title": "いすゞ エルフ（建設トラック）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      },
+      {
+        "title": "ベースストラクチャー（建設現場ver.）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y905711_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y906251",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y906251",
+    "category": "capsule",
+    "title": "プレイバックムービー ナイトメア・ビフォア・クリスマス",
+    "price": "500円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全3種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906251_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ジャック・スケリントン（雪だるま）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906251_b.jpg"
+      },
+      {
+        "title": "ジャック・スケリントン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906251_b.jpg"
+      },
+      {
+        "title": "ジャック・スケリントン（サンタクロース）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906251_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y906824",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y906824",
+    "category": "capsule",
+    "title": "リロ＆スティッチ ファッションリング",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全7種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "スクランプ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      },
+      {
+        "title": "エンジェル",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      },
+      {
+        "title": "サングラス",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      },
+      {
+        "title": "ディズニー スティッチ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      },
+      {
+        "title": "リボン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      },
+      {
+        "title": "サングラス（レア）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      },
+      {
+        "title": "エンジェル（レア）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906824_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y907715",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y907715",
+    "category": "capsule",
+    "title": "ズートピア -ムービーアイテムコレクション-",
+    "price": "400円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "警察官バッジ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg"
+      },
+      {
+        "title": "ニンジンペン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg"
+      },
+      {
+        "title": "ニンジンペン（修復後）",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg"
+      },
+      {
+        "title": "ゲイリーペン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg"
+      },
+      {
+        "title": "ビッグドーナツ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg"
+      },
+      {
+        "title": "アイスキャンディ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y907715_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y910975",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y910975",
+    "category": "capsule",
+    "title": "MOOMIN もふもふポーシェット2",
+    "price": "500円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910975_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ムーミン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910975_b.jpg"
+      },
+      {
+        "title": "ムーミンママ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910975_b.jpg"
+      },
+      {
+        "title": "ニョロニョロ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910975_b.jpg"
+      },
+      {
+        "title": "ご先祖さま",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910975_b.jpg"
+      },
+      {
+        "title": "ムーミンやしき",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910975_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y911125",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y911125",
+    "category": "capsule",
+    "title": "でふぉラバ! ウマ娘 プリティーダービー キーホルダー",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全7種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ヴィルシーナ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      },
+      {
+        "title": "ブエナビスタ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      },
+      {
+        "title": "オルフェーヴル",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      },
+      {
+        "title": "ジェンティルドンナ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      },
+      {
+        "title": "アーモンドアイ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      },
+      {
+        "title": "ラッキーライラック",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      },
+      {
+        "title": "ヴィクトワールピサ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911125_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y911965",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y911965",
+    "category": "capsule",
+    "title": "プラレールキーホルダーSP クリアver.",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（予定）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911965_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "E5系新幹線はやぶさ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911965_b.jpg"
+      },
+      {
+        "title": "E7系新幹線かがやき",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911965_b.jpg"
+      },
+      {
+        "title": "923形ドクターイエロー",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911965_b.jpg"
+      },
+      {
+        "title": "EF65 カートレイン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911965_b.jpg"
+      },
+      {
+        "title": "E235系山手線",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911965_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "kitan:sanrio_watch4",
+    "maker": "kitan",
+    "source_url": "https://kitan.jp/products/sanrio_watch4/",
+    "category": "capsule",
+    "title": "サンリオキャラクターズ ダンボールウォッチ４",
+    "price": "500円",
+    "release_date": "2026年10月下旬",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kitan.jp/wp-content/uploads/2026/10/260824_sanriowatch4_DP.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ハローキティ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/001.jpg"
+      },
+      {
+        "title": "クロミ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/003.jpg"
+      },
+      {
+        "title": "マイメロディ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/002.jpg"
+      },
+      {
+        "title": "シナモロール",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/006.jpg"
+      },
+      {
+        "title": "こぎみゅん",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/005.jpg"
+      }
+    ]
+  },
+  {
+    "id": "kitan:peaceanimals_mc",
+    "maker": "kitan",
+    "source_url": "https://kitan.jp/products/peaceanimals_mc/",
+    "category": "capsule",
+    "title": "ピースするどうぶつ マーカーチャーム",
+    "price": "300円",
+    "release_date": "2026年10月下旬",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kitan.jp/wp-content/uploads/2026/10/PeacesignanimalsM_DP.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "いぬ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/Peacesignanimals_m1.jpg"
+      },
+      {
+        "title": "ねこ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/Peacesignanimals_m2.jpg"
+      },
+      {
+        "title": "ごりら",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/Peacesignanimals_m3.jpg"
+      },
+      {
+        "title": "かえる",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/Peacesignanimals_m4.jpg"
+      },
+      {
+        "title": "うさぎ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/10/Peacesignanimals_m5.jpg"
+      }
+    ]
+  },
+  {
+    "id": "bushi:10267",
+    "maker": "bushiroad",
+    "source_url": "https://capsule.bushiroad-creative.com/product/10267/",
+    "category": "capsule",
+    "title": "TVアニメ「薫る花は凛と咲く」薫子がいっぱい カプセルラバーキーホルダー",
+    "price": "300円 (税込)",
+    "release_date": "2027年3月下旬発売予定",
+    "num_types": "全6種",
+    "target_age": "15歳以上",
+    "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg",
+    "lineup_unknown": true,
+    "items": [
+      {
+        "title": "No.1",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg"
+      },
+      {
+        "title": "No.2",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg"
+      },
+      {
+        "title": "No.3",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg"
+      },
+      {
+        "title": "No.4",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg"
+      },
+      {
+        "title": "No.5",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg"
+      },
+      {
+        "title": "No.6",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/20103036/kaorukoippai_rubberkey_POP-640x640.jpg"
+      }
+    ]
+  },
+  {
+    "id": "bushi:10264",
+    "maker": "bushiroad",
+    "source_url": "https://capsule.bushiroad-creative.com/product/10264/",
+    "category": "capsule",
+    "title": "ダンガンロンパ１・２ Reload カプセルラバーキーホルダー vol.2",
+    "price": "300円 (税込)",
+    "release_date": "2027年2月下旬発売予定",
+    "num_types": "全6種",
+    "target_age": "15歳以上",
+    "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg",
+    "lineup_unknown": true,
+    "items": [
+      {
+        "title": "No.1",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg"
+      },
+      {
+        "title": "No.2",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg"
+      },
+      {
+        "title": "No.3",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg"
+      },
+      {
+        "title": "No.4",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg"
+      },
+      {
+        "title": "No.5",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg"
+      },
+      {
+        "title": "No.6",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/16184214/dangan12Re_rubberkey_vol2_POP-640x640.jpg"
+      }
+    ]
+  },
+  {
+    "id": "bushi:10256",
+    "maker": "bushiroad",
+    "source_url": "https://capsule.bushiroad-creative.com/product/10256/",
+    "category": "capsule",
+    "title": "NEEDY GIRL OVERDOSE 超てんちゃんとあめちゃんがいっぱい カプセルラバーキーホルダー",
+    "price": "300円 (税込)",
+    "release_date": "2027年2月下旬発売予定",
+    "num_types": "全5種",
+    "target_age": "15歳以上",
+    "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/14150108/NGO_Ippai_POP-640x640.jpg",
+    "lineup_unknown": true,
+    "items": [
+      {
+        "title": "No.1",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/14150108/NGO_Ippai_POP-640x640.jpg"
+      },
+      {
+        "title": "No.2",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/14150108/NGO_Ippai_POP-640x640.jpg"
+      },
+      {
+        "title": "No.3",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/14150108/NGO_Ippai_POP-640x640.jpg"
+      },
+      {
+        "title": "No.4",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/14150108/NGO_Ippai_POP-640x640.jpg"
+      },
+      {
+        "title": "No.5",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/14150108/NGO_Ippai_POP-640x640.jpg"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0850",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0850",
+    "category": "capsule",
+    "title": "クインテット グッズコレクション",
+    "price": "500円",
+    "release_date": "2027年3月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/05_quintet_goods_bunner_tate_bd86efb7-4af3-4d41-8c5f-134de50a2cf1.jpg?v=1791514818",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "スクエアポーチ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/05_quintet_goods_bunner_tate_bd86efb7-4af3-4d41-8c5f-134de50a2cf1.jpg?v=1791514818"
+      },
+      {
+        "title": "スライドミラー",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/05_quintet_goods_bunner_tate_bd86efb7-4af3-4d41-8c5f-134de50a2cf1.jpg?v=1791514818"
+      },
+      {
+        "title": "マグネットライト",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/05_quintet_goods_bunner_tate_bd86efb7-4af3-4d41-8c5f-134de50a2cf1.jpg?v=1791514818"
+      },
+      {
+        "title": "6連アクリルチャーム",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/05_quintet_goods_bunner_tate_bd86efb7-4af3-4d41-8c5f-134de50a2cf1.jpg?v=1791514818"
+      },
+      {
+        "title": "トートバッグ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/05_quintet_goods_bunner_tate_bd86efb7-4af3-4d41-8c5f-134de50a2cf1.jpg?v=1791514818"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0845",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0845",
+    "category": "capsule",
+    "title": "タイムトラベルシリーズ 手塚治虫キャラクターズ コインケース",
+    "price": "400円",
+    "release_date": "2027年3月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/5.tttedukacharactarscc_order_rect_8dcd143c-7f24-4dc7-8b24-2635f25d1831.jpg?v=1792031761",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "『鉄腕アトム』アトム",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.tttedukacharactarscc_order_rect_8dcd143c-7f24-4dc7-8b24-2635f25d1831.jpg?v=1792031761"
+      },
+      {
+        "title": "『ブラック・ジャック』ピノコ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.tttedukacharactarscc_order_rect_8dcd143c-7f24-4dc7-8b24-2635f25d1831.jpg?v=1792031761"
+      },
+      {
+        "title": "『ユニコ』ユニコ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.tttedukacharactarscc_order_rect_8dcd143c-7f24-4dc7-8b24-2635f25d1831.jpg?v=1792031761"
+      },
+      {
+        "title": "『ジャングル大帝』レオ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.tttedukacharactarscc_order_rect_8dcd143c-7f24-4dc7-8b24-2635f25d1831.jpg?v=1792031761"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0842",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0842",
+    "category": "capsule",
+    "title": "Victor グッズコレクション",
+    "price": "400円",
+    "release_date": "2027年2月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/5.victorgoodscollectio_saisoku_rect_3d4c81bd-11a5-4576-8ca9-bda58a9ee534.jpg?v=1792568404",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "トートバッグ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.victorgoodscollectio_saisoku_rect_3d4c81bd-11a5-4576-8ca9-bda58a9ee534.jpg?v=1792568404"
+      },
+      {
+        "title": "小銭入れ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.victorgoodscollectio_saisoku_rect_3d4c81bd-11a5-4576-8ca9-bda58a9ee534.jpg?v=1792568404"
+      },
+      {
+        "title": "缶ミラー",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.victorgoodscollectio_saisoku_rect_3d4c81bd-11a5-4576-8ca9-bda58a9ee534.jpg?v=1792568404"
+      },
+      {
+        "title": "ポーチ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/5.victorgoodscollectio_saisoku_rect_3d4c81bd-11a5-4576-8ca9-bda58a9ee534.jpg?v=1792568404"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0855",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0855",
+    "category": "capsule",
+    "title": "円谷プロ怪獣 キーチェーン大全 其ﾉ壱",
+    "price": "",
+    "release_date": "2027年3月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/4_TSUBURAYA_KAIJYU_saisoku_sq._9a88561b-240e-4109-bb5e-8976a6074fdc.jpg?v=1791967306",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "宇宙忍者 バルタン星人",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4_TSUBURAYA_KAIJYU_saisoku_sq._9a88561b-240e-4109-bb5e-8976a6074fdc.jpg?v=1791967306"
+      },
+      {
+        "title": "三面怪人 ダダ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4_TSUBURAYA_KAIJYU_saisoku_sq._9a88561b-240e-4109-bb5e-8976a6074fdc.jpg?v=1791967306"
+      },
+      {
+        "title": "コイン怪獣 カネゴン",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4_TSUBURAYA_KAIJYU_saisoku_sq._9a88561b-240e-4109-bb5e-8976a6074fdc.jpg?v=1791967306"
+      },
+      {
+        "title": "隕石怪獣 ガラモン",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4_TSUBURAYA_KAIJYU_saisoku_sq._9a88561b-240e-4109-bb5e-8976a6074fdc.jpg?v=1791967306"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0843",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0843",
+    "category": "capsule",
+    "title": "サンリオキャラクターズ よいこのソフビマスコット",
+    "price": "",
+    "release_date": "2027年2月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/4.sanriocharactorsysm_saisoku_rect_2684b43a-6db3-4188-a5dd-a81c3212cd4e.jpg?v=1791522682",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ハローキティ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4.sanriocharactorsysm_saisoku_rect_2684b43a-6db3-4188-a5dd-a81c3212cd4e.jpg?v=1791522682"
+      },
+      {
+        "title": "マイメロディ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4.sanriocharactorsysm_saisoku_rect_2684b43a-6db3-4188-a5dd-a81c3212cd4e.jpg?v=1791522682"
+      },
+      {
+        "title": "ポチャッコ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4.sanriocharactorsysm_saisoku_rect_2684b43a-6db3-4188-a5dd-a81c3212cd4e.jpg?v=1791522682"
+      },
+      {
+        "title": "ハンギョドン",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/4.sanriocharactorsysm_saisoku_rect_2684b43a-6db3-4188-a5dd-a81c3212cd4e.jpg?v=1791522682"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0852",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0852z",
+    "category": "capsule",
+    "title": "PEPOTARO フィギュアコレクション",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "おめかしネコちゃん＜グリーンアップル＞",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674"
+      },
+      {
+        "title": "おめかしネコちゃん＜クロ＞",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674"
+      },
+      {
+        "title": "ヒヨコ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674"
+      },
+      {
+        "title": "ブンチョウ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674"
+      },
+      {
+        "title": "ねそべりウサギ＜ピンク＞",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674"
+      },
+      {
+        "title": "ねそべりウサギ＜オフホワイト＞",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/PEPOTARO_saisoku_sq.jpg?v=1792457674"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0857",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0857z",
+    "category": "capsule",
+    "title": "うに ミニチュアコレクション",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/uni_banner_SQ.jpg?v=1792458937",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "りんご",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/uni_banner_SQ.jpg?v=1792458937"
+      },
+      {
+        "title": "ポットクイーン",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/uni_banner_SQ.jpg?v=1792458937"
+      },
+      {
+        "title": "ひまわりウマ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/uni_banner_SQ.jpg?v=1792458937"
+      },
+      {
+        "title": "コウモリ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/uni_banner_SQ.jpg?v=1792458937"
+      },
+      {
+        "title": "サイコロピエロ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/uni_banner_SQ.jpg?v=1792458937"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0858",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0858c",
+    "category": "capsule",
+    "title": "mojojojo Todd Friends pouch Vol.2",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/Toddfriends2_banner_SQ.jpg?v=1792473494",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "Snuggles",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Toddfriends2_banner_SQ.jpg?v=1792473494"
+      },
+      {
+        "title": "Pete",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Toddfriends2_banner_SQ.jpg?v=1792473494"
+      },
+      {
+        "title": "Mint",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Toddfriends2_banner_SQ.jpg?v=1792473494"
+      },
+      {
+        "title": "Tempura",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Toddfriends2_banner_SQ.jpg?v=1792473494"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0856",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0856z",
+    "category": "capsule",
+    "title": "MONKEY CRAB TINY REX フィギュアコレクション",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/TinyRex_banner_SQ.jpg?v=1792652513",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "GREEN（お花付き）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/TinyRex_banner_SQ.jpg?v=1792652513"
+      },
+      {
+        "title": "RED（サングラス付き）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/TinyRex_banner_SQ.jpg?v=1792652513"
+      },
+      {
+        "title": "BLUE（ネクタイ付き）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/TinyRex_banner_SQ.jpg?v=1792652513"
+      },
+      {
+        "title": "PURPLE（ヘッドホン＆キャップ付き）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/TinyRex_banner_SQ.jpg?v=1792652513"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0848",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0848z",
+    "category": "capsule",
+    "title": "そねぽん グッズコレクション",
+    "price": "400円",
+    "release_date": "2027年2月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/sonepon_goods_saisoku_rect_5fd6b274-df90-474e-831e-6da153190135.jpg?v=1792568434",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ポーチ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/sonepon_goods_saisoku_rect_5fd6b274-df90-474e-831e-6da153190135.jpg?v=1792568434"
+      },
+      {
+        "title": "小銭入れ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/sonepon_goods_saisoku_rect_5fd6b274-df90-474e-831e-6da153190135.jpg?v=1792568434"
+      },
+      {
+        "title": "缶ミラー",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/sonepon_goods_saisoku_rect_5fd6b274-df90-474e-831e-6da153190135.jpg?v=1792568434"
+      },
+      {
+        "title": "3連アクリルチャーム",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/sonepon_goods_saisoku_rect_5fd6b274-df90-474e-831e-6da153190135.jpg?v=1792568434"
+      },
+      {
+        "title": "エコバッグ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/sonepon_goods_saisoku_rect_5fd6b274-df90-474e-831e-6da153190135.jpg?v=1792568434"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0853",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0853z",
+    "category": "capsule",
+    "title": "おいろっぷ フィギュアストラップ",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/Oiroppu_saisoku_sq.jpg?v=1792476718",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "トゥルデルニーク",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Oiroppu_saisoku_sq.jpg?v=1792476718"
+      },
+      {
+        "title": "トゥルデルニーク[ホイップ]",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Oiroppu_saisoku_sq.jpg?v=1792476718"
+      },
+      {
+        "title": "プレッツェル",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Oiroppu_saisoku_sq.jpg?v=1792476718"
+      },
+      {
+        "title": "バウムクーヘン",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/Oiroppu_saisoku_sq.jpg?v=1792476718"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0849",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0849c",
+    "category": "capsule",
+    "title": "デハラユキノリ JIZO- マスコットチャーム",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/JIZO-_bn_saisoku_rect.jpg?v=1792479447",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "家内安全",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/JIZO-_bn_saisoku_rect.jpg?v=1792479447"
+      },
+      {
+        "title": "健康長寿",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/JIZO-_bn_saisoku_rect.jpg?v=1792479447"
+      },
+      {
+        "title": "金運",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/JIZO-_bn_saisoku_rect.jpg?v=1792479447"
+      },
+      {
+        "title": "縁結び",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/JIZO-_bn_saisoku_rect.jpg?v=1792479447"
+      },
+      {
+        "title": "商売繁盛",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/JIZO-_bn_saisoku_rect.jpg?v=1792479447"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0841",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0841z",
+    "category": "capsule",
+    "title": "boiboi プラネット ネンネ フィギュアマスコット",
+    "price": "500円",
+    "release_date": "2027年2月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/boiboiplanetnenne_order_rect.jpg?v=1792481020",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ネンネ星人：A",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/boiboiplanetnenne_order_rect.jpg?v=1792481020"
+      },
+      {
+        "title": "ネンネ星人：B",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/boiboiplanetnenne_order_rect.jpg?v=1792481020"
+      },
+      {
+        "title": "星屑化石：A",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/boiboiplanetnenne_order_rect.jpg?v=1792481020"
+      },
+      {
+        "title": "星屑化石：B",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/boiboiplanetnenne_order_rect.jpg?v=1792481020"
+      },
+      {
+        "title": "星屑化石：C",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/boiboiplanetnenne_order_rect.jpg?v=1792481020"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0854",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0854z",
+    "category": "capsule",
+    "title": "野球少年 フィギュアマスコット",
+    "price": "500円",
+    "release_date": "2027年3月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/yakyu_shonen_saisoku_sq.jpg?v=1792482346",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "1",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/yakyu_shonen_saisoku_sq.jpg?v=1792482346"
+      },
+      {
+        "title": "2",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/yakyu_shonen_saisoku_sq.jpg?v=1792482346"
+      },
+      {
+        "title": "3",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/yakyu_shonen_saisoku_sq.jpg?v=1792482346"
+      },
+      {
+        "title": "4",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/yakyu_shonen_saisoku_sq.jpg?v=1792482346"
+      },
+      {
+        "title": "5",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/yakyu_shonen_saisoku_sq.jpg?v=1792482346"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0859",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0859z",
+    "category": "capsule",
+    "title": "ヒラツカニツト フィギュアマスコット",
+    "price": "500円",
+    "release_date": "2027年3月",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/hiratsukaknit_banner_SQ.jpg?v=1792483405",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ブルーマン",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/hiratsukaknit_banner_SQ.jpg?v=1792483405"
+      },
+      {
+        "title": "ナイスちゃん",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/hiratsukaknit_banner_SQ.jpg?v=1792483405"
+      },
+      {
+        "title": "メロンちゃん",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/hiratsukaknit_banner_SQ.jpg?v=1792483405"
+      },
+      {
+        "title": "エビフライちゃん",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/hiratsukaknit_banner_SQ.jpg?v=1792483405"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0846",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0846z",
+    "category": "capsule",
+    "title": "ぽっこし グッズコレクション 第2弾",
+    "price": "400円",
+    "release_date": "2027年3月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/pokkoshigoods2_order_rect.jpg?v=1792485157",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "エコバッグ（ミミピピ）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/pokkoshigoods2_order_rect.jpg?v=1792485157"
+      },
+      {
+        "title": "コインケース（ミミピピ＆クルピピ＆ピピピン）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/pokkoshigoods2_order_rect.jpg?v=1792485157"
+      },
+      {
+        "title": "コインケース（ポジポン＆ポジプン＆ねえねえ）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/pokkoshigoods2_order_rect.jpg?v=1792485157"
+      },
+      {
+        "title": "アクリルチャーム（ピピピン＆ねえねえ）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/pokkoshigoods2_order_rect.jpg?v=1792485157"
+      },
+      {
+        "title": "缶ミラー（ポジプン）",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/pokkoshigoods2_order_rect.jpg?v=1792485157"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0851",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0851z",
+    "category": "capsule",
+    "title": "中島ミドリ タイニーストレンジガールズ フィギュリーン",
+    "price": "500円",
+    "release_date": "2027年3月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/midorinakajima_TSG_bn_saisoku_rect.jpg?v=1792486675",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "Cookie Girl",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/midorinakajima_TSG_bn_saisoku_rect.jpg?v=1792486675"
+      },
+      {
+        "title": "Pajama Girl",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/midorinakajima_TSG_bn_saisoku_rect.jpg?v=1792486675"
+      },
+      {
+        "title": "Teddy Girl",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/midorinakajima_TSG_bn_saisoku_rect.jpg?v=1792486675"
+      },
+      {
+        "title": "Book Girl",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/midorinakajima_TSG_bn_saisoku_rect.jpg?v=1792486675"
+      },
+      {
+        "title": "Socks Girl",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/midorinakajima_TSG_bn_saisoku_rect.jpg?v=1792486675"
+      }
+    ]
+  },
+  {
+    "id": "kenele:gc0844",
+    "maker": "kenelephant",
+    "source_url": "https://kenelestore.jp/products/gc0844z",
+    "category": "capsule",
+    "title": "福田利之 どうぶつたちのとなり",
+    "price": "500円",
+    "release_date": "2027年3月",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kenelestore.jp/cdn/shop/files/fukudatoshiyuki_order_rect.jpg?v=1792487374",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ねこ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/fukudatoshiyuki_order_rect.jpg?v=1792487374"
+      },
+      {
+        "title": "うさぎ",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/fukudatoshiyuki_order_rect.jpg?v=1792487374"
+      },
+      {
+        "title": "くま",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/fukudatoshiyuki_order_rect.jpg?v=1792487374"
+      },
+      {
+        "title": "ぶた",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/fukudatoshiyuki_order_rect.jpg?v=1792487374"
+      },
+      {
+        "title": "うし",
+        "image_url": "https://kenelestore.jp/cdn/shop/files/fukudatoshiyuki_order_rect.jpg?v=1792487374"
+      }
+    ]
   }
 ]
