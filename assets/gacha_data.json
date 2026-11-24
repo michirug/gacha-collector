@@ -613572,5 +613572,566 @@
         "image_url": "https://toyscabin.com/product/upfiles/2026/11/%E3%82%AC%E3%83%BC%E3%83%89%E3%83%9D%E3%83%BC%E3%83%B3-thumb-980xauto-507.jpg"
       }
     ]
+  },
+  {
+    "jan_code": 4582770149159000,
+    "maker": "bandai",
+    "source_url": "https://gashapon.jp/products/detail.php?jan_code=4582770149159000",
+    "category": "station",
+    "title": "とっとこハム太郎 スイングマスコット～スペシャルカラーver.～",
+    "price": "300円",
+    "release_date": "2026年11月 第4週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259511_1.jpg",
+    "items": [
+      {
+        "title": "ハム太郎",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259511_2.jpg"
+      },
+      {
+        "title": "リボンちゃん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259511_3.jpg"
+      },
+      {
+        "title": "こうしくん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259511_4.jpg"
+      },
+      {
+        "title": "マフラーちゃん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259511_5.jpg"
+      },
+      {
+        "title": "ちび丸ちゃん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259511_6.jpg"
+      }
+    ]
+  },
+  {
+    "jan_code": 4582770071191000,
+    "maker": "bandai",
+    "source_url": "https://gashapon.jp/products/detail.php?jan_code=4582770071191000",
+    "category": "station",
+    "title": "Sassy めじるしアクセサリー2",
+    "price": "300円",
+    "release_date": "2026年11月 第3週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258542_1.jpg",
+    "items": [
+      {
+        "title": "カミカミみつばち（再録）",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258542_2.jpg"
+      },
+      {
+        "title": "カミカミみつばち/ブルー",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258542_3.jpg"
+      },
+      {
+        "title": "にこにこミラーラトル（再録）",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258542_4.jpg"
+      },
+      {
+        "title": "にこにこリストラトル/りんご",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258542_5.jpg"
+      },
+      {
+        "title": "ポップコーンカー",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000258542_6.jpg"
+      }
+    ]
+  },
+  {
+    "jan_code": 4582770121773000,
+    "maker": "bandai",
+    "source_url": "https://gashapon.jp/products/detail.php?jan_code=4582770121773000",
+    "category": "station",
+    "title": "ホロライブ カラフルカラビナもふしっぽマスコット",
+    "price": "500円",
+    "release_date": "2026年11月 第3週",
+    "num_types": "全5種",
+    "target_age": "15才以上",
+    "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_1.jpg",
+    "items": [
+      {
+        "title": "イメージカット",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_2.jpg"
+      },
+      {
+        "title": "大神 ミオ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_3.jpg"
+      },
+      {
+        "title": "兎田 ぺこら",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_4.jpg"
+      },
+      {
+        "title": "角巻 わため",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_5.jpg"
+      },
+      {
+        "title": "獅白 ぼたん",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_6.jpg"
+      },
+      {
+        "title": "尾丸 ポルカ",
+        "image_url": "https://bandai-a.akamaihd.net/bc/img/model/xl/1000259523_7.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y912016",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y912016",
+    "category": "capsule",
+    "title": "miffy きらきら星空の めじるしガチャマスコット",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（11月16日週発売）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912016_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "Moonlight miffy",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912016_b.jpg"
+      },
+      {
+        "title": "Shooting Star miffy",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912016_b.jpg"
+      },
+      {
+        "title": "Starlight miffy",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912016_b.jpg"
+      },
+      {
+        "title": "Ghost miffy",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912016_b.jpg"
+      },
+      {
+        "title": "Rainy Day boris",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912016_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y912030",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y912030",
+    "category": "capsule",
+    "title": "BRANDALISED ナップサックコレクション",
+    "price": "500円(税込)",
+    "release_date": "2026年11月（11月16日週発売）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912030_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "デザインA",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912030_b.jpg"
+      },
+      {
+        "title": "デザインB",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912030_b.jpg"
+      },
+      {
+        "title": "デザインC",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912030_b.jpg"
+      },
+      {
+        "title": "デザインD",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912030_b.jpg"
+      },
+      {
+        "title": "デザインE",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y912030_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y906787",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y906787",
+    "category": "capsule",
+    "title": "バーバパパ いっぱいコレクション",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（11月23日週発売）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906787_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "階段のバーバパパ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906787_b.jpg"
+      },
+      {
+        "title": "うまのバーバパパ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906787_b.jpg"
+      },
+      {
+        "title": "生まれる前のバーバパパ＋じょうろ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906787_b.jpg"
+      },
+      {
+        "title": "おりのバーバパパ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906787_b.jpg"
+      },
+      {
+        "title": "ボートのバーバパパ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y906787_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y909474",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y909474",
+    "category": "capsule",
+    "title": "劇場版『チェンソーマン レゼ篇』 ポチタいっぱいコレクション ～Dnacing Edition～",
+    "price": "400円(税込)",
+    "release_date": "2026年11月（11月23日週発売）",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909474_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ポチタA",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909474_b.jpg"
+      },
+      {
+        "title": "ポチタB",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909474_b.jpg"
+      },
+      {
+        "title": "ポチタC",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909474_b.jpg"
+      },
+      {
+        "title": "ポチタD",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909474_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y909788",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y909788",
+    "category": "capsule",
+    "title": "でふぉラバ! アニメ「グロウアップショウ ～ひまわりのサーカス団～」キーホルダー",
+    "price": "300円(税込)",
+    "release_date": "2026年11月（11月23日週発売）",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "鶴巻瑞佳",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg"
+      },
+      {
+        "title": "川澄桜翔",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg"
+      },
+      {
+        "title": "五十土五十鈴＆吾野伊万里",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg"
+      },
+      {
+        "title": "由良 葵＆由良 茜",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg"
+      },
+      {
+        "title": "酒匂 雫＆スヴェトラーナ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg"
+      },
+      {
+        "title": "間宮 凛＆麻利亜",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909788_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y910555",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y910555",
+    "category": "capsule",
+    "title": "STRANGER THINGS メタルチャームマスコット",
+    "price": "400円(税込)",
+    "release_date": "2026年11月（11月23日週発売）",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "STRANGER THINGS",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg"
+      },
+      {
+        "title": "DEMOGORGON",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg"
+      },
+      {
+        "title": "HELLFIRE CLUB",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg"
+      },
+      {
+        "title": "HAWKINS HIGH SCHOOL",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg"
+      },
+      {
+        "title": "WSQK VAN",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg"
+      },
+      {
+        "title": "Vecna Stained Glass",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y910555_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y901614",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y901614",
+    "category": "capsule",
+    "title": "サンリオキャラクターズ ふわわフロッキーマスコット",
+    "price": "300円(税込)",
+    "release_date": "2026年2月（2月23日週発売・2026年11月30日週再発売）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y901614_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ポムポムプリン",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y901614_b.jpg"
+      },
+      {
+        "title": "シナモロール",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y901614_b.jpg"
+      },
+      {
+        "title": "ポチャッコ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y901614_b.jpg"
+      },
+      {
+        "title": "クロミ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y901614_b.jpg"
+      },
+      {
+        "title": "ハローキティ",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y901614_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y909313",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y909313",
+    "category": "capsule",
+    "title": "きかんしゃトーマス クリッカーマスコット",
+    "price": "400円(税込)",
+    "release_date": "2026年12月（予定）",
+    "num_types": "全6種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg",
+    "lineup_unknown": true,
+    "items": [
+      {
+        "title": "No.1",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg"
+      },
+      {
+        "title": "No.2",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg"
+      },
+      {
+        "title": "No.3",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg"
+      },
+      {
+        "title": "No.4",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg"
+      },
+      {
+        "title": "No.5",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg"
+      },
+      {
+        "title": "No.6",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y909313_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "tta:Y911958",
+    "maker": "takaratomy_arts",
+    "source_url": "https://www.takaratomy-arts.co.jp/items/item.html?n=Y911958",
+    "category": "capsule",
+    "title": "グレムリン2 キョロ目アクリルキーチェーン",
+    "price": "400円(税込)",
+    "release_date": "2026年12月（予定）",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911958_b.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "GIZMO",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911958_b.jpg"
+      },
+      {
+        "title": "MOHAWK",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911958_b.jpg"
+      },
+      {
+        "title": "DAFFY",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911958_b.jpg"
+      },
+      {
+        "title": "LENNY",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911958_b.jpg"
+      },
+      {
+        "title": "GREMLIN",
+        "image_url": "https://www.takaratomy-arts.co.jp/upfiles/products/Y911958_b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "kitan:estherbunny_pouch2",
+    "maker": "kitan",
+    "source_url": "https://kitan.jp/products/estherbunny_pouch2/",
+    "category": "capsule",
+    "title": "EstherBunny ぬいぐるみポーチ２",
+    "price": "500円",
+    "release_date": "2026年12月上旬",
+    "num_types": "全4種",
+    "target_age": "",
+    "image_url": "https://kitan.jp/wp-content/uploads/2026/11/b0a065148a7308a03d6b2bc97d744b7e.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "RIBBON BUNNY",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/EB_np2_001.jpg"
+      },
+      {
+        "title": "LAVENDER BUNNY",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/EB_np2_002.jpg"
+      },
+      {
+        "title": "CREAM BUNNY",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/EB_np2_003.jpg"
+      },
+      {
+        "title": "BLUE BUNNY",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/EB_np2_004.jpg"
+      }
+    ]
+  },
+  {
+    "id": "kitan:sanrio_suizokukan",
+    "maker": "kitan",
+    "source_url": "https://kitan.jp/products/sanrio_suizokukan/",
+    "category": "capsule",
+    "title": "PUTITTO サンリオキャラクターズ 水族館１",
+    "price": "500円",
+    "release_date": "2026年11月下旬",
+    "num_types": "全5種",
+    "target_age": "",
+    "image_url": "https://kitan.jp/wp-content/uploads/2026/11/putitto_sanriosuizokukan1_DP.jpg",
+    "lineup_unknown": false,
+    "items": [
+      {
+        "title": "ハローキティ / イルカ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/001.jpg"
+      },
+      {
+        "title": "リトルツインスターズ / エイ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/002.jpg"
+      },
+      {
+        "title": "ポチャッコ / カワウソ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/003.jpg"
+      },
+      {
+        "title": "バッドばつ丸 / あざらしの赤ちゃん",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/004a.jpg"
+      },
+      {
+        "title": "シナモロール / クラゲ",
+        "image_url": "https://kitan.jp/wp-content/uploads/2026/11/006b.jpg"
+      }
+    ]
+  },
+  {
+    "id": "bushi:10279",
+    "maker": "bushiroad",
+    "source_url": "https://capsule.bushiroad-creative.com/product/10279/",
+    "category": "capsule",
+    "title": "ずんだもん ずんだもんがいっぱいコレクションフィギュアRICH",
+    "price": "500円 (税込)",
+    "release_date": "2027年3月下旬発売予定",
+    "num_types": "全5種",
+    "target_age": "15歳以上",
+    "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/27112613/zundamon_fgRICH_CP_POP_1021catalog_ol-640x640.jpg",
+    "lineup_unknown": true,
+    "items": [
+      {
+        "title": "No.1",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/27112613/zundamon_fgRICH_CP_POP_1021catalog_ol-640x640.jpg"
+      },
+      {
+        "title": "No.2",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/27112613/zundamon_fgRICH_CP_POP_1021catalog_ol-640x640.jpg"
+      },
+      {
+        "title": "No.3",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/27112613/zundamon_fgRICH_CP_POP_1021catalog_ol-640x640.jpg"
+      },
+      {
+        "title": "No.4",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/27112613/zundamon_fgRICH_CP_POP_1021catalog_ol-640x640.jpg"
+      },
+      {
+        "title": "No.5",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/10/27112613/zundamon_fgRICH_CP_POP_1021catalog_ol-640x640.jpg"
+      }
+    ]
+  },
+  {
+    "id": "bushi:10223",
+    "maker": "bushiroad",
+    "source_url": "https://capsule.bushiroad-creative.com/product/10223/",
+    "category": "capsule",
+    "title": "ハイキュー!! みあげてすたぁマスコット 稲荷崎高校",
+    "price": "500円 (税込)",
+    "release_date": "2027年2月下旬発売予定",
+    "num_types": "全4種",
+    "target_age": "15歳以上",
+    "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/09/21141722/261001_HQ_miagete_inarizaki_BCR_CP_POP-640x640.jpg",
+    "lineup_unknown": true,
+    "items": [
+      {
+        "title": "No.1",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/09/21141722/261001_HQ_miagete_inarizaki_BCR_CP_POP-640x640.jpg"
+      },
+      {
+        "title": "No.2",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/09/21141722/261001_HQ_miagete_inarizaki_BCR_CP_POP-640x640.jpg"
+      },
+      {
+        "title": "No.3",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/09/21141722/261001_HQ_miagete_inarizaki_BCR_CP_POP-640x640.jpg"
+      },
+      {
+        "title": "No.4",
+        "image_url": "https://capsule.bushiroad-creative.com/wordpress/wp-content/uploads/2026/09/21141722/261001_HQ_miagete_inarizaki_BCR_CP_POP-640x640.jpg"
+      }
+    ]
   }
 ]
